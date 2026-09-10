@@ -9,6 +9,35 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * The inline markup a headline is allowed to carry.
+ *
+ * The designs set one or two words of a heading in italic or in the accent
+ * colour, which means the editor has to be able to wrap part of their own
+ * sentence. Restricted to inline emphasis and a line break: an editor marking up
+ * a phrase is expected, an editor pasting a script tag or a layout div is not.
+ *
+ * Deliberately a copy of the theme's iflynepal_kses_text() rather than a call to
+ * it. The plugin's content has to keep working if the theme is switched, and a
+ * theme function is gone the moment that happens.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value Raw stored value.
+ * @return string Filtered markup, safe to echo.
+ */
+function iflynepal_booking_kses_text( $value ) {
+	return wp_kses(
+		(string) $value,
+		array(
+			'span'   => array( 'class' => array() ),
+			'em'     => array(),
+			'strong' => array(),
+			'br'     => array(),
+		)
+	);
+}
+
+/**
  * Cache-busting version string for a plugin asset.
  *
  * Mirrors the theme's iflynepal_asset_version(): use the file's mtime so a
