@@ -1,0 +1,28 @@
+# Dependencies (installed via npm/composer, not committed)
+node_modules/
+/vendor/
+
+# Lockfiles are kept — do not ignore package-lock.json / composer.lock
+
+# Logs
+npm-debug.log*
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env / local config
+.env
+.env.local
+
+# PHPCS cache
+.phpcs-cache
+phpcs.cache

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<ruleset name="iFly Nepal Booking">
+	<description>WordPress coding standards for the iFly Nepal Booking plugin.</description>
+
+	<file>.</file>
+
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/assets/js/vendor/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="ps"/>
+
+	<rule ref="WordPress">
+		<properties>
+			<property name="minimum_wp_version" value="6.5"/>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="iflynepal"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="iflynepal"/>
+				<element value="IFLYNEPAL"/>
+				<element value="IFly_Nepal"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>
