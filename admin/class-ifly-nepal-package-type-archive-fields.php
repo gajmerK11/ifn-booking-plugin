@@ -113,7 +113,15 @@ class IFly_Nepal_Package_Type_Archive_Fields {
 					?>
 				</p>
 
-				<?php foreach ( iflynepal_package_type_archive_schema() as $section_key => $section ) : ?>
+				<?php
+				/*
+				 * Only the sections this term's archive can actually render. A
+				 * category page is the hero and the grid, so showing an editor a
+				 * Booking plans box on one would be an invitation to write copy
+				 * that never appears anywhere.
+				 */
+				foreach ( iflynepal_package_type_archive_sections_for_term( $term ) as $section_key => $section ) :
+					?>
 					<details class="iflynepal-archive__section">
 						<summary><?php echo esc_html( $section['label'] ); ?></summary>
 						<?php if ( '' !== $section['description'] ) : ?>
@@ -336,7 +344,14 @@ class IFly_Nepal_Package_Type_Archive_Fields {
 			return;
 		}
 
-		foreach ( iflynepal_package_type_archive_fields() as $key => $field ) {
+		/*
+		 * Scoped to the sections this term renders, matching what was drawn.
+		 * It matters for the checkbox branch below, which reads an absent field
+		 * as unticked rather than skipping it: walking the whole schema here
+		 * would clear the plan highlight flags of any term that has just been
+		 * re-parented into a category, on the save that re-parented it.
+		 */
+		foreach ( iflynepal_package_type_archive_fields_for_term( $term_id ) as $key => $field ) {
 			$meta_key = iflynepal_archive_meta_key( $key );
 
 			if ( 'checkbox' === $field['type'] ) {

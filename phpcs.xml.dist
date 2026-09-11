@@ -18,6 +18,34 @@
 		</properties>
 	</rule>
 
+	<!--
+		iflynepal_booking_kses_text() runs its argument through wp_kses() with a
+		whitelist of four inline tags. Its return value is finished, safe markup,
+		which is exactly what the sniff cannot work out for itself. Declared here
+		once, the way the theme declares its render callbacks, rather than
+		scattering phpcs:ignore comments through the templates.
+	-->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customAutoEscapedFunctions" type="array">
+				<element value="iflynepal_booking_kses_text"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!--
+		WordPress resolves templates by a file name it builds from the post type
+		and taxonomy keys, and those keys contain underscores
+		(iflynepal_package, iflynepal_package_type). A theme overriding one of
+		these has to use the same name. So the underscores are required by core,
+		not a lapse, and renaming the files to satisfy the sniff would break the
+		override path the template loader documents. Scoped to templates/ so the
+		rule still applies everywhere a name is actually a choice.
+	-->
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>/templates/*</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">

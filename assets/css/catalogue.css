@@ -1,0 +1,1059 @@
+/**
+ * Package catalogue styles — archives, category archives and single packages.
+ *
+ * Plain CSS, owned by the plugin, with no build step.
+ *
+ * These rules used to live in the theme's Tailwind source and ship inside the
+ * theme's compiled main.css. That worked, but it made a plugin template
+ * unstyleable without rebuilding and committing the theme, and it meant a
+ * browser holding an older main.css rendered the catalogue as raw stacked
+ * markup while the rest of the page looked perfectly fine — the failure is
+ * silent and reads like a template bug. On its own URL the file cannot be
+ * confused with the theme's, and the catalogue keeps its appearance if the theme
+ * is ever switched, which was the reason the catalogue was put in a plugin.
+ *
+ * Tokens are taken from the theme when it is the iFly Nepal theme, and fall back
+ * to the same literal values when it is not:
+ *
+ *   --ifn-x: var(--iflynepal-x, <literal>)
+ *
+ * so the catalogue matches the site exactly today and still looks deliberate
+ * under a different theme rather than collapsing to browser defaults.
+ */
+
+.iflynepal-archive,
+.iflynepal-package {
+	--ifn-ink: var(--iflynepal-ink, #212529);
+	--ifn-muted: var(--iflynepal-muted, #6d757e);
+	--ifn-navy: var(--iflynepal-navy, #0545a7);
+	--ifn-navy-deep: var(--iflynepal-navy-deep, #04347d);
+	--ifn-accent: var(--iflynepal-accent, #a9c8f5);
+	--ifn-gold: var(--iflynepal-gold, #e3b463);
+	--ifn-line: var(--iflynepal-line, rgba(5, 69, 167, 0.16));
+	--ifn-shadow: var(--iflynepal-shadow, 0 22px 70px rgba(4, 26, 64, 0.16));
+	--ifn-mist: #f0f5ff;
+	--ifn-paper: #fff;
+	--ifn-ease: var(--iflynepal-ease, cubic-bezier(0.22, 0.7, 0.24, 1));
+	--ifn-ease-card: var(--iflynepal-ease-card, cubic-bezier(0.16, 0.84, 0.44, 1));
+	--ifn-lift: var(--iflynepal-card-lift, 0.44s);
+	--ifn-fall: var(--iflynepal-card-fall, 0.62s);
+	--ifn-radius-lg: 30px;
+	--ifn-radius-md: 20px;
+	--ifn-gap: 28px;
+}
+
+/* --------------------------------------------------------------- sections */
+
+.iflynepal-section {
+	padding: clamp(64px, 8vw, 112px) 0;
+}
+
+.iflynepal-eyebrow {
+	display: block;
+	margin-bottom: 12px;
+	color: var(--ifn-navy);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+}
+
+.iflynepal-lead {
+	max-width: 64ch;
+	margin-top: 12px;
+	color: var(--ifn-muted);
+	font-size: 16px;
+	line-height: 1.65;
+}
+
+.iflynepal-section-head {
+	margin-bottom: 40px;
+}
+
+.iflynepal-section-head h2 {
+	margin: 0;
+	color: var(--ifn-ink);
+	font-size: clamp(28px, 3.4vw, 38px);
+	font-weight: 800;
+	line-height: 1.15;
+}
+
+.iflynepal-section-head h2 em {
+	color: var(--ifn-navy);
+	font-family: 'Cormorant Garamond', Georgia, serif;
+	font-style: normal;
+}
+
+.iflynepal-section-head--center {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.iflynepal-section-head--center .iflynepal-lead {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.iflynepal-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 28px;
+}
+
+/* ------------------------------------------------- the hand-drawn underline */
+
+/*
+ * The swash under the last words of a heading. The stroke is the same SVG the
+ * theme already carries as --iflynepal-underline, so the catalogue and the rest
+ * of the site draw the identical mark; the literal is the fallback when the
+ * theme is not this one.
+ *
+ * Drawn on ::after rather than an element the editor has to type, so the copy
+ * stays copy: an editor writes <span class="iflynepal-ink-mark">two words</span>
+ * and nothing else.
+ *
+ * white-space: nowrap because a marked phrase that wraps would be underlined
+ * twice, once per line, with the stroke stretched differently in each.
+ */
+.iflynepal-ink-mark {
+	position: relative;
+	display: inline-block;
+	white-space: nowrap;
+}
+
+.iflynepal-ink-mark::after {
+	content: '';
+	position: absolute;
+	right: -2%;
+	bottom: -0.13em;
+	left: -2%;
+	height: 0.22em;
+	background: var(--iflynepal-underline, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 14' preserveAspectRatio='none'%3E%3Cpath d='M4 9.4c36-4.6 68-6.2 106-5 33 1 66 3.8 106 1.6' fill='none' stroke='%230545A7' stroke-width='4.4' stroke-linecap='round'/%3E%3Cpath d='M18 12.4c34-2.6 64-3.4 98-2.6' fill='none' stroke='%230545A7' stroke-width='2' stroke-linecap='round' opacity='.5'/%3E%3C/svg%3E")) center/100% 100% no-repeat;
+	opacity: 0.85;
+	pointer-events: none;
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform 0.75s cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* The class the observer adds when the heading first scrolls into view. */
+.iflynepal-ink-mark.is-drawn::after {
+	transform: scaleX(1);
+}
+
+/* ------------------------------------------------------- listing head + note */
+
+.iflynepal-listing__head {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 48px;
+	margin-bottom: 20px;
+}
+
+.iflynepal-listing__head .iflynepal-section-head {
+	max-width: 820px;
+	margin-bottom: 0;
+}
+
+.iflynepal-listing__head .iflynepal-section-head h2 {
+	margin-bottom: 16px;
+}
+
+/* Wide enough that the sub-title sits on one row under the heading. */
+.iflynepal-listing__head .iflynepal-lead {
+	max-width: 760px;
+	margin-top: 12px;
+}
+
+.iflynepal-annot {
+	display: flex;
+	width: max-content;
+	flex: none;
+	align-items: center;
+	/*
+	 * Arrow to the right of the words and mirrored, so its curve still sweeps
+	 * back toward the heading it is pointing away from.
+	 */
+	flex-direction: row-reverse;
+	color: var(--ifn-navy);
+	gap: 0;
+	pointer-events: none;
+}
+
+.iflynepal-annot b {
+	display: inline-block;
+	font-family: 'Caveat', 'Segoe Script', cursive;
+	font-size: 27px;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	line-height: 1.05;
+	text-align: left;
+	transform: rotate(-2.5deg);
+	white-space: nowrap;
+}
+
+/*
+ * The gap before the tail is set here rather than with a trailing space in the
+ * copy: this is an inline-block, so a space at the end of its line box would be
+ * trimmed and the fixed part would butt straight into the ending.
+ */
+.iflynepal-annot__static {
+	display: inline-block;
+	margin-right: 0.25em;
+}
+
+/*
+ * The tail box is reserved to the width of the longest ending, so a word
+ * growing a character at a time cannot push the arrow along beside it. The em
+ * value here is only the no-JS fallback — the script measures the real width.
+ */
+.iflynepal-annot__word {
+	display: inline-block;
+	min-width: 5.2em;
+	text-align: left;
+}
+
+.iflynepal-annot__arrow {
+	width: 44px;
+	height: 118px;
+	overflow: hidden;
+	opacity: 0.9;
+	transform: scaleX(-1);
+	/*
+	 * The arrow's ink starts well inside its own box, so the apparent gap is
+	 * much wider than the box gap. Pull the box back far enough that the ink,
+	 * not the box, sets the spacing.
+	 */
+	margin-left: -16px;
+}
+
+/*
+ * The dashes march down toward the cards and the whole arrow drifts after them,
+ * so the note reads as a live pointer rather than a sticker.
+ */
+.iflynepal-annot__dash {
+	animation: iflynepal-annot-dash 1.5s linear infinite;
+}
+
+.iflynepal-annot__head {
+	animation: iflynepal-annot-head 2.4s ease-in-out infinite;
+}
+
+/* The base rule mirrors this svg, so the mirror is restated in the keyframes or
+   the drift would drop it. */
+.iflynepal-annot__arrow {
+	animation: iflynepal-annot-drift 2.4s ease-in-out infinite;
+}
+
+@keyframes iflynepal-annot-dash {
+
+	to {
+		stroke-dashoffset: -22;
+	}
+}
+
+@keyframes iflynepal-annot-head {
+
+	0%,
+	100% {
+		opacity: 0.75;
+		transform: translateX(0);
+	}
+
+	50% {
+		opacity: 1;
+		transform: translateX(4px);
+	}
+}
+
+@keyframes iflynepal-annot-drift {
+
+	0%,
+	100% {
+		transform: scaleX(-1) translateY(0);
+	}
+
+	50% {
+		transform: scaleX(-1) translateY(6px);
+	}
+}
+
+/* Dropped down to sit just above the cards it points at. Relative, so the row
+   keeps its layout height and nothing below it moves. */
+@media (min-width: 1001px) {
+
+	.iflynepal-annot {
+		position: relative;
+		top: 80px;
+	}
+}
+
+@media (max-width: 1000px) {
+
+	.iflynepal-listing__head {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 26px;
+	}
+
+	.iflynepal-listing__head .iflynepal-section-head {
+		max-width: none;
+	}
+
+	.iflynepal-annot {
+		order: -1;
+	}
+
+	/* The ink inset scales down with the smaller box, so the desktop pull-in is
+	   too aggressive here and would clip into the text. */
+	.iflynepal-annot__arrow {
+		width: 34px;
+		height: 88px;
+		margin-left: -12px;
+	}
+
+	.iflynepal-annot b {
+		font-size: 23px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.iflynepal-ink-mark::after {
+		transform: scaleX(1);
+		transition: none;
+	}
+
+	.iflynepal-annot__arrow,
+	.iflynepal-annot__dash,
+	.iflynepal-annot__head {
+		animation: none;
+	}
+}
+
+/* ------------------------------------------------------------------ cards */
+
+/*
+ * auto-FILL, not auto-fit. Both reflow at every width with no column count
+ * hardcoded; the difference shows when the catalogue is nearly empty. auto-fit
+ * collapses the tracks nothing sits in and lets the survivors absorb the space,
+ * so a type archive holding one package renders it as a single full-width card
+ * with a chest-high photograph. auto-fill keeps the empty tracks, so a card is
+ * card-sized whether there is one of them or nine.
+ */
+.iflynepal-cards {
+	display: grid;
+	gap: var(--ifn-gap);
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+.iflynepal-card {
+	position: relative;
+	display: flex;
+	overflow: hidden;
+	flex-direction: column;
+	border: 1px solid var(--ifn-line);
+	border-radius: var(--ifn-radius-md);
+	background: var(--ifn-paper);
+	transition:
+		transform var(--ifn-lift) var(--ifn-ease-card),
+		box-shadow var(--ifn-lift) var(--ifn-ease-card);
+}
+
+.iflynepal-card:hover,
+.iflynepal-card:focus-within {
+	transform: translateY(-6px);
+	box-shadow: var(--ifn-shadow);
+}
+
+.iflynepal-card__media {
+	position: relative;
+	overflow: hidden;
+	aspect-ratio: 4 / 3;
+}
+
+.iflynepal-card__media img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform var(--ifn-fall) var(--ifn-ease-card);
+}
+
+.iflynepal-card:hover .iflynepal-card__media img {
+	transform: scale(1.05);
+}
+
+.iflynepal-pill {
+	position: absolute;
+	top: 16px;
+	left: 16px;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.95);
+	color: var(--ifn-navy);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/*
+ * The hover summary slides up rather than being toggled, so the transition has
+ * something to animate. It is clipped by the media box's overflow when it is
+ * down, so it never adds height to the card.
+ */
+.iflynepal-card__peek {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	padding: 16px;
+	transform: translateY(100%);
+	background: rgba(4, 52, 125, 0.9);
+	color: #fff;
+	font-size: 14px;
+	line-height: 1.5;
+	transition: transform var(--ifn-lift) var(--ifn-ease-card);
+}
+
+.iflynepal-card__peek p {
+	margin: 0;
+}
+
+.iflynepal-card:hover .iflynepal-card__peek,
+.iflynepal-card:focus-within .iflynepal-card__peek {
+	transform: translateY(0);
+}
+
+.iflynepal-card__body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 12px;
+	padding: 20px;
+}
+
+.iflynepal-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 16px;
+	color: var(--ifn-muted);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.iflynepal-card__title {
+	margin: 0;
+	color: var(--ifn-ink);
+	font-size: 18px;
+	font-weight: 800;
+	line-height: 1.3;
+}
+
+.iflynepal-card__title a {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* The whole card is the hit area; the title link only carries the href. */
+.iflynepal-card__title a::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+}
+
+.iflynepal-card__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: auto;
+	padding-top: 12px;
+	border-top: 1px solid var(--ifn-line);
+	color: var(--ifn-navy);
+	font-size: 14px;
+	font-weight: 800;
+}
+
+.iflynepal-card__link {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* ----------------------------------------------------------------- filter */
+
+.iflynepal-filter-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 32px;
+}
+
+.iflynepal-filter-btn {
+	padding: 8px 16px;
+	border: 1px solid var(--ifn-line);
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ifn-ink);
+	cursor: pointer;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 700;
+	transition:
+		background 0.25s ease,
+		color 0.25s ease;
+}
+
+.iflynepal-filter-btn.is-active {
+	border-color: var(--ifn-navy);
+	background: var(--ifn-navy);
+	color: #fff;
+}
+
+/* ---------------------------------------------------------------- feature */
+
+.iflynepal-feature__panel {
+	position: relative;
+	overflow: hidden;
+	padding: 64px 28px;
+	border-radius: var(--ifn-radius-lg);
+	background: var(--ifn-navy-deep);
+	color: #fff;
+	text-align: center;
+}
+
+.iflynepal-feature__media {
+	position: absolute;
+	inset: 0;
+}
+
+.iflynepal-feature__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0.3;
+}
+
+.iflynepal-feature__heading {
+	position: relative;
+	margin: 0;
+	font-size: clamp(28px, 3.4vw, 38px);
+	font-weight: 800;
+}
+
+.iflynepal-feature__heading em {
+	color: var(--ifn-gold);
+	font-family: 'Cormorant Garamond', Georgia, serif;
+	font-style: normal;
+}
+
+.iflynepal-feature__caption {
+	position: relative;
+	max-width: 60ch;
+	margin: 16px auto 0;
+	color: var(--ifn-accent);
+	font-size: 14px;
+}
+
+/* --------------------------------------------------------------- benefits */
+
+.iflynepal-benefits__grid {
+	display: grid;
+	gap: var(--ifn-gap);
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+
+.iflynepal-benefit {
+	overflow: hidden;
+	border: 1px solid var(--ifn-line);
+	border-radius: var(--ifn-radius-md);
+	background: var(--ifn-paper);
+}
+
+.iflynepal-benefit img {
+	display: block;
+	width: 100%;
+	height: 192px;
+	object-fit: cover;
+}
+
+.iflynepal-benefit__body {
+	padding: 20px;
+}
+
+.iflynepal-benefit__title {
+	margin: 0 0 8px;
+	color: var(--ifn-ink);
+	font-size: 18px;
+	font-weight: 800;
+}
+
+.iflynepal-benefit__body p {
+	margin: 0;
+	color: var(--ifn-muted);
+	font-size: 14px;
+	line-height: 1.65;
+}
+
+/* ------------------------------------------------------------------ plans */
+
+.iflynepal-plans__grid {
+	display: grid;
+	align-items: start;
+	gap: var(--ifn-gap);
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+}
+
+.iflynepal-plan {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+	padding: 28px;
+	border: 1px solid var(--ifn-line);
+	border-radius: var(--ifn-radius-md);
+	background: var(--ifn-paper);
+}
+
+/*
+ * The highlighted plan is raised as well as recoloured. Colour alone is not a
+ * distinction every reader can see; the lift and the border weight carry it
+ * without relying on hue.
+ */
+.iflynepal-plan.is-featured {
+	border-color: var(--ifn-navy-deep);
+	background: var(--ifn-navy-deep);
+	box-shadow: var(--ifn-shadow);
+	color: #fff;
+}
+
+.iflynepal-plan__name {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 800;
+}
+
+.iflynepal-plan__sub {
+	margin: 4px 0 0;
+	color: var(--ifn-muted);
+	font-size: 14px;
+}
+
+.iflynepal-plan.is-featured .iflynepal-plan__sub {
+	color: var(--ifn-accent);
+}
+
+.iflynepal-plan__price {
+	margin: 20px 0;
+	color: var(--ifn-navy);
+	font-size: 30px;
+	font-weight: 800;
+}
+
+.iflynepal-plan.is-featured .iflynepal-plan__price {
+	color: var(--ifn-gold);
+}
+
+.iflynepal-plan__price small {
+	color: var(--ifn-muted);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.iflynepal-plan__features {
+	display: flex;
+	flex-direction: column;
+	margin: 0 0 24px;
+	padding: 0;
+	gap: 8px;
+	font-size: 14px;
+	list-style: none;
+}
+
+.iflynepal-plan__features li,
+.iflynepal-package__highlights li {
+	padding-left: 24px;
+	background-image: var(--iflynepal-arrow);
+	background-position: left 0.25em;
+	background-repeat: no-repeat;
+	background-size: 14px 14px;
+}
+
+.iflynepal-plan .iflynepal-button {
+	margin-top: auto;
+}
+
+/* ------------------------------------------------------------- departures */
+
+.iflynepal-departures__head {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+.iflynepal-rail-nav {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 40px;
+}
+
+.iflynepal-rail-btn {
+	display: flex;
+	width: 44px;
+	height: 44px;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--ifn-line);
+	border-radius: 999px;
+	background: var(--ifn-paper);
+	color: var(--ifn-navy);
+	cursor: pointer;
+	font-size: 18px;
+}
+
+/*
+ * A snap-scrolling container: the arrow buttons are an enhancement over
+ * behaviour that already works by touch, trackpad and keyboard.
+ */
+.iflynepal-departures__rail {
+	display: flex;
+	overflow-x: auto;
+	gap: 20px;
+	padding-bottom: 12px;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+}
+
+.iflynepal-departures__rail::-webkit-scrollbar {
+	display: none;
+}
+
+.iflynepal-departure {
+	position: relative;
+	display: flex;
+	width: 256px;
+	flex-direction: column;
+	flex-shrink: 0;
+	overflow: hidden;
+	border: 1px solid var(--ifn-line);
+	border-radius: var(--ifn-radius-md);
+	background: var(--ifn-paper);
+	scroll-snap-align: start;
+	text-decoration: none;
+}
+
+.iflynepal-departure img {
+	display: block;
+	width: 100%;
+	height: 144px;
+	object-fit: cover;
+}
+
+.iflynepal-departure__title {
+	padding: 16px;
+	color: var(--ifn-ink);
+	font-size: 14px;
+	font-weight: 800;
+}
+
+/* ---------------------------------------------------------------- compare */
+
+/*
+ * The table is the one element allowed to be wider than the page, so it gets
+ * its own scroller and the document body never scrolls sideways on a phone.
+ */
+.iflynepal-compare__scroll {
+	overflow-x: auto;
+}
+
+.iflynepal-compare__table {
+	width: 100%;
+	min-width: 720px;
+	border-collapse: collapse;
+	font-size: 14px;
+	text-align: left;
+}
+
+.iflynepal-compare__table th,
+.iflynepal-compare__table td {
+	padding: 16px;
+	border-bottom: 1px solid var(--ifn-line);
+	vertical-align: top;
+}
+
+.iflynepal-compare__table thead th {
+	background: var(--ifn-mist);
+	color: var(--ifn-ink);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.iflynepal-compare__table .is-us {
+	background: var(--ifn-mist);
+	color: var(--ifn-navy);
+	font-weight: 600;
+}
+
+.iflynepal-compare__note {
+	display: block;
+	margin-top: 4px;
+	color: var(--ifn-muted);
+	font-size: 11px;
+	font-weight: 400;
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.iflynepal-compare__foot {
+	margin-top: 16px;
+	color: var(--ifn-muted);
+	font-size: 12px;
+}
+
+/* ----------------------------------------------------------- testimonials */
+
+.iflynepal-testimonials__track {
+	display: grid;
+	gap: var(--ifn-gap);
+	margin: 0;
+	padding: 0;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+	list-style: none;
+}
+
+.iflynepal-testimonials__card {
+	height: 100%;
+	margin: 0;
+	padding: 28px;
+	border-radius: var(--ifn-radius-md);
+	background: var(--ifn-mist);
+}
+
+.iflynepal-testimonials__card blockquote {
+	margin: 0;
+	color: var(--ifn-ink);
+	font-size: 16px;
+	font-style: italic;
+	line-height: 1.65;
+}
+
+.iflynepal-testimonials__card figcaption {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 20px;
+	font-size: 14px;
+}
+
+.iflynepal-testimonials__card figcaption img {
+	width: 44px;
+	height: 44px;
+	border-radius: 999px;
+	object-fit: cover;
+}
+
+.iflynepal-testimonials__card figcaption small {
+	display: block;
+	color: var(--ifn-muted);
+}
+
+/* -------------------------------------------------------------------- faq */
+
+.iflynepal-faq__layout {
+	display: grid;
+	gap: 40px;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+}
+
+.iflynepal-faq__head h2 {
+	margin: 0;
+	color: var(--ifn-ink);
+	font-size: clamp(28px, 3.4vw, 38px);
+	font-weight: 800;
+}
+
+.iflynepal-faq__head h2 em {
+	color: var(--ifn-navy);
+	font-family: 'Cormorant Garamond', Georgia, serif;
+	font-style: normal;
+}
+
+.iflynepal-faq__list details {
+	padding: 16px 0;
+	border-bottom: 1px solid var(--ifn-line);
+}
+
+.iflynepal-faq__list summary {
+	color: var(--ifn-ink);
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: 800;
+	list-style: none;
+}
+
+.iflynepal-faq__list summary::-webkit-details-marker {
+	display: none;
+}
+
+.iflynepal-faq__list summary::after {
+	content: '+';
+	float: right;
+	color: var(--ifn-navy);
+	font-weight: 400;
+}
+
+.iflynepal-faq__list details[open] summary::after {
+	content: '\2212';
+}
+
+.iflynepal-faq__list details p {
+	margin: 12px 0 0;
+	color: var(--ifn-muted);
+	font-size: 14px;
+	line-height: 1.65;
+}
+
+/* ------------------------------------------------------------------ final */
+
+.iflynepal-final {
+	padding-bottom: 96px;
+}
+
+.iflynepal-final__card {
+	position: relative;
+	overflow: hidden;
+	padding: 64px 28px;
+	border-radius: var(--ifn-radius-lg);
+	background: var(--ifn-navy-deep);
+	color: #fff;
+	text-align: center;
+}
+
+.iflynepal-final__media {
+	position: absolute;
+	inset: 0;
+}
+
+.iflynepal-final__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0.25;
+}
+
+.iflynepal-final__copy {
+	position: relative;
+	max-width: 62ch;
+	margin: 0 auto;
+}
+
+.iflynepal-final__copy .iflynepal-eyebrow {
+	color: var(--ifn-accent);
+}
+
+.iflynepal-final__copy h2 {
+	margin: 0;
+	font-size: clamp(28px, 3.4vw, 38px);
+	font-weight: 800;
+}
+
+.iflynepal-final__copy h2 em {
+	color: var(--ifn-gold);
+	font-family: 'Cormorant Garamond', Georgia, serif;
+	font-style: normal;
+}
+
+.iflynepal-final__copy p {
+	margin-top: 16px;
+	color: var(--ifn-accent);
+}
+
+.iflynepal-final__copy .iflynepal-actions {
+	justify-content: center;
+}
+
+/* --------------------------------------------------------- single package */
+
+.iflynepal-package__layout {
+	display: grid;
+	align-items: start;
+	gap: 40px;
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.iflynepal-package__highlights {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 0;
+	font-size: 14px;
+	list-style: none;
+}
+
+.iflynepal-booking-card {
+	padding: 28px;
+	border: 1px solid var(--ifn-line);
+	border-radius: var(--ifn-radius-md);
+	background: var(--ifn-mist);
+}
+
+.iflynepal-booking-card__price {
+	margin: 0;
+	color: var(--ifn-navy);
+	font-size: 30px;
+	font-weight: 800;
+}
+
+.iflynepal-booking-card__departures {
+	margin-top: 16px;
+	color: var(--ifn-ink);
+	font-size: 14px;
+}
+
+.iflynepal-booking-card__departures b {
+	display: block;
+	color: var(--ifn-muted);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.iflynepal-booking-card__button {
+	margin-top: 24px;
+}
+
+/*
+ * The confirmation buffer. Informational, never a control: it says when the
+ * office confirms, it does not gate the button above it.
+ */
+.iflynepal-booking-card__notice {
+	margin-top: 16px;
+	color: var(--ifn-muted);
+	font-size: 12px;
+	line-height: 1.65;
+}
+
+/*
+ * Two columns once there is room, with the booking card following the reader
+ * down a long itinerary.
+ */
+@media (min-width: 1024px) {
+
+	.iflynepal-package__layout {
+		grid-template-columns: minmax(0, 1fr) 340px;
+	}
+
+	.iflynepal-package__aside {
+		position: sticky;
+		top: 112px;
+	}
+}

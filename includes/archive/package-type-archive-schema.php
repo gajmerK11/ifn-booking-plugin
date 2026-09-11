@@ -130,6 +130,14 @@ function iflynepal_package_type_archive_schema() {
 
 	$emphasis_help = __( 'Wrap a word or two in &lt;em&gt; to set it in the accent style, as the design does.', 'iflynepal' );
 
+	/*
+	 * The grid heading carries the other emphasis in the designs: the hand-drawn
+	 * underline that sweeps itself in under the last few words. It is a span with
+	 * a class rather than its own tag because the stroke is drawn by CSS on the
+	 * span, so there is nothing for an editor to write but the words.
+	 */
+	$underline_help = __( 'Wrap a word or two in &lt;span class="iflynepal-ink-mark"&gt; to give it the hand-drawn underline, or in &lt;em&gt; for the accent style.', 'iflynepal' );
+
 	$sections = array();
 
 	$sections['hero'] = array(
@@ -174,10 +182,24 @@ function iflynepal_package_type_archive_schema() {
 		),
 	);
 
+	$listing = $head( 'listing', $underline_help );
+
+	$listing['listing_annotation_static'] = array(
+		'label' => __( 'Handwritten note — fixed part', 'iflynepal' ),
+		'type'  => 'text',
+		'help'  => __( 'The handwritten line beside the heading, e.g. "Find your way". This part never moves or re-types.', 'iflynepal' ),
+	);
+
+	$listing['listing_annotation_words'] = array(
+		'label' => __( 'Handwritten note — cycling endings', 'iflynepal' ),
+		'type'  => 'lines',
+		'help'  => __( 'One ending per line, e.g. "inward", "within", "to yourself". They type and delete themselves in turn after the fixed part. A single line just sits there; leave empty and only the fixed part shows.', 'iflynepal' ),
+	);
+
 	$sections['listing'] = array(
 		'label'       => __( 'Package grid heading', 'iflynepal' ),
 		'description' => __( 'Introduces the card grid. The cards themselves are the packages filed under this type — they are not fields.', 'iflynepal' ),
-		'fields'      => $head( 'listing', $emphasis_help ),
+		'fields'      => $listing,
 	);
 
 	$sections['feature'] = array(
@@ -443,6 +465,109 @@ function iflynepal_package_type_archive_schema() {
 	 * @param array[] $sections Sections, each with 'label', 'description' and 'fields'.
 	 */
 	return apply_filters( 'iflynepal_package_type_archive_schema', $sections );
+}
+
+/**
+ * The sections a top-level package type carries but a category does not.
+ *
+ * A top-level type archive — /retreat-nepal/ — is the landing page for a whole
+ * kind of travel, and the design wraps its card grid in ten sections of
+ * marketing copy. A category archive beneath it —
+ * /retreat-nepal/ayurvedic-retreats/ — is a filtered view of the same catalogue,
+ * and its design is two sections: the hero and the grid.
+ *
+ * The reason is not only visual. The plans, the comparison table, the FAQ and
+ * the closing CTA all answer "why book this kind of trip with us", which is
+ * asked once per type and not again per category — repeating them under every
+ * category would duplicate the same copy across a dozen URLs, which is a real
+ * SEO problem as well as a maintenance one.
+ *
+ * @since 1.0.0
+ */
+const IFLYNEPAL_ARCHIVE_TOP_LEVEL_SECTIONS = array(
+	'feature',
+	'benefits',
+	'plans',
+	'departures',
+	'compare',
+	'testimonials',
+	'faq',
+	'final',
+);
+
+/**
+ * The archive sections that apply to one term.
+ *
+ * Depth decides it: a term with a parent is a category and gets the hero and the
+ * grid; a root term is a package type and gets everything.
+ *
+ * This is not the same question as "does this section have content in it". The
+ * templates skip an empty section anyway. This decides which sections a term can
+ * have *at all* — which is why it also governs the edit screen, so an editor is
+ * never shown eight sections whose copy would never appear on the page.
+ *
+ * @since 1.0.0
+ *
+ * @param WP_Term|int|null $term Term or term ID. Null means every section.
+ * @return array[] Sections, keyed as the schema keys them.
+ */
+function iflynepal_package_type_archive_sections_for_term( $term ) {
+	$sections = iflynepal_package_type_archive_schema();
+
+	if ( null === $term ) {
+		return $sections;
+	}
+
+	if ( ! $term instanceof WP_Term ) {
+		$term = get_term( (int) $term, IFLYNEPAL_PACKAGE_TAXONOMY );
+	}
+
+	$is_category = $term instanceof WP_Term && $term->parent > 0;
+
+	if ( $is_category ) {
+		foreach ( IFLYNEPAL_ARCHIVE_TOP_LEVEL_SECTIONS as $key ) {
+			unset( $sections[ $key ] );
+		}
+	}
+
+	/**
+	 * Filters the archive sections that apply to a term.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array[]      $sections    Applicable sections, keyed by section key.
+	 * @param WP_Term|null $term        The term, when it resolved.
+	 * @param bool         $is_category Whether the term has a parent.
+	 */
+	return apply_filters(
+		'iflynepal_package_type_archive_sections_for_term',
+		$sections,
+		$term instanceof WP_Term ? $term : null,
+		$is_category
+	);
+}
+
+/**
+ * The fields belonging to the sections that apply to one term.
+ *
+ * The save routine is scoped with this, not with the full field list. A field
+ * that was never rendered was never submitted, and a save that walked every
+ * field would read those as empty and delete them — so re-parenting a term under
+ * another and pressing Update would silently wipe the copy it had as a root.
+ *
+ * @since 1.0.0
+ *
+ * @param WP_Term|int|null $term Term or term ID.
+ * @return array[] Field definitions keyed by schema key.
+ */
+function iflynepal_package_type_archive_fields_for_term( $term ) {
+	$fields = array();
+
+	foreach ( iflynepal_package_type_archive_sections_for_term( $term ) as $section ) {
+		$fields += $section['fields'];
+	}
+
+	return $fields;
 }
 
 /**

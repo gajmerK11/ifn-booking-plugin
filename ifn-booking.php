@@ -30,27 +30,35 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/cpt/package-cpt.php                              (done)
  *   includes/rewrites/package-rewrites.php                    (done)
  *   includes/archive/package-type-archive-schema.php          (done)
+ *   includes/package/package-meta.php                         (done)
+ *   includes/frontend/archive-render.php                      (done)
+ *   includes/frontend/template-loader.php                     (done)
+ *   includes/frontend/enqueue.php                             (done)
  *   includes/enquiry/class-ifly-nepal-enquiry-store.php       enquiry storage
  *   includes/enquiry/class-ifly-nepal-enquiry-form.php        front-end enquiry handler
- *   includes/departures/package-departures-meta.php           fixed departure dates
  *   includes/whatsapp/whatsapp-link.php                       click-to-chat
  *   includes/payment/class-ifly-nepal-paypal-listener.php     PayPal webhook / IPN capture
  *   includes/rest/route-base.php + includes/rest/route-*.php  iflynepal/v1 routes
  *   admin/class-ifly-nepal-package-type-meta-box.php          (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-type-archive-fields.php    (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-details-meta-box.php       (done)                   (is_admin only)
  *   admin/class-ifly-nepal-bookings-screen.php                Bookings admin view      (is_admin only)
- *   includes/frontend/enqueue.php + template loading          archive / single templates
  */
 
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/helpers.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/cpt/package-cpt.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/archive/package-type-archive-schema.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/package/package-meta.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/rewrites/package-rewrites.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/archive-render.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/template-loader.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/enqueue.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/lifecycle.php';
 
 if ( is_admin() ) {
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-type-meta-box.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-type-archive-fields.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-details-meta-box.php';
 }
 
 register_activation_hook( IFLYNEPAL_BOOKING_FILE, 'iflynepal_booking_activate' );
