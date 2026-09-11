@@ -171,28 +171,3 @@ function iflynepal_booking_enqueue_annotation() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_annotation' );
-
-/**
- * Enqueues the departures rail controls on a type archive.
- *
- * @since 1.0.0
- *
- * @return void
- */
-function iflynepal_booking_enqueue_rail() {
-	if ( ! is_tax( IFLYNEPAL_PACKAGE_TAXONOMY ) ) {
-		return;
-	}
-
-	wp_enqueue_script(
-		'iflynepal-departures-rail',
-		IFLYNEPAL_BOOKING_URL . 'assets/js/archive/departures-rail.js',
-		array(),
-		iflynepal_booking_asset_version( 'assets/js/archive/departures-rail.js' ),
-		array(
-			'strategy'  => 'defer',
-			'in_footer' => true,
-		)
-	);
-}
-add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_rail' );

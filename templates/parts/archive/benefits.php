@@ -2,9 +2,8 @@
 /**
  * The "reasons to come" tiles.
  *
- * Which tiles exist is derived from the stored values by
- * iflynepal_archive_group(), so filling slots 1 and 3 renders two tiles and
- * renumbers nothing. No count is stored anywhere.
+ * The cards are a repeater an editor extends with a button, so the stored list
+ * *is* the count — there are no empty slots to skip and nothing to renumber.
  *
  * @package IFly_Nepal
  * @since   1.0.0
@@ -21,13 +20,7 @@ if ( ! $iflynepal_term instanceof WP_Term ) {
 }
 
 $iflynepal_id    = $iflynepal_term->term_id;
-$iflynepal_tiles = iflynepal_archive_group(
-	$iflynepal_id,
-	'benefit',
-	IFLYNEPAL_ARCHIVE_BENEFIT_SLOTS,
-	array( 'image', 'title', 'text' ),
-	'title'
-);
+$iflynepal_tiles = iflynepal_archive_cards( $iflynepal_id, 'benefit_cards' );
 
 if ( empty( $iflynepal_tiles ) ) {
 	return;

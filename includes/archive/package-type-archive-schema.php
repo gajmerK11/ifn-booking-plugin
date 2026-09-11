@@ -29,11 +29,17 @@
  * routine sanitizes from it, and the templates read from it, so none of the
  * three can drift out of step with the other two.
  *
- * Repeating parts of the design — the six reason tiles, the three plans, the
- * comparison rows, the FAQ — are a fixed number of numbered slots rather than a
- * repeater widget, which is the same choice the theme made for the homepage
- * lists. An empty slot is skipped at render time; nothing stores how many slots
- * are in use, because a stored count is the thing that goes stale.
+ * Most repeating parts of the design — the three plans, the comparison rows, the
+ * FAQ — are a fixed number of numbered slots rather than a repeater widget,
+ * which is the same choice the theme made for the homepage lists. An empty slot
+ * is skipped at render time; nothing stores how many slots are in use, because a
+ * stored count is the thing that goes stale.
+ *
+ * The reason cards are the exception: they are a `cards` repeater, added and
+ * removed with a button up to a cap, because that section has no fixed length in
+ * the design and numbering nine slots to leave six of them blank is a worse
+ * screen to work on. The stored value is a list, so there is still no count to
+ * go stale — the list *is* the count.
  *
  * @package IFly_Nepal
  * @since   1.0.0
@@ -51,11 +57,15 @@ defined( 'ABSPATH' ) || exit;
 const IFLYNEPAL_ARCHIVE_META_PREFIX = '_iflynepal_archive_';
 
 /**
- * Number of reason tiles the design lays out.
+ * Most reason cards an editor may add.
+ *
+ * A cap rather than a slot count: the cards are a repeater, added and removed
+ * with a button, so there is no such thing as an empty slot to skip. Nine is
+ * three full rows of the three-column grid.
  *
  * @since 1.0.0
  */
-const IFLYNEPAL_ARCHIVE_BENEFIT_SLOTS = 6;
+const IFLYNEPAL_ARCHIVE_BENEFIT_CARDS = 9;
 
 /**
  * Number of booking plans the design lays out.
@@ -65,18 +75,39 @@ const IFLYNEPAL_ARCHIVE_BENEFIT_SLOTS = 6;
 const IFLYNEPAL_ARCHIVE_PLAN_SLOTS = 3;
 
 /**
- * Number of rows in the comparison table.
+ * Most rows the comparison table may hold.
+ *
+ * A cap rather than a slot count: the rows are added and removed with a button,
+ * so there is no such thing as an empty row to skip. Six is what the design
+ * lays out; raising it is this one number.
  *
  * @since 1.0.0
  */
-const IFLYNEPAL_ARCHIVE_COMPARE_SLOTS = 6;
+const IFLYNEPAL_ARCHIVE_COMPARE_MAX_ROWS = 6;
 
 /**
- * Number of questions in the FAQ.
+ * Columns the comparison table offers.
+ *
+ * Fixed, unlike the rows: the design is a row label plus up to three things
+ * being compared, and the front end drops any column left without a heading. So
+ * a two- or three-column comparison is made by leaving headings blank rather
+ * than by a second control.
  *
  * @since 1.0.0
  */
-const IFLYNEPAL_ARCHIVE_FAQ_SLOTS = 6;
+const IFLYNEPAL_ARCHIVE_COMPARE_COLUMNS = 4;
+
+/**
+ * Most questions the FAQ may hold.
+ *
+ * A cap rather than a slot count: the questions are a repeater, added and
+ * removed with a button. The design lays out six; the cap is ten because an FAQ
+ * grows with the questions people actually ask, and a cap is a ceiling rather
+ * than a target. Changing it is this one number.
+ *
+ * @since 1.0.0
+ */
+const IFLYNEPAL_ARCHIVE_FAQ_MAX = 10;
 
 /**
  * The full meta key for a schema field.
@@ -102,6 +133,21 @@ function iflynepal_archive_meta_key( $key ) {
  *   lines     a textarea read as one item per line, for short lists
  *   url       a link target
  *   image     an attachment ID chosen from the media library
+ *   cards     a repeater: a list of { title, text, image } added with a button
+ *   table     a grid: editable column headings plus rows added with a button
+ *
+ * A field may also carry an optional 'column' (1 or 2), which pins it to that
+ * column of the edit screen's two-column panel instead of letting it flow. Use
+ * it only where two fields are one thing split in half — a button's label and
+ * its link — so they stay on a row together. It is layout on a wide screen and
+ * nothing at all on a narrow one, where the panel is a single column.
+ *
+ * A field may also carry a 'group', naming one of the section's 'groups' — a
+ * map of group key to card title. The edit screen draws each group as its own
+ * titled card. This is for a fixed run of numbered slots, where the alternative
+ * is a flat column of fields distinguishable only by the number in every label.
+ * The stored data is unaffected: the fields are flat, individually keyed term
+ * meta either way, and the save routine never reads 'group'.
  *
  * @since 1.0.0
  *
@@ -159,30 +205,49 @@ function iflynepal_package_type_archive_schema() {
 				'type'  => 'image',
 				'help'  => __( 'Landscape, and the largest thing on the page — keep it under 150KB, it is the image the page is scored on.', 'iflynepal' ),
 			),
+
+			/*
+			 * A button is a label and a link, and reading one without the other
+			 * tells an editor nothing. The pair is pinned to a row of its own so
+			 * the primary button is one line of the form and the secondary is the
+			 * next, instead of the four of them flowing wherever the auto-placed
+			 * grid happens to leave a gap after the image.
+			 */
 			'hero_cta_label'     => array(
-				'label' => __( 'Primary button label', 'iflynepal' ),
-				'type'  => 'text',
-				'help'  => '',
+				'label'  => __( 'Primary button label', 'iflynepal' ),
+				'type'   => 'text',
+				'help'   => '',
+				'column' => 1,
 			),
 			'hero_cta_url'       => array(
-				'label' => __( 'Primary button link', 'iflynepal' ),
-				'type'  => 'url',
-				'help'  => '',
+				'label'  => __( 'Primary button link', 'iflynepal' ),
+				'type'   => 'url',
+				'help'   => '',
+				'column' => 2,
 			),
 			'hero_cta_alt_label' => array(
-				'label' => __( 'Secondary button label', 'iflynepal' ),
-				'type'  => 'text',
-				'help'  => '',
+				'label'  => __( 'Secondary button label', 'iflynepal' ),
+				'type'   => 'text',
+				'help'   => '',
+				'column' => 1,
 			),
 			'hero_cta_alt_url'   => array(
-				'label' => __( 'Secondary button link', 'iflynepal' ),
-				'type'  => 'url',
-				'help'  => '',
+				'label'  => __( 'Secondary button link', 'iflynepal' ),
+				'type'   => 'url',
+				'help'   => '',
+				'column' => 2,
 			),
 		),
 	);
 
 	$listing = $head( 'listing', $underline_help );
+
+	/*
+	 * No eyebrow on this one. The grid is the page's main event and sits directly
+	 * under the hero, so a kicker above its heading is a second label for
+	 * something the reader has already been told they are looking at.
+	 */
+	unset( $listing['listing_eyebrow'] );
 
 	$listing['listing_annotation_static'] = array(
 		'label' => __( 'Handwritten note — fixed part', 'iflynepal' ),
@@ -197,165 +262,147 @@ function iflynepal_package_type_archive_schema() {
 	);
 
 	$sections['listing'] = array(
-		'label'       => __( 'Package grid heading', 'iflynepal' ),
+		'label'       => __( 'Package Grid', 'iflynepal' ),
 		'description' => __( 'Introduces the card grid. The cards themselves are the packages filed under this type — they are not fields.', 'iflynepal' ),
 		'fields'      => $listing,
 	);
 
-	$sections['feature'] = array(
-		'label'       => __( 'Feature band', 'iflynepal' ),
-		'description' => __( 'The single wide image band with a heading over it.', 'iflynepal' ),
-		'fields'      => array(
-			'feature_heading' => array(
-				'label' => __( 'Heading', 'iflynepal' ),
-				'type'  => 'rich',
-				'help'  => $emphasis_help,
-			),
-			'feature_image'   => array(
+	$benefits = $head( 'benefits' );
+
+	$benefits['benefit_cards'] = array(
+		/* translators: %d: the most cards allowed. */
+		'label' => sprintf( __( 'Cards (max %d)', 'iflynepal' ), IFLYNEPAL_ARCHIVE_BENEFIT_CARDS ),
+		'type'  => 'cards',
+		'help'  => __( 'Add a card, fill it in, drag nothing — they render in the order they are listed. Remove one and the rest close up on their own.', 'iflynepal' ),
+		'item'  => __( 'Card', 'iflynepal' ),
+		'max'   => IFLYNEPAL_ARCHIVE_BENEFIT_CARDS,
+		'parts' => array(
+			'image' => array(
 				'label' => __( 'Image', 'iflynepal' ),
 				'type'  => 'image',
-				'help'  => '',
 			),
-			'feature_caption' => array(
-				'label' => __( 'Caption', 'iflynepal' ),
+			'title' => array(
+				'label' => __( 'Card title', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'text'  => array(
+				'label' => __( 'Card description', 'iflynepal' ),
 				'type'  => 'textarea',
-				'help'  => __( 'The small print under the band.', 'iflynepal' ),
 			),
 		),
 	);
 
-	$benefits = $head( 'benefits' );
-
-	for ( $i = 1; $i <= IFLYNEPAL_ARCHIVE_BENEFIT_SLOTS; $i++ ) {
-		$benefits[ 'benefit_' . $i . '_image' ] = array(
-			/* translators: %d: tile number. */
-			'label' => sprintf( __( 'Tile %d — image', 'iflynepal' ), $i ),
-			'type'  => 'image',
-			'help'  => '',
-		);
-		$benefits[ 'benefit_' . $i . '_title' ] = array(
-			/* translators: %d: tile number. */
-			'label' => sprintf( __( 'Tile %d — title', 'iflynepal' ), $i ),
-			'type'  => 'text',
-			'help'  => '',
-		);
-		$benefits[ 'benefit_' . $i . '_text' ]  = array(
-			/* translators: %d: tile number. */
-			'label' => sprintf( __( 'Tile %d — text', 'iflynepal' ), $i ),
-			'type'  => 'textarea',
-			'help'  => '',
-		);
-	}
-
 	$sections['benefits'] = array(
 		'label'       => __( 'Reasons to come', 'iflynepal' ),
-		'description' => __( 'Leave a tile empty and it is left out of the grid. Nothing has to be renumbered.', 'iflynepal' ),
+		'description' => __( 'Add as many cards as the section needs. A card with nothing in it is dropped when you save.', 'iflynepal' ),
 		'fields'      => $benefits,
 	);
 
-	$plans = $head( 'plans', $emphasis_help );
+	$plans       = $head( 'plans', $emphasis_help );
+	$plan_groups = array();
 
+	/*
+	 * Each plan is a group, so the edit screen draws its eight fields inside a
+	 * card of their own instead of running all twenty-four down one panel where
+	 * only the number in the label tells you which plan you are editing. The
+	 * fields are still flat, individually keyed term meta — the grouping is the
+	 * edit screen's, and the save routine never sees it.
+	 *
+	 * Because the card is titled with the plan number, the labels inside it drop
+	 * it: "Name", not "Plan 2 — name".
+	 */
 	for ( $i = 1; $i <= IFLYNEPAL_ARCHIVE_PLAN_SLOTS; $i++ ) {
+		$group = 'plan_' . $i;
+
+		/* translators: %d: plan number. */
+		$plan_groups[ $group ] = sprintf( __( 'Plan %d', 'iflynepal' ), $i );
+
 		$plans[ 'plan_' . $i . '_name' ]       = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — name', 'iflynepal' ), $i ),
-			'type'  => 'text',
-			'help'  => '',
+			'label'  => __( 'Name', 'iflynepal' ),
+			'type'   => 'text',
+			'help'   => '',
+			'group'  => $group,
+			'column' => 1,
 		);
 		$plans[ 'plan_' . $i . '_subtitle' ]   = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — subtitle', 'iflynepal' ), $i ),
-			'type'  => 'text',
-			'help'  => '',
+			'label'  => __( 'Subtitle', 'iflynepal' ),
+			'type'   => 'text',
+			'help'   => '',
+			'group'  => $group,
+			'column' => 2,
 		);
 		$plans[ 'plan_' . $i . '_price' ]      = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — price', 'iflynepal' ), $i ),
-			'type'  => 'text',
-			'help'  => __( 'Written exactly as it should read, e.g. "$680" or "from $1,800".', 'iflynepal' ),
+			'label'  => __( 'Price', 'iflynepal' ),
+			'type'   => 'text',
+			'help'   => __( 'Written exactly as it should read, e.g. "$680" or "from $1,800".', 'iflynepal' ),
+			'group'  => $group,
+			'column' => 1,
 		);
 		$plans[ 'plan_' . $i . '_price_note' ] = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — price note', 'iflynepal' ), $i ),
-			'type'  => 'text',
-			'help'  => __( 'The small text beside the price, e.g. "/ 7 days".', 'iflynepal' ),
+			'label'  => __( 'Price note', 'iflynepal' ),
+			'type'   => 'text',
+			'help'   => __( 'The small text beside the price, e.g. "/ 7 days".', 'iflynepal' ),
+			'group'  => $group,
+			'column' => 2,
 		);
 		$plans[ 'plan_' . $i . '_features' ]   = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — what is included', 'iflynepal' ), $i ),
+			'label' => __( 'What is included', 'iflynepal' ),
 			'type'  => 'lines',
 			'help'  => __( 'One item per line. Blank lines are ignored.', 'iflynepal' ),
+			'group' => $group,
 		);
 		$plans[ 'plan_' . $i . '_cta_label' ]  = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — button label', 'iflynepal' ), $i ),
-			'type'  => 'text',
-			'help'  => '',
+			'label'  => __( 'Button label', 'iflynepal' ),
+			'type'   => 'text',
+			'help'   => '',
+			'group'  => $group,
+			'column' => 1,
 		);
 		$plans[ 'plan_' . $i . '_cta_url' ]    = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — button link', 'iflynepal' ), $i ),
-			'type'  => 'url',
-			'help'  => '',
+			'label'  => __( 'Button link', 'iflynepal' ),
+			'type'   => 'url',
+			'help'   => '',
+			'group'  => $group,
+			'column' => 2,
 		);
 		$plans[ 'plan_' . $i . '_featured' ]   = array(
-			/* translators: %d: plan number. */
-			'label' => sprintf( __( 'Plan %d — highlight this plan', 'iflynepal' ), $i ),
+			'label' => __( 'Highlight this plan', 'iflynepal' ),
 			'type'  => 'checkbox',
 			'help'  => __( 'Draws it in the raised, darker style. Only one plan should be highlighted.', 'iflynepal' ),
+			'group' => $group,
 		);
 	}
 
 	$sections['plans'] = array(
 		'label'       => __( 'Booking plans', 'iflynepal' ),
-		'description' => __( 'The three-column price comparison.', 'iflynepal' ),
+		'description' => __( 'The three-column price comparison. A plan with no name is left off the page.', 'iflynepal' ),
 		'fields'      => $plans,
-	);
-
-	$sections['departures'] = array(
-		'label'       => __( 'Departures heading', 'iflynepal' ),
-		'description' => __( 'Introduces the departures rail. The dates themselves come from the fixed departure dates set on each package.', 'iflynepal' ),
-		'fields'      => $head( 'departures' ),
+		'groups'      => $plan_groups,
 	);
 
 	$compare = $head( 'compare' );
 
-	$compare['compare_col_1'] = array(
-		'label' => __( 'Column 1 heading', 'iflynepal' ),
-		'type'  => 'text',
-		'help'  => __( 'The row-label column, e.g. "Factor".', 'iflynepal' ),
+	/*
+	 * The table is one field, edited as a table.
+	 *
+	 * It was twenty-five: four column headings, three sub-notes and a cell per
+	 * row per column, each its own text box in a flat column of the panel. The
+	 * shape of the thing being edited was nowhere on the screen — you read
+	 * "Row 4, column 3" and worked out what that meant. It is now a grid with
+	 * the headings along the top and a button that adds a row, which is the
+	 * same control the CloudColleague industry pay-rates tab uses.
+	 */
+	$compare['compare_table'] = array(
+		/* translators: %d: the most rows allowed. */
+		'label' => sprintf( __( 'Table (max %d rows)', 'iflynepal' ), IFLYNEPAL_ARCHIVE_COMPARE_MAX_ROWS ),
+		'type'  => 'table',
+		'help'  => __( 'Type over a column heading to rename it. A column left without a heading is dropped from the page, and the table needs two to render at all.', 'iflynepal' ),
 	);
-
-	for ( $c = 2; $c <= 4; $c++ ) {
-		$compare[ 'compare_col_' . $c ]           = array(
-			/* translators: %d: column number. */
-			'label' => sprintf( __( 'Column %d heading', 'iflynepal' ), $c ),
-			'type'  => 'text',
-			'help'  => '',
-		);
-		$compare[ 'compare_col_' . $c . '_note' ] = array(
-			/* translators: %d: column number. */
-			'label' => sprintf( __( 'Column %d sub-note', 'iflynepal' ), $c ),
-			'type'  => 'text',
-			'help'  => '',
-		);
-	}
-
-	for ( $i = 1; $i <= IFLYNEPAL_ARCHIVE_COMPARE_SLOTS; $i++ ) {
-		for ( $c = 1; $c <= 4; $c++ ) {
-			$compare[ 'compare_row_' . $i . '_col_' . $c ] = array(
-				/* translators: 1: row number, 2: column number. */
-				'label' => sprintf( __( 'Row %1$d, column %2$d', 'iflynepal' ), $i, $c ),
-				'type'  => 'text',
-				'help'  => '',
-			);
-		}
-	}
 
 	$compare['compare_footnote'] = array(
 		'label' => __( 'Footnote', 'iflynepal' ),
 		'type'  => 'textarea',
-		'help'  => __( 'Where the comparison figures come from. A comparison table without one invites a complaint.', 'iflynepal' ),
+		'help'  => '',
 	);
 
 	$sections['compare'] = array(
@@ -389,20 +436,32 @@ function iflynepal_package_type_archive_schema() {
 		),
 	);
 
-	for ( $i = 1; $i <= IFLYNEPAL_ARCHIVE_FAQ_SLOTS; $i++ ) {
-		$faq[ 'faq_' . $i . '_question' ] = array(
-			/* translators: %d: question number. */
-			'label' => sprintf( __( 'Question %d', 'iflynepal' ), $i ),
-			'type'  => 'text',
-			'help'  => '',
-		);
-		$faq[ 'faq_' . $i . '_answer' ]   = array(
-			/* translators: %d: question number. */
-			'label' => sprintf( __( 'Answer %d', 'iflynepal' ), $i ),
-			'type'  => 'textarea',
-			'help'  => '',
-		);
-	}
+	/*
+	 * The questions are a repeater, not a run of numbered slots.
+	 *
+	 * Same reasoning as the reason cards, and the same control the
+	 * CloudColleague industry FAQ tab uses: a list of questions has no fixed
+	 * length, and numbering the slots means an editor with four questions works
+	 * around eight empty boxes. The list is the count — nothing stores one.
+	 */
+	$faq['faq_items'] = array(
+		/* translators: %d: the most questions allowed. */
+		'label' => sprintf( __( 'Questions (max %d)', 'iflynepal' ), IFLYNEPAL_ARCHIVE_FAQ_MAX ),
+		'type'  => 'cards',
+		'help'  => __( 'Add a question, fill it in — they render in the order they are listed.', 'iflynepal' ),
+		'item'  => __( 'Question', 'iflynepal' ),
+		'max'   => IFLYNEPAL_ARCHIVE_FAQ_MAX,
+		'parts' => array(
+			'q' => array(
+				'label' => __( 'Question', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'a' => array(
+				'label' => __( 'Answer', 'iflynepal' ),
+				'type'  => 'textarea',
+			),
+		),
+	);
 
 	$sections['faq'] = array(
 		'label'       => __( 'Questions before booking', 'iflynepal' ),
@@ -434,25 +493,30 @@ function iflynepal_package_type_archive_schema() {
 				'type'  => 'image',
 				'help'  => '',
 			),
+			// Paired onto a row each, the same way the hero's buttons are.
 			'final_cta_label'     => array(
-				'label' => __( 'Primary button label', 'iflynepal' ),
-				'type'  => 'text',
-				'help'  => '',
+				'label'  => __( 'Primary button label', 'iflynepal' ),
+				'type'   => 'text',
+				'help'   => '',
+				'column' => 1,
 			),
 			'final_cta_url'       => array(
-				'label' => __( 'Primary button link', 'iflynepal' ),
-				'type'  => 'url',
-				'help'  => '',
+				'label'  => __( 'Primary button link', 'iflynepal' ),
+				'type'   => 'url',
+				'help'   => '',
+				'column' => 2,
 			),
 			'final_cta_alt_label' => array(
-				'label' => __( 'Secondary button label', 'iflynepal' ),
-				'type'  => 'text',
-				'help'  => '',
+				'label'  => __( 'Secondary button label', 'iflynepal' ),
+				'type'   => 'text',
+				'help'   => '',
+				'column' => 1,
 			),
 			'final_cta_alt_url'   => array(
-				'label' => __( 'Secondary button link', 'iflynepal' ),
-				'type'  => 'url',
-				'help'  => '',
+				'label'  => __( 'Secondary button link', 'iflynepal' ),
+				'type'   => 'url',
+				'help'   => '',
+				'column' => 2,
 			),
 		),
 	);
@@ -485,10 +549,8 @@ function iflynepal_package_type_archive_schema() {
  * @since 1.0.0
  */
 const IFLYNEPAL_ARCHIVE_TOP_LEVEL_SECTIONS = array(
-	'feature',
 	'benefits',
 	'plans',
-	'departures',
 	'compare',
 	'testimonials',
 	'faq',
@@ -594,10 +656,18 @@ function iflynepal_package_type_archive_fields() {
  *
  * @param mixed  $value Raw submitted value, already unslashed.
  * @param string $type  Field type from the schema.
+ * @param array  $field The whole field definition, for the types that need more
+ *                      than their name — a repeater's parts and its cap.
  * @return string Value as it should be stored.
  */
-function iflynepal_archive_sanitize_value( $value, $type ) {
+function iflynepal_archive_sanitize_value( $value, $type, $field = array() ) {
 	switch ( $type ) {
+		case 'cards':
+			return iflynepal_archive_sanitize_cards( $value, $field );
+
+		case 'table':
+			return iflynepal_archive_sanitize_table( $value );
+
 		case 'image':
 			return (string) absint( $value );
 
@@ -617,6 +687,232 @@ function iflynepal_archive_sanitize_value( $value, $type ) {
 		default:
 			return sanitize_text_field( (string) $value );
 	}
+}
+
+/**
+ * The sub-fields one repeater holds, and what each of them is.
+ *
+ * Declared on the schema field rather than hardcoded here, so a second repeater
+ * is a schema entry and not a second renderer, a second sanitizer and a second
+ * row template. The reason cards keep the shape they have always had; the FAQ
+ * is a question and an answer.
+ *
+ * @since 1.0.0
+ *
+ * @param array $field Field definition.
+ * @return array[] Parts keyed by their name, each with 'label' and 'type'.
+ */
+function iflynepal_archive_card_parts( $field ) {
+	return isset( $field['parts'] ) && is_array( $field['parts'] ) ? $field['parts'] : array();
+}
+
+/**
+ * Most rows one repeater accepts.
+ *
+ * @since 1.0.0
+ *
+ * @param array $field Field definition.
+ * @return int Cap, or 0 for no cap.
+ */
+function iflynepal_archive_card_max( $field ) {
+	return isset( $field['max'] ) ? (int) $field['max'] : 0;
+}
+
+/**
+ * Cleans a submitted repeater into the list that gets stored.
+ *
+ * Rows arrive as a numbered array from the form, but the numbering is a detail
+ * of how HTML names inputs — it is discarded here and the survivors are
+ * re-indexed from zero. Nothing downstream should ever depend on a row's
+ * original position in the form.
+ *
+ * Each part is sanitized by its own declared type, so a repeater cannot store
+ * something its schema did not describe. A row with nothing in any of its parts
+ * is dropped rather than stored empty: an editor adds a row before filling it,
+ * and leaving one on the page would otherwise be enough to publish a blank.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $value Raw submitted repeater, already unslashed.
+ * @param array $field Field definition, carrying 'parts' and 'max'.
+ * @return array[] Rows, each keyed by the field's part names.
+ */
+function iflynepal_archive_sanitize_cards( $value, $field = array() ) {
+	$parts = iflynepal_archive_card_parts( $field );
+	$max   = iflynepal_archive_card_max( $field );
+
+	if ( ! is_array( $value ) || empty( $parts ) ) {
+		return array();
+	}
+
+	$rows = array();
+
+	foreach ( $value as $row ) {
+		if ( ! is_array( $row ) ) {
+			continue;
+		}
+
+		$clean  = array();
+		$filled = false;
+
+		foreach ( $parts as $part_key => $part ) {
+			$part_value = isset( $row[ $part_key ] ) ? iflynepal_archive_sanitize_value( $row[ $part_key ], $part['type'] ) : '';
+
+			if ( 'image' === $part['type'] ) {
+				$part_value = (int) $part_value;
+
+				if ( $part_value ) {
+					$filled = true;
+				}
+			} elseif ( '' !== $part_value ) {
+				$filled = true;
+			}
+
+			$clean[ $part_key ] = $part_value;
+		}
+
+		if ( ! $filled ) {
+			continue;
+		}
+
+		$rows[] = $clean;
+
+		// The cap is enforced on save as well as in the browser: the form is not
+		// the only thing that can post to this screen.
+		if ( $max > 0 && count( $rows ) >= $max ) {
+			break;
+		}
+	}
+
+	return $rows;
+}
+
+/**
+ * Cleans a submitted comparison table into the array that gets stored.
+ *
+ * Columns are a fixed run, so they are read by position and an absent one is
+ * stored empty — the front end decides what to draw from whether a heading was
+ * written, and it cannot do that if a blank column simply vanishes from the
+ * array and shifts the ones after it.
+ *
+ * Rows are the opposite: they are added and removed with a button, so the
+ * numbering the form posts is a detail of how HTML names inputs. It is
+ * discarded and the surviving rows are re-indexed from zero, which is what
+ * makes deleting the second of five rows safe.
+ *
+ * A row with nothing in any cell is dropped rather than stored empty: an editor
+ * adds a row before filling it, and leaving one on the screen would otherwise
+ * be enough to put a blank line in the published table.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $value Raw submitted table, already unslashed.
+ * @return array Table with 'columns' and 'rows', or an empty array when unset.
+ */
+function iflynepal_archive_sanitize_table( $value ) {
+	$raw_columns = ( is_array( $value ) && isset( $value['columns'] ) && is_array( $value['columns'] ) ) ? $value['columns'] : array();
+	$raw_rows    = ( is_array( $value ) && isset( $value['rows'] ) && is_array( $value['rows'] ) ) ? $value['rows'] : array();
+
+	$columns    = array();
+	$rows       = array();
+	$has_column = false;
+
+	for ( $index = 0; $index < IFLYNEPAL_ARCHIVE_COMPARE_COLUMNS; $index++ ) {
+		$column = isset( $raw_columns[ $index ] ) && is_array( $raw_columns[ $index ] ) ? $raw_columns[ $index ] : array();
+
+		$label = isset( $column['label'] ) ? sanitize_text_field( $column['label'] ) : '';
+		$note  = isset( $column['note'] ) ? sanitize_text_field( $column['note'] ) : '';
+
+		if ( '' !== $label ) {
+			$has_column = true;
+		}
+
+		$columns[] = array(
+			'label' => $label,
+			'note'  => $note,
+		);
+	}
+
+	foreach ( $raw_rows as $row ) {
+		if ( ! is_array( $row ) ) {
+			continue;
+		}
+
+		$cells  = array();
+		$filled = false;
+
+		for ( $index = 0; $index < IFLYNEPAL_ARCHIVE_COMPARE_COLUMNS; $index++ ) {
+			$cell = isset( $row[ $index ] ) ? sanitize_text_field( $row[ $index ] ) : '';
+
+			if ( '' !== $cell ) {
+				$filled = true;
+			}
+
+			$cells[] = $cell;
+		}
+
+		if ( ! $filled ) {
+			continue;
+		}
+
+		$rows[] = $cells;
+
+		// The cap is enforced on save as well as in the browser: the form is not
+		// the only thing that can post to this screen.
+		if ( count( $rows ) >= IFLYNEPAL_ARCHIVE_COMPARE_MAX_ROWS ) {
+			break;
+		}
+	}
+
+	// Nothing written in either half is nothing to store.
+	if ( ! $has_column && empty( $rows ) ) {
+		return array();
+	}
+
+	return array(
+		'columns' => $columns,
+		'rows'    => $rows,
+	);
+}
+
+/**
+ * A stored table, in the shape a template and the edit screen both expect.
+ *
+ * Both halves are guaranteed present and arrays, so neither caller has to test
+ * what came back out of the database before looping it.
+ *
+ * @since 1.0.0
+ *
+ * @param int    $term_id Package type term.
+ * @param string $key     Schema key, e.g. 'compare_table'.
+ * @return array Table with 'columns' and 'rows'.
+ */
+function iflynepal_archive_table( $term_id, $key ) {
+	$table = get_term_meta( (int) $term_id, iflynepal_archive_meta_key( $key ), true );
+
+	if ( ! is_array( $table ) ) {
+		$table = array();
+	}
+
+	return array(
+		'columns' => isset( $table['columns'] ) && is_array( $table['columns'] ) ? $table['columns'] : array(),
+		'rows'    => isset( $table['rows'] ) && is_array( $table['rows'] ) ? $table['rows'] : array(),
+	);
+}
+
+/**
+ * A stored card repeater, ready to loop over in a template.
+ *
+ * @since 1.0.0
+ *
+ * @param int    $term_id Package type term.
+ * @param string $key     Schema key, e.g. 'benefit_cards'.
+ * @return array[] Cards, each with 'title', 'text' and 'image'. Empty when unset.
+ */
+function iflynepal_archive_cards( $term_id, $key ) {
+	$cards = get_term_meta( (int) $term_id, iflynepal_archive_meta_key( $key ), true );
+
+	return is_array( $cards ) ? $cards : array();
 }
 
 /**

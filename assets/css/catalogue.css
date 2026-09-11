@@ -515,51 +515,6 @@
 	color: #fff;
 }
 
-/* ---------------------------------------------------------------- feature */
-
-.iflynepal-feature__panel {
-	position: relative;
-	overflow: hidden;
-	padding: 64px 28px;
-	border-radius: var(--ifn-radius-lg);
-	background: var(--ifn-navy-deep);
-	color: #fff;
-	text-align: center;
-}
-
-.iflynepal-feature__media {
-	position: absolute;
-	inset: 0;
-}
-
-.iflynepal-feature__media img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	opacity: 0.3;
-}
-
-.iflynepal-feature__heading {
-	position: relative;
-	margin: 0;
-	font-size: clamp(28px, 3.4vw, 38px);
-	font-weight: 800;
-}
-
-.iflynepal-feature__heading em {
-	color: var(--ifn-gold);
-	font-family: 'Cormorant Garamond', Georgia, serif;
-	font-style: normal;
-}
-
-.iflynepal-feature__caption {
-	position: relative;
-	max-width: 60ch;
-	margin: 16px auto 0;
-	color: var(--ifn-accent);
-	font-size: 14px;
-}
-
 /* --------------------------------------------------------------- benefits */
 
 .iflynepal-benefits__grid {
@@ -685,81 +640,6 @@
 
 .iflynepal-plan .iflynepal-button {
 	margin-top: auto;
-}
-
-/* ------------------------------------------------------------- departures */
-
-.iflynepal-departures__head {
-	display: flex;
-	align-items: flex-end;
-	justify-content: space-between;
-	flex-wrap: wrap;
-	gap: 16px;
-}
-
-.iflynepal-rail-nav {
-	display: flex;
-	gap: 8px;
-	margin-bottom: 40px;
-}
-
-.iflynepal-rail-btn {
-	display: flex;
-	width: 44px;
-	height: 44px;
-	align-items: center;
-	justify-content: center;
-	border: 1px solid var(--ifn-line);
-	border-radius: 999px;
-	background: var(--ifn-paper);
-	color: var(--ifn-navy);
-	cursor: pointer;
-	font-size: 18px;
-}
-
-/*
- * A snap-scrolling container: the arrow buttons are an enhancement over
- * behaviour that already works by touch, trackpad and keyboard.
- */
-.iflynepal-departures__rail {
-	display: flex;
-	overflow-x: auto;
-	gap: 20px;
-	padding-bottom: 12px;
-	scroll-snap-type: x mandatory;
-	scrollbar-width: none;
-}
-
-.iflynepal-departures__rail::-webkit-scrollbar {
-	display: none;
-}
-
-.iflynepal-departure {
-	position: relative;
-	display: flex;
-	width: 256px;
-	flex-direction: column;
-	flex-shrink: 0;
-	overflow: hidden;
-	border: 1px solid var(--ifn-line);
-	border-radius: var(--ifn-radius-md);
-	background: var(--ifn-paper);
-	scroll-snap-align: start;
-	text-decoration: none;
-}
-
-.iflynepal-departure img {
-	display: block;
-	width: 100%;
-	height: 144px;
-	object-fit: cover;
-}
-
-.iflynepal-departure__title {
-	padding: 16px;
-	color: var(--ifn-ink);
-	font-size: 14px;
-	font-weight: 800;
 }
 
 /* ---------------------------------------------------------------- compare */

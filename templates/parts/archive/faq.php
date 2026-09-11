@@ -25,9 +25,9 @@ $iflynepal_id = $iflynepal_term->term_id;
 // A question with no answer is half a thought; both have to be there.
 $iflynepal_entries = array();
 
-for ( $iflynepal_i = 1; $iflynepal_i <= IFLYNEPAL_ARCHIVE_FAQ_SLOTS; $iflynepal_i++ ) {
-	$iflynepal_question = iflynepal_archive_field( $iflynepal_id, 'faq_' . $iflynepal_i . '_question' );
-	$iflynepal_answer   = iflynepal_archive_field( $iflynepal_id, 'faq_' . $iflynepal_i . '_answer' );
+foreach ( iflynepal_archive_cards( $iflynepal_id, 'faq_items' ) as $iflynepal_item ) {
+	$iflynepal_question = isset( $iflynepal_item['q'] ) ? (string) $iflynepal_item['q'] : '';
+	$iflynepal_answer   = isset( $iflynepal_item['a'] ) ? (string) $iflynepal_item['a'] : '';
 
 	if ( '' === $iflynepal_question || '' === $iflynepal_answer ) {
 		continue;

@@ -39,8 +39,8 @@ $iflynepal_id = $iflynepal_term->term_id;
  * not anyone meant it to be there. The editor says yes by writing the section's
  * heading; an untouched term gets no testimonials band.
  *
- * The same reasoning gates the departures rail. It does not gate the package
- * grid: the grid is what the archive is for, and its heading is decoration.
+ * It does not gate the package grid: the grid is what the archive is for, and
+ * its heading is decoration rather than a switch.
  */
 if ( ! iflynepal_archive_has_any( $iflynepal_id, array( 'testimonials_eyebrow' ) ) ) {
 	return;
