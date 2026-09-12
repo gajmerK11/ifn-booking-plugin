@@ -47,7 +47,23 @@ $iflynepal_lead    = iflynepal_archive_field( $iflynepal_id, 'final_lead' );
 				<p><?php echo esc_html( $iflynepal_lead ); ?></p>
 			<?php endif; ?>
 
-			<?php iflynepal_archive_the_actions( $iflynepal_id, 'final' ); ?>
+			<?php
+			/*
+			 * White beside ghost, and no arrow on either — the design's pairing
+			 * for this card. The hero's navy primary would disappear into the
+			 * darkened photograph behind this one.
+			 */
+			iflynepal_archive_the_actions(
+				$iflynepal_id,
+				'final',
+				'iflynepal-actions',
+				array(
+					'primary'   => 'iflynepal-button--light',
+					'secondary' => 'iflynepal-button--ghost',
+					'arrow'     => false,
+				)
+			);
+			?>
 		</div>
 	</div>
 </section>

@@ -85,7 +85,15 @@ $iflynepal_footnote = iflynepal_archive_field( $iflynepal_id, 'compare_footnote'
 	<div class="iflynepal-container">
 		<?php iflynepal_archive_the_head( $iflynepal_id, 'compare' ); ?>
 
-		<div class="iflynepal-compare__scroll">
+		<?php
+		/*
+		 * The footnote sits inside the bordered box with the table, as the
+		 * design has it: the rule under the last row and the dashed rule over
+		 * the note are then the same distance from the same edge. Outside the
+		 * box they are measured against two different things and do not line up.
+		 */
+		?>
+		<div class="iflynepal-compare__scroll" data-iflynepal-anim>
 			<table class="iflynepal-compare__table">
 				<thead>
 					<tr>
@@ -113,10 +121,10 @@ $iflynepal_footnote = iflynepal_archive_field( $iflynepal_id, 'compare_footnote'
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-		</div>
 
-		<?php if ( '' !== $iflynepal_footnote ) : ?>
-			<p class="iflynepal-compare__foot"><?php echo esc_html( $iflynepal_footnote ); ?></p>
-		<?php endif; ?>
+			<?php if ( '' !== $iflynepal_footnote ) : ?>
+				<p class="iflynepal-compare__foot"><?php echo esc_html( $iflynepal_footnote ); ?></p>
+			<?php endif; ?>
+		</div>
 	</div>
 </section>

@@ -110,6 +110,16 @@ const IFLYNEPAL_ARCHIVE_COMPARE_COLUMNS = 4;
 const IFLYNEPAL_ARCHIVE_FAQ_MAX = 10;
 
 /**
+ * The most departure cards one archive can hold.
+ *
+ * Enforced in the browser and again on save: the form is not the only thing
+ * that can post to the term screen.
+ *
+ * @since 1.0.0
+ */
+const IFLYNEPAL_ARCHIVE_DEPARTURE_CARDS = 10;
+
+/**
  * The full meta key for a schema field.
  *
  * @since 1.0.0
@@ -380,6 +390,74 @@ function iflynepal_package_type_archive_schema() {
 		'groups'      => $plan_groups,
 	);
 
+	/*
+	 * Upcoming departures — the heading band and the rail of cards beneath it.
+	 *
+	 * The section was removed on 11 September and came back as a heading only,
+	 * because the card design was still open with the client. It is settled now,
+	 * and the cards are a repeater rather than a run of numbered slots for the
+	 * same reason the reason-tiles are: the design has no fixed number of them,
+	 * and an archive with three departures should be a list of three, not seven
+	 * empty boxes.
+	 *
+	 * A departure card is *not* a package and is not derived from one. The dates
+	 * on the package meta box are a package's own fixed departures; these are
+	 * scheduled small-group dates the office is selling now, which may span
+	 * several packages or none of them. Deriving one from the other was
+	 * considered and does not hold — the design's cards carry their own price,
+	 * their own duration and a remaining-places pill that lives nowhere else.
+	 *
+	 * And as everywhere else in this plugin: nothing here is enforced. The pill
+	 * is a line of text an editor types. There is no seat count behind it, no
+	 * capacity, and no check that anything sold matches it.
+	 */
+	$departures = $head( 'departures' );
+
+	$departures['departure_cards'] = array(
+		/* translators: %d: the most cards allowed. */
+		'label' => sprintf( __( 'Cards (max %d)', 'iflynepal' ), IFLYNEPAL_ARCHIVE_DEPARTURE_CARDS ),
+		'type'  => 'cards',
+		'help'  => __( 'Each card is one scheduled departure. They render in the order they are listed; remove one and the rest close up on their own. A card with no Reserve link shows Reserve as plain text rather than as a dead button.', 'iflynepal' ),
+		'item'  => __( 'Departure', 'iflynepal' ),
+		'max'   => IFLYNEPAL_ARCHIVE_DEPARTURE_CARDS,
+		'parts' => array(
+			'pill'     => array(
+				'label' => __( 'Pill text', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'date'     => array(
+				'label' => __( 'Date', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'title'    => array(
+				'label' => __( 'Title', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'duration' => array(
+				'label' => __( 'Duration', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'price'    => array(
+				'label' => __( 'Price', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'link'     => array(
+				'label' => __( 'Reserve link', 'iflynepal' ),
+				'type'  => 'url',
+			),
+			'image'    => array(
+				'label' => __( 'Card image', 'iflynepal' ),
+				'type'  => 'image',
+			),
+		),
+	);
+
+	$sections['departures'] = array(
+		'label'       => __( 'Upcoming departures', 'iflynepal' ),
+		'description' => __( 'The heading band, and the rail of departure cards under it. Dates, durations and prices are written exactly as they should read — nothing here is parsed, converted or checked against anything.', 'iflynepal' ),
+		'fields'      => $departures,
+	);
+
 	$compare = $head( 'compare' );
 
 	/*
@@ -551,6 +629,7 @@ function iflynepal_package_type_archive_schema() {
 const IFLYNEPAL_ARCHIVE_TOP_LEVEL_SECTIONS = array(
 	'benefits',
 	'plans',
+	'departures',
 	'compare',
 	'testimonials',
 	'faq',
@@ -756,7 +835,27 @@ function iflynepal_archive_sanitize_cards( $value, $field = array() ) {
 		$filled = false;
 
 		foreach ( $parts as $part_key => $part ) {
-			$part_value = isset( $row[ $part_key ] ) ? iflynepal_archive_sanitize_value( $row[ $part_key ], $part['type'] ) : '';
+			$raw_part = isset( $row[ $part_key ] ) ? $row[ $part_key ] : '';
+
+			/*
+			 * A timeline part is a repeater inside a repeater, so its value is a
+			 * list rather than a string and it cannot go through the scalar
+			 * sanitizer: sanitize_text_field() on an array returns an empty string,
+			 * which would silently throw the whole timeline away on every save.
+			 */
+			if ( 'timeline' === $part['type'] ) {
+				$part_value = iflynepal_package_sanitize_timeline( $raw_part, $part );
+
+				if ( ! empty( $part_value ) ) {
+					$filled = true;
+				}
+
+				$clean[ $part_key ] = $part_value;
+
+				continue;
+			}
+
+			$part_value = '' === $raw_part ? '' : iflynepal_archive_sanitize_value( $raw_part, $part['type'] );
 
 			if ( 'image' === $part['type'] ) {
 				$part_value = (int) $part_value;

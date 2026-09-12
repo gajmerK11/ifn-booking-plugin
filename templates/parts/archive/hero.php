@@ -34,8 +34,21 @@ $iflynepal_image_id = absint( iflynepal_archive_field( $iflynepal_id, 'hero_imag
 if ( '' === $iflynepal_heading ) {
 	$iflynepal_heading = esc_html( $iflynepal_term->name );
 }
+
+/*
+ * A category hero carries its own modifier. The two archives share this part
+ * and every class on it, but they do not carry the same copy: a top-level type
+ * introduces a whole catalogue in a sentence or two, a category says one thing
+ * about one branch. Only the short one can be set on a single line, so the
+ * class is what lets the stylesheet tell them apart.
+ */
+$iflynepal_hero_class = 'wp-block-cover iflynepal-hero iflynepal-hero--page iflynepal-hero--package-type';
+
+if ( $iflynepal_term->parent ) {
+	$iflynepal_hero_class .= ' iflynepal-hero--package-category';
+}
 ?>
-<section class="wp-block-cover iflynepal-hero iflynepal-hero--page iflynepal-hero--package-type">
+<section class="<?php echo esc_attr( $iflynepal_hero_class ); ?>">
 
 	<?php if ( $iflynepal_image_id ) : ?>
 		<div class="iflynepal-hero__media" aria-hidden="true">

@@ -35,6 +35,13 @@ const IFLYNEPAL_PACKAGE_META_PREFIX = '_iflynepal_package_';
 /**
  * The facts stored against a package.
  *
+ * Every field a package can hold, whether or not a meta box currently draws it.
+ * A field's `box` names the editing surface it belongs to; an empty `box` is a
+ * field with no home on the editor yet — the templates still read it and the
+ * stored values are still there, but nothing offers it to an editor. That is a
+ * deliberate holding state, not an oversight: see
+ * iflynepal_package_fields_for_box().
+ *
  * @since 1.0.0
  *
  * @return array[] Field definitions keyed by schema key.
@@ -42,51 +49,61 @@ const IFLYNEPAL_PACKAGE_META_PREFIX = '_iflynepal_package_';
 function iflynepal_package_detail_fields() {
 	$fields = array(
 		'pill'          => array(
+			'box'   => 'card',
 			'label' => __( 'Card label', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'The small badge on the card image, e.g. "Yoga" or "Ayurveda".', 'iflynepal' ),
 		),
 		'duration'      => array(
+			'box'   => 'card',
 			'label' => __( 'Duration', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'Written as it should read, e.g. "3–30 days".', 'iflynepal' ),
 		),
 		'suitability'   => array(
+			'box'   => 'card',
 			'label' => __( 'Place or suitability', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'The second fact on the card, e.g. "Kathmandu" or "Beginner friendly".', 'iflynepal' ),
 		),
 		'price'         => array(
+			'box'   => 'card',
 			'label' => __( 'Price', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'Written exactly as it should read, e.g. "From US$425". Shown as typed — no currency conversion happens here.', 'iflynepal' ),
 		),
 		'peek'          => array(
+			'box'   => 'card',
 			'label' => __( 'Hover summary', 'iflynepal' ),
 			'type'  => 'textarea',
 			'help'  => __( 'One or two lines revealed over the card image. Left empty, the card shows no summary — the package\'s own text is never used here.', 'iflynepal' ),
 		),
-		'highlights'    => array(
-			'label' => __( 'Highlights', 'iflynepal' ),
-			'type'  => 'lines',
-			'help'  => __( 'One per line, listed on the single package page.', 'iflynepal' ),
-		),
 		'buffer_notice' => array(
+			'box'   => '',
 			'label' => __( 'Confirmation notice', 'iflynepal' ),
 			'type'  => 'textarea',
 			'help'  => __( 'The static line beside the booking button, e.g. "Trekking and volunteering bookings are confirmed within 5–6 days." Informational only — nothing is delayed or enforced.', 'iflynepal' ),
 		),
 		'departures'    => array(
+			'box'   => '',
 			'label' => __( 'Fixed departure dates', 'iflynepal' ),
 			'type'  => 'dates',
 			'help'  => __( 'One date per line, as YYYY-MM-DD. Past dates are dropped automatically. Leave empty for a package that runs year-round.', 'iflynepal' ),
 		),
 		'booking'       => array(
+			'box'   => '',
 			'label' => __( 'Booking button shortcode', 'iflynepal' ),
 			'type'  => 'textarea',
 			'help'  => __( 'The PayPal buy-now shortcode for this package. Pasted from the gateway plugin and rendered as-is.', 'iflynepal' ),
 		),
 	);
+
+	/*
+	 * The single-package model is declared in its own file and merged in here
+	 * rather than kept apart, so there is still one schema: one sanitizer, one
+	 * save routine and one place that answers "what can a package hold".
+	 */
+	$fields = array_merge( $fields, iflynepal_package_details_fields() );
 
 	/**
 	 * Filters the per-package detail fields.
@@ -96,6 +113,36 @@ function iflynepal_package_detail_fields() {
 	 * @param array[] $fields Field definitions keyed by schema key.
 	 */
 	return apply_filters( 'iflynepal_package_detail_fields', $fields );
+}
+
+/**
+ * The fields one meta box draws.
+ *
+ * A box renders from this and saves from it, and the two must be the same list.
+ * Scoping only the rendering would be a data-loss bug rather than a tidy-up: the
+ * save walks its list and treats a field the form did not submit as emptied, so
+ * a box that drew five fields and saved nine would delete the other four on the
+ * first Update — and those four hold the confirmation notice, the departure
+ * dates and the booking shortcode. Same reasoning as the archive screen's
+ * fields_for_term(), and the same mistake it was written to avoid.
+ *
+ * @since 1.0.0
+ *
+ * @param string $box Box key, e.g. 'card'.
+ * @return array[] Field definitions keyed by schema key, in schema order.
+ */
+function iflynepal_package_fields_for_box( $box ) {
+	$fields = array();
+
+	foreach ( iflynepal_package_detail_fields() as $key => $field ) {
+		$field_box = isset( $field['box'] ) ? $field['box'] : '';
+
+		if ( $box === $field_box ) {
+			$fields[ $key ] = $field;
+		}
+	}
+
+	return $fields;
 }
 
 /**
@@ -145,12 +192,35 @@ function iflynepal_package_field_lines( $post_id, $key ) {
  *
  * @param mixed  $value Raw submitted value, already unslashed.
  * @param string $type  Field type.
+ * @param array  $field Optional. Field definition, for the types that need it.
  * @return string Value as it should be stored.
  */
-function iflynepal_package_sanitize_value( $value, $type ) {
+function iflynepal_package_sanitize_value( $value, $type, $field = array() ) {
 	switch ( $type ) {
 		case 'dates':
 			return implode( "\n", iflynepal_package_sanitize_dates( $value ) );
+
+		case 'cards':
+			return iflynepal_archive_sanitize_cards( $value, $field );
+
+		case 'gallery':
+			return iflynepal_package_sanitize_gallery( $value, $field );
+
+		case 'image':
+		case 'video':
+			// Both store the attachment ID, never a URL — see the gallery note below.
+			return (string) absint( $value );
+
+		case 'url':
+			return esc_url_raw( trim( (string) $value ) );
+
+		case 'rich':
+			/*
+			 * Headings carry an accent word an editor wraps in <em>, so this one
+			 * cannot be sanitize_text_field: that strips the tag silently and the
+			 * accent quietly stops working with nothing on screen to say why.
+			 */
+			return iflynepal_booking_kses_text( $value );
 
 		case 'textarea':
 		case 'lines':
@@ -196,6 +266,143 @@ function iflynepal_package_sanitize_dates( $value ) {
 }
 
 /**
+ * One itinerary day's timeline, whatever shape it is stored in.
+ *
+ * The timeline used to be a textarea of `time | what happens` lines and is now a
+ * repeater of rows. Both shapes are read here rather than migrated, for two
+ * reasons: a day that has not been re-saved still publishes exactly what it
+ * published before, and the admin control draws the legacy lines as rows, so
+ * opening a day and pressing Update is the migration. Nothing is lost by never
+ * doing it.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $value Stored timeline — a list of rows, or legacy line text.
+ * @return array[] Stops, each with 'time' and 'text', in order.
+ */
+function iflynepal_package_timeline_rows( $value ) {
+	$stops = array();
+
+	if ( is_array( $value ) ) {
+		foreach ( $value as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$time = isset( $row['time'] ) ? trim( (string) $row['time'] ) : '';
+			$text = isset( $row['text'] ) ? trim( (string) $row['text'] ) : '';
+
+			if ( '' === $time && '' === $text ) {
+				continue;
+			}
+
+			$stops[] = array(
+				'time' => $time,
+				'text' => $text,
+			);
+		}
+
+		return $stops;
+	}
+
+	foreach ( preg_split( '/\R/', (string) $value ) as $line ) {
+		$line = trim( $line );
+
+		if ( '' === $line ) {
+			continue;
+		}
+
+		// Split once only: a description may well contain another pipe.
+		$parts = explode( '|', $line, 2 );
+
+		$stops[] = array(
+			'time' => trim( $parts[0] ),
+			'text' => isset( $parts[1] ) ? trim( $parts[1] ) : '',
+		);
+	}
+
+	return $stops;
+}
+
+/**
+ * Cleans a submitted timeline repeater into the rows that get stored.
+ *
+ * Same contract as the card repeater it sits inside: the posted numbering is an
+ * artefact of how HTML names inputs and is discarded, the survivors are
+ * re-indexed from zero, an entirely empty row is dropped, and the cap is
+ * enforced here as well as in the browser because the form is not the only thing
+ * that can post to this screen.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $value Raw submitted rows, already unslashed.
+ * @param array $part  Part definition, carrying 'max'.
+ * @return array[] Rows, each with 'time' and 'text'.
+ */
+function iflynepal_package_sanitize_timeline( $value, $part = array() ) {
+	if ( ! is_array( $value ) ) {
+		return array();
+	}
+
+	$max   = isset( $part['max'] ) ? (int) $part['max'] : 0;
+	$rows  = array();
+	$stops = iflynepal_package_timeline_rows( $value );
+
+	foreach ( $stops as $stop ) {
+		$rows[] = array(
+			'time' => sanitize_text_field( $stop['time'] ),
+			'text' => sanitize_textarea_field( $stop['text'] ),
+		);
+
+		if ( $max > 0 && count( $rows ) >= $max ) {
+			break;
+		}
+	}
+
+	return $rows;
+}
+
+/**
+ * A package's featured video, ready to put in a <video> element.
+ *
+ * The attachment is looked up on every read rather than trusted from the stored
+ * ID: a video deleted from the media library later would otherwise leave the
+ * page asking the browser for a file that is not there, and no save happens in
+ * between to notice. Anything that is not a video attachment is treated as no
+ * video at all, so the featured image goes on being what shows.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Package.
+ * @return array Empty when there is no usable video, otherwise 'url' and 'mime'.
+ */
+function iflynepal_package_video( $post_id ) {
+	$attachment_id = (int) iflynepal_package_field( $post_id, 'featured_video' );
+
+	if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
+		return array();
+	}
+
+	$mime = (string) get_post_mime_type( $attachment_id );
+
+	if ( 0 !== strpos( $mime, 'video/' ) ) {
+		return array();
+	}
+
+	$url = wp_get_attachment_url( $attachment_id );
+
+	if ( ! $url ) {
+		return array();
+	}
+
+	return array(
+		'id'   => $attachment_id,
+		'url'  => $url,
+		'mime' => $mime,
+	);
+}
+
+/**
  * Upcoming fixed departures for a package.
  *
  * Derived on every read: which dates are still ahead depends on today, so a
@@ -221,4 +428,99 @@ function iflynepal_package_upcoming_departures( $post_id, $limit = 0 ) {
 	sort( $dates );
 
 	return $limit > 0 ? array_slice( $dates, 0, (int) $limit ) : $dates;
+}
+
+/**
+ * A gallery field as a stored list of attachment IDs.
+ *
+ * IDs, never URLs: a URL breaks the day the site changes domain, and it throws
+ * away the generated sizes and the alt text that came with the upload. The value
+ * arrives from the form as one comma-separated string, which is what a hidden
+ * input can carry.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $value Raw submitted value.
+ * @param array $field Field definition, for its 'max'.
+ * @return string Comma-separated attachment IDs.
+ */
+function iflynepal_package_sanitize_gallery( $value, $field = array() ) {
+	$ids = is_array( $value ) ? $value : explode( ',', (string) $value );
+	$ids = array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) );
+	$max = isset( $field['max'] ) ? (int) $field['max'] : 0;
+
+	/*
+	 * Capped on save as well as in the browser: the form is not the only thing
+	 * that can post to this screen.
+	 */
+	if ( $max > 0 && count( $ids ) > $max ) {
+		$ids = array_slice( $ids, 0, $max );
+	}
+
+	return implode( ',', $ids );
+}
+
+/**
+ * A stored card repeater on a package, ready to loop over in a template.
+ *
+ * Every declared part is present on every row, so a template can read a part
+ * that was added to the schema after a row was saved without testing for it.
+ *
+ * @since 1.0.0
+ *
+ * @param int    $post_id Package.
+ * @param string $key     Schema key.
+ * @return array[] Rows, each keyed by the field's declared parts.
+ */
+function iflynepal_package_cards( $post_id, $key ) {
+	$fields = iflynepal_package_detail_fields();
+	$field  = isset( $fields[ $key ] ) ? $fields[ $key ] : array();
+	$rows   = get_post_meta( (int) $post_id, iflynepal_package_meta_key( $key ), true );
+
+	if ( ! is_array( $rows ) || empty( $field['parts'] ) ) {
+		return array();
+	}
+
+	$clean = array();
+
+	foreach ( $rows as $row ) {
+		if ( ! is_array( $row ) ) {
+			continue;
+		}
+
+		$card = array();
+
+		foreach ( $field['parts'] as $part_key => $part ) {
+			$card[ $part_key ] = isset( $row[ $part_key ] ) ? $row[ $part_key ] : '';
+		}
+
+		$clean[] = $card;
+	}
+
+	return $clean;
+}
+
+/**
+ * A package's gallery as attachment IDs.
+ *
+ * Each ID is checked against the media library on read rather than on save: an
+ * attachment deleted later would otherwise leave the page rendering an empty
+ * figure, and no save happens in between to clean it up.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Package.
+ * @return int[] Attachment IDs that still exist, in order.
+ */
+function iflynepal_package_gallery( $post_id ) {
+	$ids  = array_filter( array_map( 'absint', explode( ',', iflynepal_package_field( $post_id, 'gallery' ) ) ) );
+	$live = array();
+
+	foreach ( $ids as $id ) {
+		if ( 'attachment' === get_post_type( $id ) ) {
+			$live[] = $id;
+		}
+	}
+
+	return $live;
 }

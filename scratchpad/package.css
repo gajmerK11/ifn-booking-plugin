@@ -1,0 +1,1496 @@
+/**
+ * Single package page styles.
+ *
+ * Transcribed from the approved design,
+ * Downloads/iFlyNepal/retreats-nepal/retreats-nepal-package-single-design.html:
+ * every value is that file's, and only the names differ. It is generated rather
+ * than hand-copied because re-typing 1,000 declarations is how a 24px quietly
+ * becomes a 22px.
+ *
+ * Namespacing, and why it is not the archive's:
+ *
+ *   .iflynepal-pkg-*   class names, so the design's .button, .gallery and .day
+ *                      cannot collide with the theme's own .iflynepal-button or
+ *                      with the catalogue stylesheet.
+ *   --ifnpkg-*         custom properties, declared on .iflynepal-package rather
+ *                      than on :root so a plugin sheet cannot repaint the site.
+ *
+ * The site chrome the theme already owns is deliberately absent: the header, the
+ * nav, the footer, the body resets and the paper-grain overlay. A plugin that
+ * restyles those is a plugin that breaks every other page.
+ *
+ * @package IFly_Nepal
+ * @since   1.0.0
+ */
+
+:root{
+      --ifnpkg-ink:#212529;
+      --ifnpkg-ink-deep:#04234F;
+      --ifnpkg-muted:#6D757E;
+      --ifnpkg-paper:#FFFFFF;
+      --ifnpkg-navy:#0545A7;
+      --ifnpkg-navy-2:#0B58D5;
+      --ifnpkg-mist:#F0F5FF;
+      --ifnpkg-sand:#E7EFFC;
+      --ifnpkg-deep:#04347D;
+      --ifnpkg-gold:#F2C879;
+      --ifnpkg-line:rgba(5,69,167,.16);
+      --ifnpkg-shadow:0 22px 70px rgba(4,26,64,.16);
+      --ifnpkg-r-lg:30px;
+      --ifnpkg-r-md:20px;
+      --ifnpkg-r-sm:14px;
+      --ifnpkg-max:1360px;
+      --ifnpkg-navw:180px;
+      --ifnpkg-aside:320px;
+      --ifnpkg-gap:40px;
+      --ifnpkg-ease:cubic-bezier(.22,.7,.24,1);
+      --ifnpkg-ease-card:cubic-bezier(.16,.84,.44,1);
+      --ifnpkg-ease-card-out:cubic-bezier(.33,0,.2,1);
+      --ifnpkg-hand:'Caveat','Segoe Script',cursive;
+      --ifnpkg-serif-alt:'Cormorant Garamond',Georgia,serif;
+      /* heights the sticky layers stack against */
+      --ifnpkg-hdr:76px;
+      --ifnpkg-tabs:0px;
+    }
+    html{scroll-behavior:smooth;scroll-padding-top:calc(var(--ifnpkg-hdr) + var(--ifnpkg-tabs) + 16px)}
+
+    :where(.iflynepal-package) img{width:100%;display:block;object-fit:cover}
+    :where(.iflynepal-package) a{color:inherit;text-decoration:none}
+    :where(.iflynepal-package) button,
+:where(.iflynepal-package) input,
+:where(.iflynepal-package) select{font:inherit;color:inherit}
+    :where(.iflynepal-package) button{cursor:pointer}
+    :where(.iflynepal-package) h1,
+:where(.iflynepal-package) h2,
+:where(.iflynepal-package) h3,
+:where(.iflynepal-package) h4,
+:where(.iflynepal-package) p{margin:0}
+    :where(.iflynepal-package) h1,
+:where(.iflynepal-package) h2,
+:where(.iflynepal-package) h3,
+:where(.iflynepal-package) h4{letter-spacing:-.025em;line-height:1.08}
+    :where(.iflynepal-package) h2{font-size:clamp(30px,3.2vw,44px);font-weight:600}
+    :where(.iflynepal-package) h3{font-size:clamp(20px,1.7vw,24px);font-weight:600}
+    :focus-visible{outline:3px solid rgba(11,88,213,.72);outline-offset:3px}
+    .iflynepal-pkg-site-header :focus-visible,
+footer :focus-visible,
+.iflynepal-pkg-lightbox :focus-visible{outline-color:#fff}
+    .iflynepal-pkg-skip{position:absolute;left:-999px;top:10px;z-index:100;background:#fff;color:var(--ifnpkg-ink);padding:10px 14px;border-radius:10px}
+    .iflynepal-pkg-skip:focus{left:10px}
+    [hidden]{display:none !important}
+    .iflynepal-pkg-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+    .iflynepal-pkg-container{width:min(calc(100% - 48px),var(--ifnpkg-max));margin-inline:auto}
+    .iflynepal-pkg-section{padding:96px 0}
+    .iflynepal-pkg-section--mist{position:relative;isolation:isolate;background:var(--ifnpkg-mist);overflow:hidden}
+    .iflynepal-pkg-section--mist::before{
+      content:"";
+      position:absolute;
+      width:520px;height:520px;
+      right:-180px;top:-210px;
+      z-index:-1;
+      border:1px solid rgba(5,69,167,.08);
+      border-radius:43% 57% 58% 42%;
+      box-shadow:0 0 0 38px rgba(5,69,167,.025),0 0 0 82px rgba(5,69,167,.018);
+      transform:rotate(18deg);
+    }
+    .iflynepal-pkg-lead{max-width:700px;color:var(--ifnpkg-muted);font-size:17px}
+
+    .iflynepal-pkg-eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+      color:var(--ifnpkg-navy);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+    }
+    .iflynepal-pkg-accent{
+      display:inline-block;
+      color:var(--ifnpkg-navy);
+      font-family:var(--ifnpkg-serif-alt);
+      font-size:1.14em;
+      font-style:italic;
+      font-weight:600;
+      letter-spacing:-.025em;
+    }
+    .iflynepal-pkg-ink-mark{position:relative;display:inline-block;white-space:nowrap}
+    .iflynepal-pkg-ink-line{
+      position:absolute;
+      left:-2%;right:-2%;bottom:-.13em;
+      height:.22em;
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 14' preserveAspectRatio='none'%3E%3Cpath d='M4 9.4c36-4.6 68-6.2 106-5 33 1 66 3.8 106 1.6' fill='none' stroke='%230545A7' stroke-width='4.4' stroke-linecap='round'/%3E%3Cpath d='M18 12.4c34-2.6 64-3.4 98-2.6' fill='none' stroke='%230545A7' stroke-width='2' stroke-linecap='round' opacity='.5'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+      transform-origin:left center;
+      pointer-events:none;
+    }
+
+    .iflynepal-pkg-ico{
+      width:1em;height:1em;
+      flex:0 0 auto;
+      display:block;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.7;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+    .iflynepal-pkg-ico--fill{fill:currentColor;stroke:none}
+    .iflynepal-pkg-link-arrow{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--ifnpkg-ease)}
+    :where(.iflynepal-package) a:hover>.iflynepal-pkg-link-arrow,
+.iflynepal-pkg-button:hover .iflynepal-pkg-link-arrow{transform:translateX(4px)}
+
+    .iflynepal-pkg-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:50px;
+      padding:0 22px;
+      border:1px solid transparent;
+      border-radius:999px;
+      font-weight:800;
+      font-size:14px;
+      transition:transform .3s var(--ifnpkg-ease),background .25s ease,border-color .25s ease,box-shadow .3s var(--ifnpkg-ease),color .25s ease;
+    }
+    .iflynepal-pkg-button:hover{transform:translateY(-2px)}
+    .iflynepal-pkg-button--primary{background:var(--ifnpkg-navy);border-color:var(--ifnpkg-navy);color:#fff;box-shadow:0 10px 26px rgba(4,26,64,.24)}
+    .iflynepal-pkg-button--primary:hover{background:var(--ifnpkg-navy-2);border-color:var(--ifnpkg-navy-2);box-shadow:0 16px 34px rgba(4,26,64,.3)}
+    .iflynepal-pkg-button--light{background:#fff;color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-button--light:hover{box-shadow:0 14px 30px rgba(4,26,64,.28)}
+    .iflynepal-pkg-button--outline{border-color:var(--ifnpkg-line);background:#fff;color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-button--outline:hover{border-color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-button--block{width:100%}
+    .iflynepal-pkg-button[aria-disabled="true"]{opacity:.45;pointer-events:none;box-shadow:none}
+
+        .iflynepal-package{padding-top:var(--ifnpkg-hdr);overflow-x:clip}
+
+    /* --ifnpkg--------- 1. gallery: one lead photo,
+four beside it --ifnpkg--------------- */
+    .iflynepal-pkg-gallery{padding-top:28px}
+    .iflynepal-pkg-gallery-frame{position:relative}
+    .iflynepal-pkg-gallery-grid{
+      position:relative;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) var(--ifnpkg-aside);
+      gap:var(--ifnpkg-gap);
+      height:clamp(340px,30vw,440px);
+    }
+    .iflynepal-pkg-g-lead-wrap{position:relative;min-width:0;min-height:0}
+    .iflynepal-pkg-g-thumbs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:12px;min-height:0}
+    .iflynepal-pkg-g-tile{
+      position:relative;
+      display:block;
+      padding:0;
+      border:0;
+      overflow:hidden;
+      background:var(--ifnpkg-sand);
+      cursor:zoom-in;
+    }
+    .iflynepal-pkg-g-tile{width:100%;height:100%;border-radius:16px}
+    .iflynepal-pkg-g-tile--lead{border-radius:var(--ifnpkg-r-lg)}
+    .iflynepal-pkg-g-tile img{
+      height:100%;
+      transform:scale(1.001);
+      backface-visibility:hidden;
+      transition:transform 1.05s var(--ifnpkg-ease-card-out),filter .5s ease;
+    }
+    .iflynepal-pkg-g-tile:hover img,
+.iflynepal-pkg-g-tile:focus-visible img{transform:scale(1.06);transition-duration:.85s;transition-timing-function:var(--ifnpkg-ease-card)}
+    .iflynepal-pkg-g-tile::after{content:"";position:absolute;inset:0;background:rgba(4,26,64,0);transition:background .4s ease}
+    .iflynepal-pkg-g-tile:hover::after{background:rgba(4,26,64,.12)}
+    .iflynepal-pkg-g-tile:focus-visible{outline-offset:-4px}
+    .iflynepal-pkg-g-all{
+      position:absolute;
+      right:18px;bottom:18px;
+      z-index:2;
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      min-height:44px;
+      padding:0 18px;
+      border:0;
+      border-radius:999px;
+      background:rgba(255,255,255,.95);
+      color:var(--ifnpkg-navy);
+      font-size:13px;
+      font-weight:800;
+      box-shadow:0 10px 26px rgba(4,26,64,.22);
+      backdrop-filter:blur(8px);
+      transition:transform .3s var(--ifnpkg-ease),box-shadow .3s var(--ifnpkg-ease);
+    }
+    .iflynepal-pkg-g-all:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(4,26,64,.28)}
+    .iflynepal-pkg-g-all .iflynepal-pkg-ico{width:17px;height:17px}
+
+    /* 2. breadcrumb under the lead photo,
+share under the right-hand photos */
+    .iflynepal-pkg-gallery-meta{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) var(--ifnpkg-aside);
+      gap:var(--ifnpkg-gap);
+      align-items:center;
+      margin-top:18px;
+    }
+    .iflynepal-pkg-crumbs{display:flex;flex-wrap:nowrap;min-width:0;align-items:center;gap:8px;white-space:nowrap;color:var(--ifnpkg-muted);font-size:12.5px;font-weight:500}
+    .iflynepal-pkg-crumbs a{color:var(--ifnpkg-navy);font-weight:600;border-bottom:1px solid transparent;transition:border-color .25s var(--ifnpkg-ease)}
+    .iflynepal-pkg-crumbs a:hover{border-bottom-color:currentColor}
+    .iflynepal-pkg-crumbs .iflynepal-pkg-sep{width:12px;height:12px;opacity:.55}
+    .iflynepal-pkg-crumbs [aria-current]{min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--ifnpkg-ink)}
+    .iflynepal-pkg-crumbs a,
+.iflynepal-pkg-crumbs .iflynepal-pkg-sep{flex:none}
+    .iflynepal-pkg-share{display:flex;align-items:center;justify-content:flex-start;gap:7px}
+    .iflynepal-pkg-share-label{white-space:nowrap;margin-right:4px;color:var(--ifnpkg-muted);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    .iflynepal-pkg-share-btn{
+      position:relative;
+      display:grid;
+      place-items:center;
+      width:36px;height:36px;
+      padding:0;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:50%;
+      background:#fff;
+      color:var(--ifnpkg-navy);
+      transition:transform .3s var(--ifnpkg-ease),background .25s ease,color .25s ease,border-color .25s ease;
+    }
+    .iflynepal-pkg-share-btn:hover{transform:translateY(-2px);background:var(--ifnpkg-navy);border-color:var(--ifnpkg-navy);color:#fff}
+    .iflynepal-pkg-share-btn .iflynepal-pkg-ico{width:16px;height:16px}
+    .iflynepal-pkg-share-btn .iflynepal-pkg-ico--fill{width:15px;height:15px}
+    .iflynepal-pkg-share-toast{
+      position:absolute;
+      right:-6px;bottom:calc(100% + 10px);
+      padding:6px 11px;
+      border-radius:9px;
+      background:var(--ifnpkg-ink-deep);
+      color:#fff;
+      font-size:11px;
+      font-weight:700;
+      white-space:nowrap;
+      opacity:0;
+      transform:translateY(4px);
+      pointer-events:none;
+      transition:opacity .25s ease,transform .25s var(--ifnpkg-ease);
+    }
+    .iflynepal-pkg-share-btn.iflynepal-pkg-is-copied .iflynepal-pkg-share-toast{opacity:1;transform:none}
+
+    /* --ifnpkg--------- 3. title --ifnpkg--------------------------------------------------- */
+    .iflynepal-pkg-trip-title{padding:40px 0 48px}
+    .iflynepal-pkg-trip-title h1{
+      max-width:none;
+      font-size:clamp(28px,3.45vw,52px);
+      font-weight:600;
+      line-height:1.08;
+      white-space:nowrap;
+    }
+    .iflynepal-pkg-trip-title h1 .iflynepal-pkg-w{display:inline-block}
+    .iflynepal-pkg-trip-title h1 em{font-family:var(--ifnpkg-serif-alt);font-size:1.1em;font-weight:600;color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-trip-glance{margin-top:30px}
+    .iflynepal-pkg-trip-glance .iflynepal-pkg-eyebrow{margin-bottom:12px}
+
+    /* --ifnpkg--------- left sticky section nav --ifnpkg------------------------------------ */
+    .iflynepal-pkg-side-nav{
+      position:sticky;
+      top:calc(var(--ifnpkg-hdr) + 32px);
+      margin-top:64px;
+      z-index:40;
+    }
+    .iflynepal-pkg-side-label{display:block;margin-bottom:16px;color:var(--ifnpkg-muted);font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+    .iflynepal-pkg-side-links{position:relative;margin:0;padding:0;list-style:none;border-left:2px solid var(--ifnpkg-line)}
+    /* reading progress through the page */
+    .iflynepal-pkg-side-links::before{
+      content:"";
+      position:absolute;
+      left:-2px;top:0;
+      width:2px;
+      height:var(--ifnpkg-p,0%);
+      background:rgba(5,69,167,.35);
+      transition:height .15s linear;
+    }
+    .iflynepal-pkg-side-links a{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:11px 0 11px 18px;
+      color:var(--ifnpkg-muted);
+      font-size:14.5px;
+      font-weight:600;
+      line-height:1.3;
+      transition:color .25s ease;
+    }
+    .iflynepal-pkg-side-links a .iflynepal-pkg-ico{width:19px;height:19px;color:#A2A9B1;transition:color .25s ease}
+    .iflynepal-pkg-side-links a::before{
+      content:"";
+      position:absolute;
+      left:-2px;top:6px;bottom:6px;
+      width:3px;
+      border-radius:3px;
+      background:var(--ifnpkg-navy);
+      transform:scaleY(0);
+      transition:transform .45s var(--ifnpkg-ease);
+    }
+    .iflynepal-pkg-side-links a:hover{color:var(--ifnpkg-ink)}
+    .iflynepal-pkg-side-links a:hover .iflynepal-pkg-ico{color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-side-links a.iflynepal-pkg-is-active{color:var(--ifnpkg-navy);font-weight:700}
+    .iflynepal-pkg-side-links a.iflynepal-pkg-is-active .iflynepal-pkg-ico{color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-side-links a.iflynepal-pkg-is-active::before{transform:scaleY(1)}
+
+    /* --ifnpkg--------- two columns: content + booking aside --ifnpkg----------------------- */
+    /* nav | content | booking */
+    .iflynepal-pkg-page-body{
+      display:grid;
+      grid-template-columns:var(--ifnpkg-navw) minmax(0,1fr);
+      gap:var(--ifnpkg-gap);
+      align-items:start;
+      border-top:1px solid var(--ifnpkg-line);
+    }
+    .iflynepal-pkg-trip-layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) var(--ifnpkg-aside);
+      gap:var(--ifnpkg-gap);
+      align-items:start;
+    }
+    /* the later sections live in the same column as the content,
+so the nav
+       keeps sticking; the mist bands still bleed to both screen edges */
+    .iflynepal-pkg-band{position:relative;isolation:isolate;padding:88px 0}
+    .iflynepal-pkg-band--mist::before{content:"";position:absolute;top:0;bottom:0;left:-100vw;right:-100vw;z-index:-1;background:var(--ifnpkg-mist)}
+    .iflynepal-pkg-t-section{padding:64px 0;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-t-section:first-child{border-top:0}
+    .iflynepal-pkg-t-head{margin-bottom:30px}
+    .iflynepal-pkg-t-head h2{margin-bottom:14px}
+    .iflynepal-pkg-t-head .iflynepal-pkg-lead{margin-top:10px}
+    .iflynepal-pkg-sub-h{margin:44px 0 20px;font-size:21px;font-weight:700;letter-spacing:-.015em}
+
+    /* overview */
+    .iflynepal-pkg-intro{font-size:18px;line-height:1.7;color:var(--ifnpkg-ink)}
+    .iflynepal-pkg-glance{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      border:1px solid var(--ifnpkg-line);
+      border-radius:var(--ifnpkg-r-md);
+      background:#fff;
+      overflow:hidden;
+    }
+    .iflynepal-pkg-glance-item{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding:20px 18px;
+      border-right:1px solid var(--ifnpkg-line);
+      border-bottom:1px solid var(--ifnpkg-line);
+      transition:background .25s ease;
+    }
+    .iflynepal-pkg-glance-item:nth-child(4n){border-right:0}
+    .iflynepal-pkg-glance-item:nth-last-child(-n+4){border-bottom:0}
+    .iflynepal-pkg-glance-item:hover{background:#F7FAFF}
+    .iflynepal-pkg-glance-ico{
+      display:grid;
+      place-items:center;
+      width:38px;height:38px;
+      flex:none;
+      border-radius:12px;
+      background:var(--ifnpkg-mist);
+      color:var(--ifnpkg-navy);
+    }
+    .iflynepal-pkg-glance-ico .iflynepal-pkg-ico{width:19px;height:19px}
+    .iflynepal-pkg-glance-item small{display:block;color:var(--ifnpkg-muted);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .iflynepal-pkg-glance-item strong{display:block;margin-top:3px;font-size:14px;font-weight:700;line-height:1.35}
+    .iflynepal-pkg-prose p{color:#3B4148;font-size:15.5px;line-height:1.8}
+    .iflynepal-pkg-prose p+p{margin-top:16px}
+    .iflynepal-pkg-prose--after{margin-top:22px}
+
+    .iflynepal-pkg-check-list{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;margin:0;padding:0;list-style:none}
+    .iflynepal-pkg-check-list li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;line-height:1.55}
+    .iflynepal-pkg-check-list .iflynepal-pkg-tick{
+      display:grid;
+      place-items:center;
+      width:24px;height:24px;
+      flex:none;
+      margin-top:-1px;
+      border-radius:50%;
+      background:var(--ifnpkg-mist);
+      color:var(--ifnpkg-navy);
+    }
+    .iflynepal-pkg-check-list .iflynepal-pkg-tick .iflynepal-pkg-ico{width:13px;height:13px;stroke-width:2.4}
+    .iflynepal-pkg-check-list--x .iflynepal-pkg-tick{background:#F5F6F8;color:#8A929B}
+
+    /* itinerary */
+    .iflynepal-pkg-itin-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+    .iflynepal-pkg-seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--ifnpkg-mist)}
+    .iflynepal-pkg-seg button{
+      min-height:38px;
+      padding:0 18px;
+      border:0;
+      border-radius:999px;
+      background:transparent;
+      color:var(--ifnpkg-muted);
+      font-size:13px;
+      font-weight:700;
+      transition:background .3s var(--ifnpkg-ease),color .25s ease,box-shadow .3s var(--ifnpkg-ease);
+    }
+    .iflynepal-pkg-seg button[aria-selected="true"]{background:#fff;color:var(--ifnpkg-navy);box-shadow:0 4px 14px rgba(4,26,64,.1)}
+    .iflynepal-pkg-text-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 0;
+      border:0;
+      background:none;
+      color:var(--ifnpkg-navy);
+      font-size:13px;
+      font-weight:800;
+      border-bottom:1px solid transparent;
+    }
+    .iflynepal-pkg-text-btn:hover{border-bottom-color:currentColor}
+
+    .iflynepal-pkg-summary-days{display:grid;gap:14px}
+    .iflynepal-pkg-sum-day{
+      display:grid;
+      grid-template-columns:86px 1fr;
+      gap:20px;
+      padding:22px 24px;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:var(--ifnpkg-r-md);
+      background:#fff;
+    }
+    .iflynepal-pkg-day-badge{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:74px;
+      border-radius:16px;
+      background:var(--ifnpkg-navy);
+      color:#fff;
+      line-height:1;
+    }
+    .iflynepal-pkg-day-badge small{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+    .iflynepal-pkg-day-badge b{margin-top:6px;font-size:30px;font-weight:700}
+    .iflynepal-pkg-sum-day h3{margin-bottom:8px;font-size:19px}
+    .iflynepal-pkg-sum-day p{color:var(--ifnpkg-muted);font-size:14.5px}
+
+    .iflynepal-pkg-day{border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-md);background:#fff;overflow:hidden;transition:box-shadow .35s var(--ifnpkg-ease),border-color .3s ease}
+    .iflynepal-pkg-day+.iflynepal-pkg-day{margin-top:14px}
+    .iflynepal-pkg-day.iflynepal-pkg-is-open{border-color:rgba(5,69,167,.3);box-shadow:0 16px 40px rgba(4,26,64,.08)}
+    .iflynepal-pkg-day-toggle{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:18px;
+      align-items:center;
+      width:100%;
+      padding:20px 22px;
+      border:0;
+      background:none;
+      text-align:left;
+    }
+    .iflynepal-pkg-day-num{
+      display:grid;
+      place-items:center;
+      width:52px;height:52px;
+      border-radius:15px;
+      background:var(--ifnpkg-mist);
+      color:var(--ifnpkg-navy);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.06em;
+      line-height:1.1;
+      text-align:center;
+      text-transform:uppercase;
+      transition:background .3s ease,color .3s ease;
+    }
+    .iflynepal-pkg-day-num b{display:block;font-size:20px;letter-spacing:0}
+    .iflynepal-pkg-day.iflynepal-pkg-is-open .iflynepal-pkg-day-num{background:var(--ifnpkg-navy);color:#fff}
+    .iflynepal-pkg-day-h{margin:0;font-size:inherit;letter-spacing:0;line-height:inherit}
+    .iflynepal-pkg-dt-title{display:block;font-size:19px;font-weight:600;letter-spacing:-.02em;line-height:1.25}
+    .iflynepal-pkg-dt-sub{display:block;margin-top:4px;color:var(--ifnpkg-muted);font-size:13px;font-weight:400}
+    .iflynepal-pkg-chev{
+      display:grid;
+      place-items:center;
+      width:36px;height:36px;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:50%;
+      color:var(--ifnpkg-navy);
+      transition:transform .45s var(--ifnpkg-ease),background .3s ease;
+    }
+    .iflynepal-pkg-chev .iflynepal-pkg-ico{width:16px;height:16px}
+    .iflynepal-pkg-day.iflynepal-pkg-is-open .iflynepal-pkg-chev{transform:rotate(180deg);background:var(--ifnpkg-mist)}
+    .iflynepal-pkg-day-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s var(--ifnpkg-ease)}
+    .iflynepal-pkg-day.iflynepal-pkg-is-open .iflynepal-pkg-day-panel{grid-template-rows:1fr}
+    .iflynepal-pkg-day-panel>div{overflow:hidden}
+    .iflynepal-pkg-timeline{position:relative;margin:0 22px;padding:6px 0 4px 0;list-style:none;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-timeline li{position:relative;display:grid;grid-template-columns:132px 1fr;gap:22px;padding:16px 0}
+    .iflynepal-pkg-timeline li::before{
+      content:"";
+      position:absolute;
+      left:142px;top:24px;bottom:-24px;
+      width:1px;
+      background:var(--ifnpkg-line);
+    }
+    .iflynepal-pkg-timeline li:last-child::before{display:none}
+    .iflynepal-pkg-timeline li::after{
+      content:"";
+      position:absolute;
+      left:136px;top:21px;
+      width:9px;height:9px;
+      border:2px solid var(--ifnpkg-navy);
+      border-radius:50%;
+      background:#fff;
+    }
+    .iflynepal-pkg-timeline time{color:var(--ifnpkg-navy);font-size:12.5px;font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .iflynepal-pkg-timeline p{padding-left:8px;color:#3B4148;font-size:14.5px;line-height:1.7}
+    [role="tabpanel"][hidden]{display:none}
+
+    /* dates & prices */
+    .iflynepal-pkg-booker-wrap{position:relative}
+    .iflynepal-pkg-booker{
+      display:grid;
+      grid-template-columns:1fr;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:var(--ifnpkg-r-lg);
+      background:#fff;
+      overflow:hidden;
+      box-shadow:0 18px 50px rgba(4,26,64,.07);
+    }
+    .iflynepal-pkg-cal{padding:26px}
+    .iflynepal-pkg-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .iflynepal-pkg-cal-head strong{font-size:16px;font-weight:700}
+    .iflynepal-pkg-cal-nav{display:flex;gap:6px}
+    .iflynepal-pkg-cal-nav button{
+      display:grid;place-items:center;
+      width:36px;height:36px;
+      padding:0;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:50%;
+      background:#fff;
+      color:var(--ifnpkg-navy);
+      transition:background .25s ease,border-color .25s ease;
+    }
+    .iflynepal-pkg-cal-nav button:hover:not(:disabled){background:var(--ifnpkg-mist);border-color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-cal-nav button:disabled{opacity:.35;cursor:not-allowed}
+    .iflynepal-pkg-cal-nav .iflynepal-pkg-ico{width:16px;height:16px}
+    .iflynepal-pkg-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+    .iflynepal-pkg-cal-grid .iflynepal-pkg-dow{padding:6px 0;color:var(--ifnpkg-muted);font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .iflynepal-pkg-cal-day{
+      position:relative;
+      height:44px;
+      display:grid;
+      place-items:center;
+      padding:0;
+      border:0;
+      border-radius:12px;
+      background:none;
+      font-size:13.5px;
+      font-weight:600;
+      font-variant-numeric:tabular-nums;
+      transition:background .2s ease,color .2s ease;
+    }
+    .iflynepal-pkg-cal-day:hover:not(:disabled){background:var(--ifnpkg-mist);color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-cal-day:disabled{color:#C3C8CE;cursor:not-allowed}
+    .iflynepal-pkg-cal-day.iflynepal-pkg-is-today::after{content:"";position:absolute;bottom:6px;width:4px;height:4px;border-radius:50%;background:var(--ifnpkg-navy)}
+    .iflynepal-pkg-cal-day.iflynepal-pkg-is-start,
+.iflynepal-pkg-cal-day.iflynepal-pkg-is-end{background:var(--ifnpkg-navy);color:#fff}
+    .iflynepal-pkg-cal-day.iflynepal-pkg-is-start{border-radius:12px 4px 4px 12px}
+    .iflynepal-pkg-cal-day.iflynepal-pkg-is-end{border-radius:4px 12px 12px 4px}
+    .iflynepal-pkg-cal-day.iflynepal-pkg-is-start.iflynepal-pkg-is-today::after,
+.iflynepal-pkg-cal-day.iflynepal-pkg-is-end.iflynepal-pkg-is-today::after{background:#fff}
+    .iflynepal-pkg-cal-quick{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-cal-quick small{margin-right:4px;color:var(--ifnpkg-muted);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .iflynepal-pkg-cal-quick button{
+      min-height:32px;
+      padding:0 13px;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:999px;
+      background:#fff;
+      color:var(--ifnpkg-navy);
+      font-size:12px;
+      font-weight:700;
+      transition:background .25s ease,border-color .25s ease,color .25s ease;
+    }
+    .iflynepal-pkg-cal-quick button:hover{border-color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-cal-quick button.iflynepal-pkg-is-on{background:var(--ifnpkg-navy);border-color:var(--ifnpkg-navy);color:#fff}
+
+    .iflynepal-pkg-book-sum{display:flex;flex-direction:column;padding:26px;background:var(--ifnpkg-mist);border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-book-sum h3{margin-bottom:16px;font-size:17px}
+    .iflynepal-pkg-sum-dates{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:14px;border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-sm);background:#fff}
+    .iflynepal-pkg-sum-dates small{display:block;color:var(--ifnpkg-muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+    .iflynepal-pkg-sum-dates b{display:block;margin-top:2px;font-size:13.5px;font-weight:700;line-height:1.3}
+    .iflynepal-pkg-sum-dates b.iflynepal-pkg-is-empty{color:#A2A9B1;font-weight:500}
+    .iflynepal-pkg-sum-dates .iflynepal-pkg-ico{width:18px;height:18px;color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-sum-dur{margin-top:10px;color:var(--ifnpkg-muted);font-size:12.5px}
+    .iflynepal-pkg-sum-dur b{color:var(--ifnpkg-ink)}
+    .iflynepal-pkg-pax{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding:12px 14px;border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-sm);background:#fff}
+    .iflynepal-pkg-pax span{font-size:13.5px;font-weight:700}
+    .iflynepal-pkg-pax span small{display:block;color:var(--ifnpkg-muted);font-size:11.5px;font-weight:500}
+    .iflynepal-pkg-stepper{display:flex;align-items:center;gap:12px}
+    .iflynepal-pkg-stepper button{
+      display:grid;place-items:center;
+      width:32px;height:32px;
+      padding:0;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:50%;
+      background:#fff;
+      color:var(--ifnpkg-navy);
+      font-size:17px;
+      line-height:1;
+    }
+    .iflynepal-pkg-stepper button:disabled{opacity:.35;cursor:not-allowed}
+    .iflynepal-pkg-stepper output{min-width:20px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}
+    .iflynepal-pkg-sum-lines{margin:18px 0 0;padding:16px 0 0;border-top:1px dashed rgba(5,69,167,.28);list-style:none}
+    .iflynepal-pkg-sum-lines li{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--ifnpkg-muted)}
+    .iflynepal-pkg-sum-lines li+li{margin-top:6px}
+    .iflynepal-pkg-sum-lines li.iflynepal-pkg-total{margin-top:12px;color:var(--ifnpkg-ink);font-size:15px;font-weight:800}
+    .iflynepal-pkg-sum-lines li.iflynepal-pkg-total output{font-size:22px;letter-spacing:-.02em}
+    .iflynepal-pkg-book-sum .iflynepal-pkg-button{margin-top:18px}
+    .iflynepal-pkg-sum-note{margin-top:12px;color:var(--ifnpkg-muted);font-size:11.5px;line-height:1.5;text-align:center}
+
+    .iflynepal-pkg-annot{
+      display:flex;
+      align-items:flex-start;
+      gap:6px;
+      pointer-events:none;
+      color:var(--ifnpkg-navy);
+    }
+    .iflynepal-pkg-annot b{
+      font-family:var(--ifnpkg-hand);
+      font-weight:600;
+      font-size:25px;
+      line-height:1.05;
+      transform:rotate(-3.5deg);
+      white-space:nowrap;
+    }
+    #ifnpkg-dates .iflynepal-pkg-t-head{margin-bottom:70px}
+    .iflynepal-pkg-annot--dates{position:absolute;left:22%;top:-62px;align-items:flex-end}
+    .iflynepal-pkg-annot--dates svg{width:42px;height:52px;margin-bottom:-20px}
+
+    .iflynepal-pkg-price-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:40px}
+    .iflynepal-pkg-price-col{padding:26px;border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-md);background:#fff}
+    .iflynepal-pkg-price-col h3{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:18px}
+    .iflynepal-pkg-price-col h3 .iflynepal-pkg-ico{width:20px;height:20px;color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-price-col .iflynepal-pkg-check-list{grid-template-columns:1fr;gap:12px}
+    .iflynepal-pkg-price-col .iflynepal-pkg-check-list li{font-size:14px}
+
+    /* booking aside */
+    .iflynepal-pkg-trip-aside{position:sticky;top:calc(var(--ifnpkg-hdr) + var(--ifnpkg-tabs) + 32px);margin:64px 0;display:grid;gap:18px}
+    /* short screens: the card sheds its list so the whole aside still fits */
+    @media (min-width:1001px) and (max-height:860px){.iflynepal-pkg-price-card .iflynepal-pkg-check-list{display:none}.iflynepal-pkg-price-card .iflynepal-pkg-price-actions{margin-top:22px}}
+    .iflynepal-pkg-price-card{
+      position:relative;
+      padding:28px;
+      border-radius:var(--ifnpkg-r-lg);
+      background:#fff;
+      border:1px solid var(--ifnpkg-line);
+      box-shadow:0 22px 60px rgba(4,26,64,.12);
+      overflow:hidden;
+    }
+    .iflynepal-pkg-price-card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--ifnpkg-navy),var(--ifnpkg-navy-2) 60%,var(--ifnpkg-gold))}
+    .iflynepal-pkg-price-card .iflynepal-pkg-eyebrow{margin-bottom:10px}
+    .iflynepal-pkg-price-from{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+    .iflynepal-pkg-price-from small{color:var(--ifnpkg-muted);font-size:13px;font-weight:600}
+    .iflynepal-pkg-price-from strong{font-size:40px;font-weight:700;letter-spacing:-.035em;line-height:1}
+    .iflynepal-pkg-price-from strong sup{font-size:.4em;font-weight:700;letter-spacing:0;vertical-align:1.3em;margin-right:2px}
+    .iflynepal-pkg-price-from span{color:var(--ifnpkg-muted);font-size:13px}
+    .iflynepal-pkg-price-card .iflynepal-pkg-check-list{grid-template-columns:1fr;gap:10px;margin:22px 0 24px;padding-top:20px;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-price-card .iflynepal-pkg-check-list li{font-size:13.5px}
+    .iflynepal-pkg-price-card .iflynepal-pkg-check-list .iflynepal-pkg-tick{width:22px;height:22px}
+    .iflynepal-pkg-price-actions{display:grid;gap:10px}
+    .iflynepal-pkg-price-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;color:var(--ifnpkg-muted);font-size:11.5px}
+    .iflynepal-pkg-price-foot .iflynepal-pkg-ico{width:15px;height:15px;color:var(--ifnpkg-navy)}
+
+    .iflynepal-pkg-expert{
+      display:grid;
+      grid-template-columns:64px 1fr;
+      gap:16px;
+      align-items:center;
+      padding:22px;
+      border-radius:var(--ifnpkg-r-md);
+      background:var(--ifnpkg-deep);
+      color:#fff;
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .iflynepal-pkg-expert::after{
+      content:"";
+      position:absolute;
+      width:220px;height:220px;
+      right:-90px;top:-110px;
+      z-index:-1;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:43% 57% 58% 42%;
+      box-shadow:0 0 0 26px rgba(255,255,255,.03);
+    }
+    .iflynepal-pkg-expert img{width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,.5);object-position:center 20%}
+    .iflynepal-pkg-expert small{display:block;color:#BBD4F7;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+    .iflynepal-pkg-expert strong{display:block;margin-top:2px;font-size:17px}
+    .iflynepal-pkg-expert strong span{color:rgba(255,255,255,.62);font-size:13px;font-weight:500}
+    .iflynepal-pkg-expert .iflynepal-pkg-button{grid-column:1 / -1;min-height:46px;background:#25D366;border-color:#25D366;color:#06301A;font-size:13px}
+    .iflynepal-pkg-expert .iflynepal-pkg-button:hover{box-shadow:0 12px 26px rgba(0,0,0,.25)}
+    .iflynepal-pkg-expert .iflynepal-pkg-button .iflynepal-pkg-ico{width:18px;height:18px}
+
+    /* --ifnpkg--------- packing + map --ifnpkg--------------------------------------------- */
+    .iflynepal-pkg-pack-map{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:start}
+    .iflynepal-pkg-pack-list{margin:0;padding:0;list-style:none;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-pack-list li{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid var(--ifnpkg-line);font-size:14.5px;font-weight:500}
+    .iflynepal-pkg-pack-list .iflynepal-pkg-ico{width:20px;height:20px;color:var(--ifnpkg-navy)}
+    .iflynepal-pkg-map-card{border-radius:var(--ifnpkg-r-lg);overflow:hidden;background:#fff;border:1px solid var(--ifnpkg-line);box-shadow:0 18px 50px rgba(4,26,64,.08)}
+    .iflynepal-pkg-map-card iframe{display:block;width:100%;height:380px;border:0;filter:saturate(.85)}
+    .iflynepal-pkg-map-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px}
+    .iflynepal-pkg-map-foot strong{display:block;font-size:15px}
+    .iflynepal-pkg-map-foot span{color:var(--ifnpkg-muted);font-size:12.5px}
+    .iflynepal-pkg-map-foot a{display:inline-flex;align-items:center;gap:7px;color:var(--ifnpkg-navy);font-size:13px;font-weight:800;white-space:nowrap}
+
+    /* --ifnpkg--------- FAQ --ifnpkg------------------------------------------------------- */
+    .iflynepal-pkg-faq-layout{display:grid;grid-template-columns:.7fr 1.3fr;gap:72px;align-items:start}
+    .iflynepal-pkg-faq-layout h2{margin-bottom:16px}
+    .iflynepal-pkg-faq-list{border-top:1px solid var(--ifnpkg-line)}
+    :where(.iflynepal-package) details{border-bottom:1px solid var(--ifnpkg-line)}
+    :where(.iflynepal-package) summary{list-style:none;cursor:pointer;padding:21px 42px 21px 0;position:relative;font-size:15px;font-weight:700}
+    :where(.iflynepal-package) summary::-webkit-details-marker{display:none}
+    :where(.iflynepal-package) summary::after{content:"+";position:absolute;right:4px;top:14px;color:var(--ifnpkg-navy);font-size:25px;font-weight:400;transition:transform .25s ease}
+    :where(.iflynepal-package) details[open] summary::after{transform:rotate(45deg)}
+    :where(.iflynepal-package) details p{padding:0 50px 20px 0;color:var(--ifnpkg-muted);font-size:14px}
+
+    /* --ifnpkg--------- similar retreats rail --ifnpkg------------------------------------- */
+    .iflynepal-pkg-rail-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:34px}
+    .iflynepal-pkg-rail-arrows{display:flex;gap:8px}
+    .iflynepal-pkg-rail-arrows button{
+      display:grid;place-items:center;
+      width:48px;height:48px;
+      padding:0;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:50%;
+      background:#fff;
+      color:var(--ifnpkg-navy);
+      transition:background .25s ease,color .25s ease,border-color .25s ease,opacity .25s ease;
+    }
+    .iflynepal-pkg-rail-arrows button:hover:not(:disabled){background:var(--ifnpkg-navy);border-color:var(--ifnpkg-navy);color:#fff}
+    .iflynepal-pkg-rail-arrows button:disabled{opacity:.35;cursor:not-allowed}
+    .iflynepal-pkg-rail-arrows .iflynepal-pkg-ico{width:18px;height:18px}
+    .iflynepal-pkg-rail{
+      display:grid;
+      grid-auto-flow:column;
+      grid-auto-columns:calc((100% - 40px) / 3);
+      gap:20px;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      scrollbar-width:none;
+      padding:6px 2px 24px;
+      margin:-6px -2px 0;
+    }
+    .iflynepal-pkg-rail::-webkit-scrollbar{display:none}
+    .iflynepal-pkg-trip-card{
+      scroll-snap-align:start;
+      display:flex;
+      flex-direction:column;
+      background:#fff;
+      border:1px solid var(--ifnpkg-line);
+      border-radius:24px;
+      overflow:hidden;
+      transform:translate3d(0,0,0);
+      box-shadow:0 2px 10px rgba(4,26,64,.045);
+      transition:transform .62s var(--ifnpkg-ease-card-out),box-shadow .62s var(--ifnpkg-ease-card-out);
+    }
+    .iflynepal-pkg-trip-card:hover,
+.iflynepal-pkg-trip-card:focus-within{
+      transform:translate3d(0,-6px,0);
+      box-shadow:0 20px 44px rgba(4,26,64,.13);
+      transition-duration:.44s;
+      transition-timing-function:var(--ifnpkg-ease-card);
+    }
+    .iflynepal-pkg-trip-img{height:230px;position:relative;overflow:hidden}
+    .iflynepal-pkg-trip-img img{height:100%;transform:scale(1.001);transition:transform 1.05s var(--ifnpkg-ease-card-out)}
+    .iflynepal-pkg-trip-card:hover .iflynepal-pkg-trip-img img{transform:scale(1.06);transition-duration:.85s;transition-timing-function:var(--ifnpkg-ease-card)}
+    .iflynepal-pkg-pill{position:absolute;left:16px;top:16px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.94);color:var(--ifnpkg-navy);font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    .iflynepal-pkg-trip-peek{
+      position:absolute;
+      inset:auto 0 0;
+      padding:20px 18px 18px;
+      background:linear-gradient(180deg,rgba(4,26,64,0),rgba(4,26,64,.86) 42%,rgba(4,26,64,.94));
+      transform:translate3d(0,101%,0);
+      transition:transform .5s var(--ifnpkg-ease-card-out);
+    }
+    .iflynepal-pkg-trip-card:hover .iflynepal-pkg-trip-peek,
+.iflynepal-pkg-trip-card:focus-within .iflynepal-pkg-trip-peek{transform:none;transition-duration:.58s;transition-delay:.05s;transition-timing-function:var(--ifnpkg-ease-card)}
+    .iflynepal-pkg-trip-peek p{color:rgba(255,255,255,.93);font-size:13px;line-height:1.55}
+    .iflynepal-pkg-trip-body{display:flex;flex-direction:column;flex:1;padding:22px}
+    .iflynepal-pkg-trip-meta{display:flex;gap:10px;color:var(--ifnpkg-muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .iflynepal-pkg-trip-body h3{margin:8px 0 10px;font-size:21px;line-height:1.2}
+    .iflynepal-pkg-trip-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--ifnpkg-line);display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--ifnpkg-navy);font-weight:800;font-size:13px}
+    .iflynepal-pkg-trip-foot strong{color:var(--ifnpkg-ink);font-size:15px}
+    .iflynepal-pkg-trip-foot strong small{color:var(--ifnpkg-muted);font-size:11px;font-weight:600}
+    .iflynepal-pkg-trip-foot a{display:inline-flex;align-items:center;gap:7px}
+
+    /* --ifnpkg--------- mobile booking bar --ifnpkg----------------------------------------- */
+    .iflynepal-pkg-book-bar{display:none}
+
+    /* --ifnpkg--------- lightbox --ifnpkg-------------------------------------------------- */
+    .iflynepal-pkg-lightbox{
+      position:fixed;
+      inset:0;
+      z-index:3000;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      background:rgba(3,18,42,.96);
+      color:#fff;
+      opacity:0;
+      transition:opacity .35s ease;
+    }
+    .iflynepal-pkg-lightbox.iflynepal-pkg-is-open{opacity:1}
+    .iflynepal-pkg-lb-top{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;font-size:13px;font-weight:600}
+    .iflynepal-pkg-lb-count{font-variant-numeric:tabular-nums;letter-spacing:.06em}
+    .iflynepal-pkg-lb-btn{
+      display:grid;place-items:center;
+      width:48px;height:48px;
+      padding:0;
+      border:1px solid rgba(255,255,255,.28);
+      border-radius:50%;
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      transition:background .25s ease;
+    }
+    .iflynepal-pkg-lb-btn:hover{background:rgba(255,255,255,.16)}
+    .iflynepal-pkg-lb-btn .iflynepal-pkg-ico{width:20px;height:20px}
+    .iflynepal-pkg-lb-stage{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;padding:0 24px;min-height:0}
+    .iflynepal-pkg-lb-figure{margin:0;height:100%;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+    .iflynepal-pkg-lb-figure img{width:auto;max-width:100%;max-height:calc(100vh - 250px);border-radius:16px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+    .iflynepal-pkg-lb-figure figcaption{color:rgba(255,255,255,.75);font-size:13.5px;text-align:center}
+    .iflynepal-pkg-lb-thumbs{display:flex;justify-content:center;gap:8px;padding:18px 24px 24px;overflow-x:auto}
+    .iflynepal-pkg-lb-thumbs button{
+      flex:none;
+      width:74px;height:52px;
+      padding:0;
+      border:2px solid transparent;
+      border-radius:10px;
+      overflow:hidden;
+      background:none;
+      opacity:.5;
+      transition:opacity .25s ease,border-color .25s ease;
+    }
+    .iflynepal-pkg-lb-thumbs button img{height:100%}
+    .iflynepal-pkg-lb-thumbs button:hover{opacity:.85}
+    .iflynepal-pkg-lb-thumbs button[aria-current="true"]{opacity:1;border-color:#fff}
+    body.iflynepal-pkg-lb-lock{overflow:hidden}
+
+    /* --ifnpkg--------- GSAP entrance states (only once the library has parsed) --ifnpkg--- */
+    .iflynepal-pkg-gsap-ready [data-anim]{opacity:0}
+    .iflynepal-pkg-gsap-ready .iflynepal-pkg-trip-title h1 .iflynepal-pkg-w,
+.iflynepal-pkg-gsap-ready .iflynepal-pkg-trip-title h1 em{opacity:0}
+    .iflynepal-pkg-gsap-ready .iflynepal-pkg-g-tile{clip-path:inset(100% 0 0 0)}
+    .iflynepal-pkg-gsap-ready .iflynepal-pkg-g-all,
+.iflynepal-pkg-gsap-ready .iflynepal-pkg-gallery-meta>*{opacity:0}
+
+    /* --ifnpkg--------- responsive --ifnpkg------------------------------------------------ */
+    @media (max-width:1240px){
+      :root{--ifnpkg-navw:160px;--ifnpkg-aside:300px;--ifnpkg-gap:32px}
+      .iflynepal-pkg-share{gap:5px}
+      .iflynepal-pkg-share-btn{width:32px;height:32px}
+    }
+    /* below this the nav folds into a sticky strip across the top */
+    @media (max-width:1100px){
+      :root{--ifnpkg-tabs:54px}
+      .iflynepal-pkg-page-body{grid-template-columns:minmax(0,1fr);row-gap:0}
+      .iflynepal-pkg-side-nav{
+        top:var(--ifnpkg-hdr);
+        display:flex;
+        align-items:stretch;
+        margin:0 -24px;
+        padding:0 24px;
+        background:rgba(255,255,255,.95);
+        backdrop-filter:blur(14px);
+        border-bottom:1px solid var(--ifnpkg-line);
+        overflow-x:auto;
+        scrollbar-width:none;
+      }
+      .iflynepal-pkg-side-nav::-webkit-scrollbar{display:none}
+      .iflynepal-pkg-side-label{display:none}
+      .iflynepal-pkg-side-links{display:flex;border-left:0}
+      .iflynepal-pkg-side-links::before{display:none}
+      .iflynepal-pkg-side-links a{gap:8px;padding:0 14px;min-height:var(--ifnpkg-tabs);white-space:nowrap;font-size:13.5px}
+      .iflynepal-pkg-side-links a .iflynepal-pkg-ico{width:16px;height:16px}
+      .iflynepal-pkg-side-links li:first-child a{padding-left:0}
+      .iflynepal-pkg-side-links a::before{left:14px;right:14px;top:auto;bottom:-1px;width:auto;height:3px;border-radius:3px 3px 0 0;transform:scaleX(0)}
+      .iflynepal-pkg-side-links li:first-child a::before{left:0}
+      .iflynepal-pkg-side-links a.iflynepal-pkg-is-active::before{transform:scaleX(1)}
+      .iflynepal-pkg-side-nav{margin-top:0}
+    }
+    @media (max-width:1080px){
+      .iflynepal-pkg-nav{grid-template-columns:1fr auto}
+      .iflynepal-pkg-nav-links{
+        display:none;
+        position:absolute;
+        top:calc(100% + 8px);
+        left:20px;right:20px;
+        padding:20px;
+        border-radius:18px;
+        background:var(--ifnpkg-navy);
+        flex-direction:column;
+        align-items:flex-start;
+        text-transform:none;
+        letter-spacing:.02em;
+        font-size:15px;
+        gap:18px;
+        box-shadow:var(--ifnpkg-shadow);
+      }
+      .iflynepal-pkg-nav-links.iflynepal-pkg-open{display:flex}
+      .iflynepal-pkg-menu-btn{display:grid;place-items:center}
+    }
+    @media (max-width:1000px){
+      .iflynepal-pkg-trip-title h1{white-space:normal;font-size:clamp(30px,5vw,44px)}
+      .iflynepal-pkg-trip-layout{grid-template-columns:minmax(0,1fr);gap:0}
+      .iflynepal-pkg-trip-aside{position:static;margin:0 0 56px;grid-template-columns:1fr 1fr;align-items:start}
+      .iflynepal-pkg-pack-map,
+.iflynepal-pkg-faq-layout{grid-template-columns:1fr;gap:40px}
+      .iflynepal-pkg-rail{grid-auto-columns:calc((100% - 20px) / 2)}
+      /* the price has nowhere sticky to live,
+so it docks to the bottom edge */
+      .iflynepal-pkg-book-bar{
+        position:fixed;
+        inset:auto 0 0;
+        z-index:55;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:16px;
+        padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+        background:#fff;
+        border-top:1px solid var(--ifnpkg-line);
+        box-shadow:0 -12px 30px rgba(4,26,64,.1);
+        transform:translateY(110%);
+        transition:transform .45s var(--ifnpkg-ease);
+      }
+      .iflynepal-pkg-book-bar.iflynepal-pkg-is-on{transform:none}
+      .iflynepal-pkg-book-bar small{display:block;color:var(--ifnpkg-muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+      .iflynepal-pkg-book-bar strong{font-size:18px}
+      .iflynepal-pkg-book-bar strong span{color:var(--ifnpkg-muted);font-size:12px;font-weight:500}
+      .iflynepal-pkg-book-bar .iflynepal-pkg-button{min-height:46px}
+      footer{padding-bottom:96px}
+    }
+    @media (max-width:760px){
+      :root{--ifnpkg-hdr:68px;--ifnpkg-tabs:50px}
+      .iflynepal-pkg-brand-logo{height:46px}
+      .iflynepal-pkg-section{padding:72px 0}
+      .iflynepal-pkg-gallery{padding-top:16px}
+      .iflynepal-pkg-gallery-frame{position:relative}
+      /* the collage becomes a swipeable strip,
+one photo per view */
+      .iflynepal-pkg-gallery-grid{
+        position:static;
+        display:grid;
+        grid-template-columns:none;
+        grid-template-rows:none;
+        grid-auto-flow:column;
+        grid-auto-columns:100%;
+        height:clamp(240px,62vw,380px);
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        scrollbar-width:none;
+        border-radius:var(--ifnpkg-r-md);
+        gap:0;
+      }
+      .iflynepal-pkg-gallery-grid::-webkit-scrollbar{display:none}
+      .iflynepal-pkg-g-lead-wrap,
+.iflynepal-pkg-g-thumbs{display:contents}
+      .iflynepal-pkg-g-tile,
+.iflynepal-pkg-g-tile--lead{border-radius:0;scroll-snap-align:start}
+      .iflynepal-pkg-trip-title h1{white-space:normal}
+      .iflynepal-pkg-glance{grid-template-columns:repeat(2,1fr)}
+      .iflynepal-pkg-glance-item:nth-child(4n){border-right:1px solid var(--ifnpkg-line)}
+      .iflynepal-pkg-glance-item:nth-child(2n){border-right:0}
+      .iflynepal-pkg-glance-item:nth-last-child(-n+4){border-bottom:1px solid var(--ifnpkg-line)}
+      .iflynepal-pkg-glance-item:nth-last-child(-n+2){border-bottom:0}
+      .iflynepal-pkg-band{padding:64px 0}
+      .iflynepal-pkg-g-all{right:12px;bottom:12px;min-height:38px;padding:0 14px;font-size:12px}
+      .iflynepal-pkg-gallery-meta{grid-template-columns:1fr;gap:14px}
+      .iflynepal-pkg-share{justify-content:flex-start}
+      .iflynepal-pkg-trip-title{padding:30px 0 36px}
+      .iflynepal-pkg-t-section{padding:48px 0}
+      .iflynepal-pkg-check-list{grid-template-columns:1fr}
+      .iflynepal-pkg-trip-aside{grid-template-columns:1fr}
+      .iflynepal-pkg-timeline li{grid-template-columns:1fr;gap:4px;padding:14px 0 14px 24px}
+      .iflynepal-pkg-timeline li::before{left:4px;top:22px}
+      .iflynepal-pkg-timeline li::after{left:0;top:19px}
+      .iflynepal-pkg-timeline p{padding-left:0}
+      .iflynepal-pkg-sum-day{grid-template-columns:1fr;gap:14px}
+      .iflynepal-pkg-day-badge{flex-direction:row;gap:8px;width:max-content;height:auto;padding:9px 14px}
+      .iflynepal-pkg-day-badge b{margin:0;font-size:18px}
+      .iflynepal-pkg-price-split{grid-template-columns:1fr}
+      .iflynepal-pkg-annot--dates{display:none}
+      .iflynepal-pkg-itin-bar{flex-wrap:wrap}
+      .iflynepal-pkg-cal,
+.iflynepal-pkg-book-sum{padding:20px}
+      .iflynepal-pkg-rail{grid-auto-columns:86%}
+      .iflynepal-pkg-rail-head{align-items:flex-start;flex-direction:column}
+      .iflynepal-pkg-map-card iframe{height:300px}
+      .iflynepal-pkg-footer-grid{grid-template-columns:1fr 1fr}
+      .iflynepal-pkg-footer-brand{grid-column:1 / -1}
+      .iflynepal-pkg-footer-bottom{flex-direction:column}
+    }
+    @media (max-width:480px){
+      .iflynepal-pkg-nav-cta{display:none}
+      .iflynepal-pkg-glance-item{padding:16px 14px;gap:10px}
+      .iflynepal-pkg-glance-ico{width:32px;height:32px;border-radius:10px}
+      .iflynepal-pkg-footer-grid{grid-template-columns:1fr}
+      .iflynepal-pkg-lb-stage{grid-template-columns:1fr;padding:0 12px}
+      .iflynepal-pkg-lb-stage .iflynepal-pkg-lb-btn{position:absolute;top:50%;z-index:2;transform:translateY(-50%)}
+      .iflynepal-pkg-lb-stage .iflynepal-pkg-lb-prev{left:18px}
+      .iflynepal-pkg-lb-stage .iflynepal-pkg-lb-next{right:18px}
+    }
+    @media (hover:none){
+      .iflynepal-pkg-trip-peek{position:static;transform:none;background:none;padding:14px 22px 0}
+      .iflynepal-pkg-trip-peek p{color:var(--ifnpkg-muted)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      *,
+*::before,
+*::after{transition-duration:.01ms !important}
+      .iflynepal-pkg-gsap-ready [data-anim],
+.iflynepal-pkg-gsap-ready .iflynepal-pkg-trip-title h1 .iflynepal-pkg-w,
+.iflynepal-pkg-gsap-ready .iflynepal-pkg-trip-title h1 em,
+.iflynepal-pkg-gsap-ready .iflynepal-pkg-g-all,
+.iflynepal-pkg-gsap-ready .iflynepal-pkg-gallery-meta>*{opacity:1}
+      .iflynepal-pkg-gsap-ready .iflynepal-pkg-g-tile{clip-path:none}
+    }
+/* ---------------------------------------------------------------------------
+ * Hand-written additions, appended by scratchpad/build_css.py.
+ *
+ * Everything above this line is transcribed from the design file. Everything
+ * below it is for markup the design has no rule for, and it is held in the
+ * generator's EXTRAS block so that re-running the script keeps it rather than
+ * quietly dropping it.
+ * ------------------------------------------------------------------------ */
+
+/*
+ * The featured video, which takes the lead tile when a package has one. It is
+ * sized exactly as the lead photograph, so the gallery grid is the same grid
+ * whichever of the two is playing, and it is not zoom-in: this tile opens
+ * nothing, it plays.
+ */
+.iflynepal-pkg-g-tile--video{cursor:default}
+.iflynepal-pkg-g-tile--video::after{content:none}
+.iflynepal-pkg-g-video{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:var(--ifnpkg-navy);
+}
+
+/*
+ * The header this page actually sits under.
+ *
+ * The design ships its own header at 76px, and everything that has to clear it
+ * is written as `calc(var(--hdr) + …)`: the page's top padding, the sticky
+ * section nav, the sticky booking aside and the scroll-padding an anchor jump
+ * lands against. On the real site that bar is the theme's, and this template
+ * asks for it docked from the first frame, which is 70px — 66px once the nav
+ * folds at 1080px. Left at the design's number every one of those offsets is
+ * six pixels out and the page carries a hairline of white under the header.
+ *
+ * So the transcription above keeps the design's value and this restates it as
+ * the theme's. If the theme's nav height changes, this is the one place to
+ * follow it.
+ */
+:root{--ifnpkg-hdr:70px}
+
+@media (max-width:1080px){
+  :root{--ifnpkg-hdr:66px}
+}
+
+/*
+ * The accent, as an editor can actually type it.
+ *
+ * The design sets the accented word in a `<span class="accent">`. No editor is
+ * going to type a class name into a heading field, so the schema asks for `<em>`
+ * instead and every heading's help text says so — which left the accent styled
+ * and never reachable, and the italic came out as plain Poppins.
+ *
+ * These are the design's `.accent` declarations, on the element the content
+ * model actually produces. `.iflynepal-pkg-accent` stays styled by the
+ * transcription above, so markup written either way looks the same.
+ */
+.iflynepal-package :is(h1,h2,h3) em{
+  display:inline-block;
+  color:var(--ifnpkg-navy);
+  font-family:var(--ifnpkg-serif-alt);
+  font-size:1.14em;
+  font-style:italic;
+  font-weight:600;
+  letter-spacing:-.025em;
+}
+
+/*
+ * The h1's accent is the design's own, slightly different rule — 1.1em and no
+ * inline-block — and it has to win over the one above.
+ */
+.iflynepal-package .iflynepal-pkg-trip-title h1 em{
+  display:inline;
+  font-size:1.1em;
+}
+
+/*
+ * The hand-drawn underline, drawn.
+ *
+ * The dates and similar headings mark a phrase with it, and the schema's help
+ * text names the catalogue's `.iflynepal-ink-mark` because that is the class an
+ * editor is told to type. The catalogue's own rule starts the stroke at
+ * `scaleX(0)` and waits for the archive's reveal.js to add `.is-drawn` — a
+ * script this page does not load, so the mark was invisible on every package
+ * page and would have stayed that way.
+ *
+ * Nothing animates it here, which is what the design's own static state is.
+ */
+.iflynepal-package .iflynepal-ink-mark::after{transform:scaleX(1)}
+
+/*
+ * The heading of a band — packing, map, FAQs, similar. The design writes the
+ * 28px as an inline style on those two `<h2>`s rather than as a rule, so there
+ * is nothing for the transcription to pick up.
+ */
+.iflynepal-pkg-band-h{margin-bottom:28px}
+
+/*
+ * The overview body reads at the opening paragraph's size. Client-directed.
+ *
+ * The design sets the opening paragraph at 18px in the ink colour and drops the
+ * body beneath it to 15.5px in a grey, so the first paragraph leads and the rest
+ * recedes. Asked for one voice instead: the body now takes the opening
+ * paragraph's size, leading and colour, and the two read as continuous prose.
+ *
+ * The paragraph gap goes up with the type. 16px under a 15.5px line is a clear
+ * break; under a 30px line it closes up, because what separates paragraphs is
+ * the space against the leading around it, not the number.
+ */
+.iflynepal-pkg-prose p{
+  color:var(--ifnpkg-ink);
+  font-size:18px;
+  line-height:1.7;
+}
+
+.iflynepal-pkg-prose p + p{margin-top:20px}
+
+/*
+ * The Highlights heading, given something to be noticed by. Client-directed;
+ * the design has no mark here at all, just a sub-heading like any other.
+ *
+ * A navy badge to the left and a hairline under the pair. The badge is the same
+ * tile the at-a-glance table uses — same size, same radius, same mist ground —
+ * so this reads as the page's own furniture rather than a new idea, and the
+ * rule beneath it separates the heading from the ticked list the way the
+ * packing list's own top rule does.
+ *
+ * The badge is navy on mist rather than white on navy: the ticks in the list
+ * below are already navy-on-mist circles, and a solid navy tile would outweigh
+ * the ten of them.
+ */
+.iflynepal-pkg-sub-h--badged{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:0;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--ifnpkg-line);
+}
+
+.iflynepal-pkg-sub-h__badge{
+  display:grid;
+  place-items:center;
+  width:38px;height:38px;
+  flex:none;
+  border-radius:12px;
+  background:var(--ifnpkg-mist);
+  color:var(--ifnpkg-navy);
+}
+
+.iflynepal-pkg-sub-h__badge .iflynepal-pkg-ico{width:20px;height:20px}
+
+/* The list clears the rule the heading now carries. */
+.iflynepal-pkg-sub-h--badged + .iflynepal-pkg-check-list{margin-top:22px}
+
+/*
+ * Highlights as a card. Client-directed, and the same treatment the calendar
+ * booker gets below — the design's outline vocabulary (a hairline, a large
+ * radius, a soft drop and a wider ring) with a colour in it.
+ *
+ * The colour is in the *outline only*. The card's ground stays white to within
+ * a few values, exactly as the booker's does, and nothing inside it is tinted:
+ * the badge tile and the ten tick circles keep the mist ground they have
+ * everywhere else on the page. A warm fill turns the whole block into a
+ * highlight and stops it reading as part of the overview it belongs to — the
+ * point is an accented edge, not a coloured panel.
+ *
+ * Gold rather than the booker's navy because this is the one block on the page
+ * that is neither a control nor a table: navy says "use me", warm says "worth
+ * reading" without asking for a decision. `--ifnpkg-gold` is the design's own
+ * token, already carried by the archive's featured plan card, so it is not a
+ * new colour on the site.
+ *
+ * The line is a deeper gold than the ring, not the token itself. #F2C879 at one
+ * pixel reads as a smudge rather than an edge — a border wants more of a
+ * colour's darkness than a fill does.
+ */
+.iflynepal-pkg-highlights{
+  margin-top:44px;
+  padding:28px;
+  border:1px solid rgba(191,145,48,.3);
+  border-radius:var(--ifnpkg-r-lg);
+  background:#FFFDFA;
+  box-shadow:0 18px 50px rgba(74,55,10,.05),0 0 0 4px rgba(242,200,121,.1);
+}
+
+/* The card owns the spacing now; the heading's own margins would double it. */
+.iflynepal-pkg-highlights .iflynepal-pkg-sub-h{margin:0}
+
+/*
+ * The calendar booker, tinted. Client-directed.
+ *
+ * It keeps the outline the design gives it — same 1px, same 30px radius, same
+ * shadow — and that outline is simply given some colour: the navy of the line
+ * token at a little more strength, over a ground that lifts off white by a
+ * degree or two. Enough that the card the page is actually asking a visitor to
+ * use is not the same white as the four cards above and below it, and not so
+ * much that it becomes a second price card competing with the aside.
+ *
+ * The tint goes on the wrapper rather than the card, so the calendar half keeps
+ * its white ground and only the frame and the space around the summary carry
+ * the colour.
+ */
+.iflynepal-pkg-booker{
+  border-color:rgba(5,69,167,.3);
+  background:#FBFCFF;
+  box-shadow:0 18px 50px rgba(4,26,64,.09),0 0 0 4px rgba(5,69,167,.05);
+}
+
+/*
+ * A wider thumbnail column beside the lead photograph. Client-directed, and a
+ * deliberate departure from the design.
+ *
+ * The design gives the gallery a fixed 320px right-hand column, which at the
+ * full 1360px shell leaves each of the four thumbnails 154 wide against 210
+ * tall — noticeably upright. They are asked to be wider than that.
+ *
+ * A larger fixed width is the wrong instrument: it holds at 1440 and starves
+ * the lead photograph on the way down, and by 800px the lead would be narrower
+ * than the block of thumbnails beside it. A ratio widens them at every width
+ * instead and can never invert the two. 1.9 is the lead photograph's share of
+ * the row against the thumbnails' 1 — lower it to widen them further. The
+ * design's own proportion works out at about 3.1.
+ *
+ * The ratio is written into the rule rather than held in a custom property, and
+ * that is not a style preference: `calc(var(--n) * 1fr)` parses, because a
+ * var() cannot be checked until it is substituted, and then fails at
+ * computed-value time because calc() cannot multiply a flex unit. A property
+ * that fails there is not ignored the way a bad declaration is — it resolves to
+ * unset, so the column list becomes `none` and every photograph stacks into one
+ * full-width column.
+ *
+ * `minmax(0, …)` on the lead, not a bare fr, or a wide photograph sets the
+ * track's minimum to its own content width and pushes the thumbnails off.
+ *
+ * The gallery's meta row — breadcrumb under the lead, share under the
+ * thumbnails — takes the same columns, or the share row stops lining up with
+ * the photographs it sits beneath.
+ *
+ * The booking aside further down the page is untouched: it keeps
+ * `--ifnpkg-aside`, because the price card is a fixed-width card and nothing
+ * about this asked to change it.
+ */
+.iflynepal-pkg-gallery-grid,
+.iflynepal-pkg-gallery-meta{
+  grid-template-columns:minmax(0,1.9fr) 1fr;
+}
+
+/*
+ * Below 760px the grid stops being two columns and becomes a swipeable strip
+ * of whole photographs, which is the design's own arrangement and has no
+ * thumbnail column to widen. The meta row stacks there too.
+ */
+@media (max-width:760px){
+  .iflynepal-pkg-gallery-grid{grid-template-columns:none}
+  .iflynepal-pkg-gallery-meta{grid-template-columns:1fr}
+}
+
+/*
+ * The at-a-glance table's filler cells.
+ *
+ * The design draws the grid's lines as a border on every cell and then takes
+ * two of them off again: `:nth-child(4n)` loses its right border and
+ * `:nth-last-child(-n+4)` its bottom. Both are really saying "the last column"
+ * and "the last row", and both are only true because that mock-up holds eight
+ * facts in two full rows of four. Leave a row short and the rules land on the
+ * wrong cells — a rule under the fourth cell of the *top* row, and a border
+ * hanging off the last fact with nothing beside it.
+ *
+ * Rather than rewrite the design's rules to count, the template completes the
+ * final row with empty cells, which is the shape those rules already describe.
+ * They carry nothing and are hidden from assistive tech: they are the frame of
+ * the table, not a fact with no value.
+ */
+.iflynepal-pkg-glance-item--filler{background:var(--ifnpkg-paper)}
+
+.iflynepal-pkg-glance-item--filler:hover{background:var(--ifnpkg-paper)}
+
+/*
+ * The picked run in the calendar. The design already styles the two ends of a
+ * range (.cal-day.is-start / .is-end) but never the days between them, because
+ * the design's calendar was a single-date picker. The trip's duration is what
+ * decides the length now, so the middle needs a fill of its own: the ends stay
+ * navy, the days between take the mist tint, and the corners are squared so the
+ * whole run reads as one bar rather than as five separate pills.
+ */
+.iflynepal-pkg-cal-day.iflynepal-pkg-is-range{
+  border-radius:4px;
+  background:var(--ifnpkg-mist);
+  color:var(--ifnpkg-navy);
+}
+.iflynepal-pkg-cal-day.iflynepal-pkg-is-range:hover:not(:disabled){background:var(--ifnpkg-mist)}
+
+/* A one-day trip is its own start and its own end, and two half-rounded
+ * corners each side would leave it square. */
+.iflynepal-pkg-cal-day.iflynepal-pkg-is-start.iflynepal-pkg-is-end{border-radius:12px}
+
+/*
+ * The video's one control: a play/pause button in the middle of the tile. The
+ * browser's own controls are off, because on a silent looping backdrop they
+ * are a scrubber, a volume slider and a running duration laid across the lead
+ * photograph. This is the part of them the content actually needs.
+ *
+ * It matches the "view all photos" button beside it — the same translucent
+ * white pill, the same navy mark — so the two controls on this tile read as one
+ * set.
+ */
+.iflynepal-pkg-g-video-btn{
+  position:absolute;
+  top:50%;left:50%;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  width:72px;height:72px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:999px;
+  background:rgba(255,255,255,.92);
+  color:var(--ifnpkg-navy);
+  cursor:pointer;
+  transform:translate(-50%,-50%);
+  transition:opacity .3s ease,background .3s ease,transform .3s var(--ifnpkg-ease-card-out);
+}
+.iflynepal-pkg-g-video-btn:hover{background:#fff;transform:translate(-50%,-50%) scale(1.06)}
+.iflynepal-pkg-g-video-btn:focus-visible{outline:2px solid var(--ifnpkg-navy);outline-offset:3px}
+.iflynepal-pkg-g-video-ico{width:30px;height:30px;grid-area:1/1}
+
+/* One icon is shown at a time, and which one is the video's state, not the
+ * button's: .is-playing is written by the script from the media's own events. */
+.iflynepal-pkg-g-video-ico--pause{display:none}
+.iflynepal-pkg-is-playing .iflynepal-pkg-g-video-ico--play{display:none}
+.iflynepal-pkg-is-playing .iflynepal-pkg-g-video-ico--pause{display:block}
+
+/*
+ * The button shows on hover, and nowhere else — the tile is a photograph with a
+ * video in it, not a player, so nothing sits on top of the picture until
+ * somebody reaches for it.
+ *
+ * Faded out rather than hidden, and three details follow from that:
+ *
+ *   * opacity, never `visibility` or `display`. Both of those take the button
+ *     out of the tab order, and a control a keyboard cannot reach is a control
+ *     that does not exist — the whole of what WCAG 2.2.2 asks for here is that
+ *     moving content can be stopped.
+ *   * :focus-within on the tile brings it back when it is tabbed to, so it is
+ *     visible at the moment it has focus rather than a ring around nothing.
+ *   * the whole rule sits inside `hover: hover`. A touch screen has no hover to
+ *     give, so on a phone the button is simply always there; asking a finger to
+ *     hover first would leave the video unstoppable.
+ */
+@media (hover: hover) {
+  .iflynepal-pkg-g-video-btn{opacity:0}
+  .iflynepal-pkg-g-tile--video:hover .iflynepal-pkg-g-video-btn,
+  .iflynepal-pkg-g-tile--video:focus-within .iflynepal-pkg-g-video-btn,
+  .iflynepal-pkg-g-video-btn:focus-visible{opacity:1}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .iflynepal-pkg-g-video-btn{transition:none}
+  .iflynepal-pkg-g-video-btn:hover{transform:translate(-50%,-50%)}
+}
+
+@media (max-width:860px){
+  .iflynepal-pkg-g-video-btn{width:58px;height:58px}
+  .iflynepal-pkg-g-video-ico{width:24px;height:24px}
+}
+
+/*
+ * The included-in-the-price ticks are green, matching the legacy site's
+ * `.tick-circle` on /trip/<slug> (#4caf50, a white mark in a filled circle).
+ * Client-directed: the ticks read as a list of confirmations rather than as
+ * more of the page's navy furniture.
+ *
+ * It is the fill that changes and nothing else — the circle keeps the design's
+ * 24px, its radius and the mark's 13px/2.4 stroke, so the list's rhythm is
+ * still the design's. The mark is `color`, because the icon is drawn with
+ * `currentColor`; setting `fill` would miss it.
+ *
+ * The crossed list opposite it is the same ring in a light red — Material's
+ * Red 400 rather than its 500, because the green is a confirmation and the red
+ * is only a note about what the price does not cover: at full strength it reads
+ * as an error beside it.
+ *
+ * Client-directed: the circle is an outline, not a filled disc. So the ground
+ * goes back to nothing and the ring is a 1px `currentColor` border, which means
+ * one declaration sets the ring and the mark together and the two can never
+ * drift apart. `box-sizing` is stated rather than inherited from the theme's
+ * Tailwind preflight: without it the border is added outside the design's 24px
+ * and the circles sit a pixel proud of the text they line up against.
+ *
+ * The Highlights list in the overview is deliberately left alone and keeps its
+ * mist circles: §5.3o records the client rejecting a retint inside that block,
+ * on the grounds that it stops reading as part of the overview it belongs to.
+ * So both rules are scoped to the lists that answer "what does the price
+ * cover" — the Dates section's pair and the price card's.
+ *
+ * Colour is not the only thing saying which list is which: each has its own
+ * heading, and the mark inside the circle is a tick or a cross. A visitor who
+ * cannot separate the two hues still reads the list correctly (WCAG 1.4.1).
+ */
+#ifnpkg-dates .iflynepal-pkg-check-list .iflynepal-pkg-tick,
+#ifnpkg-dates .iflynepal-pkg-check-list--x .iflynepal-pkg-tick,
+.iflynepal-pkg-price-card .iflynepal-pkg-check-list .iflynepal-pkg-tick{
+  box-sizing:border-box;
+  background:none;
+  border:1px solid currentColor;
+}
+#ifnpkg-dates .iflynepal-pkg-check-list .iflynepal-pkg-tick,
+.iflynepal-pkg-price-card .iflynepal-pkg-check-list .iflynepal-pkg-tick{
+  color:var(--ifnpkg-tick-green,#4CAF50);
+}
+#ifnpkg-dates .iflynepal-pkg-check-list--x .iflynepal-pkg-tick{
+  color:var(--ifnpkg-tick-red,#EF5350);
+}
+
+/*
+ * The handwritten note over the calendar, moved to the right. Client-directed:
+ * the design hangs it at `left: 22%`, and it is wanted against the calendar's
+ * right-hand edge instead.
+ *
+ * The arrow has to travel with it. It is drawn curving down and to the right,
+ * which from the right-hand edge would point past the calendar at nothing, so
+ * the row is reversed and the glyph mirrored — the note now reads left to right
+ * with the arrow dropping down-left into the grid it is talking about. Mirroring
+ * the SVG rather than redrawing its two paths keeps one copy of the shape, and
+ * it is the same shape the archive's notes use.
+ *
+ * `right` and `left:auto` together, because the rule being overridden sets
+ * `left` and a lone `right` would leave both edges pinned and stretch the note.
+ * It stays clear of the summary panel below it at every width it is shown at —
+ * the design already hides it under 1000px, where the booker's padding closes up.
+ */
+#ifnpkg-dates .iflynepal-pkg-annot--dates{
+  left:auto;
+  right:4%;
+  flex-direction:row-reverse;
+}
+#ifnpkg-dates .iflynepal-pkg-annot--dates svg{
+  transform:scaleX(-1);
+}

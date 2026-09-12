@@ -55,7 +55,7 @@ $iflynepal_facts = array_filter(
 $iflynepal_slugs = iflynepal_package_filter_slugs( $iflynepal_post_id );
 ?>
 
-<article class="iflynepal-card" data-categories="<?php echo esc_attr( implode( ' ', $iflynepal_slugs ) ); ?>">
+<article class="iflynepal-card" data-categories="<?php echo esc_attr( implode( ' ', $iflynepal_slugs ) ); ?>" data-iflynepal-anim>
 	<div class="iflynepal-card__media">
 		<?php
 		if ( has_post_thumbnail( $iflynepal_post_id ) ) {
@@ -94,13 +94,35 @@ $iflynepal_slugs = iflynepal_package_filter_slugs( $iflynepal_post_id );
 			</a>
 		</h3>
 
+		<?php
+		/*
+		 * The foot link sits above the title link's stretched overlay — see the
+		 * z-index in catalogue.css. Without it the overlay swallows the hover
+		 * and the arrow never nudges, which is the design's one piece of motion
+		 * on this row.
+		 *
+		 * The label names the destination on its own, so the arrow beside it is
+		 * decoration and is hidden from assistive technology. The aria-label
+		 * carries the package title, because "Explore" repeated down a grid of
+		 * six tells a screen-reader user which card they are on only by
+		 * accident.
+		 */
+		?>
 		<div class="iflynepal-card__foot">
 			<?php if ( '' !== $iflynepal_price ) : ?>
 				<span class="iflynepal-card__price"><?php echo esc_html( $iflynepal_price ); ?></span>
 			<?php endif; ?>
 
-			<a class="iflynepal-card__link" href="<?php echo esc_url( get_permalink( $iflynepal_package ) ); ?>">
-				<?php esc_html_e( 'View details', 'iflynepal' ); ?>
+			<?php
+			$iflynepal_link_label = sprintf(
+				/* translators: %s: package title. */
+				__( 'Explore %s', 'iflynepal' ),
+				get_the_title( $iflynepal_package )
+			);
+			?>
+			<a class="iflynepal-card__link" href="<?php echo esc_url( get_permalink( $iflynepal_package ) ); ?>" aria-label="<?php echo esc_attr( $iflynepal_link_label ); ?>">
+				<?php esc_html_e( 'Explore', 'iflynepal' ); ?>
+				<?php echo iflynepal_booking_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, no input. ?>
 			</a>
 		</div>
 	</div>

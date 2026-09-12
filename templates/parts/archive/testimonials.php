@@ -2,17 +2,26 @@
 /**
  * Traveller testimonials.
  *
- * The reviews are the theme's Testimonials post type, which the theme owns
- * against the usual advice — recorded in the project context, not re-argued
- * here. The plugin reads them rather than storing its own, because a second
- * store of the same reviews is worse than the coupling.
+ * This section is the theme's, rendered by the theme's own reusable template
+ * part, and that is deliberate. The design file says so in as many words — its
+ * carousel is annotated "ported from iflynepal.local, token for token" — so the
+ * component the design is asking for is a component the site already has,
+ * complete with the drag, the cloned bands, the keyboard handling, the dimming
+ * of the off-centre cards and the platform strip beneath them. Rebuilding it
+ * here would be a second copy of all of that to keep in step, and the first one
+ * to drift would be the one the homepage is not using.
  *
- * That coupling is guarded, not assumed: the post type belongs to the theme, so
- * a theme switch removes it, and this section then has nothing to draw and
- * leaves itself out. Meta keys are read directly rather than through the theme's
- * accessor for the same reason — the function disappears with the theme, and a
- * fatal error on a live archive is not an acceptable failure mode for a section
- * of marketing copy.
+ * The same reasoning as the hero, which is the theme's component for the same
+ * reason.
+ *
+ * The reviews themselves are the theme's Testimonials post type, which the theme
+ * owns against the usual advice — recorded in the project context, not
+ * re-argued here.
+ *
+ * The coupling is guarded rather than assumed. Under another theme the part and
+ * its helpers are gone, and this falls back to a plain, readable list of the
+ * same reviews; if even the post type has gone with the theme, the section
+ * leaves itself out entirely.
  *
  * @package IFly_Nepal
  * @since   1.0.0
@@ -50,6 +59,36 @@ if ( ! post_type_exists( 'ifly_testimonial' ) ) {
 	return;
 }
 
+$iflynepal_eyebrow = iflynepal_archive_field( $iflynepal_id, 'testimonials_eyebrow' );
+
+/*
+ * page => 0 turns off the theme's "reviews assigned to the page being viewed"
+ * filter. A term archive is not a page, so every review would otherwise be
+ * tested against a term ID that no review can carry and the carousel would come
+ * back empty.
+ */
+if ( locate_template( 'template-parts/sections/testimonials.php' ) && function_exists( 'iflynepal_get_testimonials' ) ) {
+	get_template_part(
+		'template-parts/sections/testimonials',
+		null,
+		array(
+			'id'     => 'iflynepal-proof',
+			'kicker' => $iflynepal_eyebrow,
+			'page'   => 0,
+		)
+	);
+
+	return;
+}
+
+/* ------------------------------------------------------------- fallback */
+
+/*
+ * Another theme. Meta keys are read directly rather than through the theme's
+ * accessor, because that function disappeared with the theme, and a fatal error
+ * on a live archive is not an acceptable failure mode for a band of marketing
+ * copy.
+ */
 $iflynepal_reviews = get_posts(
 	array(
 		'post_type'        => 'ifly_testimonial',
@@ -80,20 +119,18 @@ foreach ( $iflynepal_reviews as $iflynepal_review ) {
 if ( empty( $iflynepal_cards ) ) {
 	return;
 }
-
-$iflynepal_eyebrow = iflynepal_archive_field( $iflynepal_id, 'testimonials_eyebrow' );
 ?>
 
-<section class="iflynepal-section iflynepal-testimonials" id="iflynepal-proof">
+<section class="iflynepal-section iflynepal-reviews" id="iflynepal-proof">
 	<div class="iflynepal-container">
 		<?php if ( '' !== $iflynepal_eyebrow ) : ?>
 			<p class="iflynepal-eyebrow"><?php echo esc_html( $iflynepal_eyebrow ); ?></p>
 		<?php endif; ?>
 
-		<ul class="iflynepal-testimonials__track">
+		<ul class="iflynepal-reviews__track">
 			<?php foreach ( $iflynepal_cards as $iflynepal_card ) : ?>
-				<li class="iflynepal-testimonials__item">
-					<figure class="iflynepal-testimonials__card">
+				<li class="iflynepal-reviews__item">
+					<figure class="iflynepal-reviews__card">
 						<blockquote><?php echo esc_html( $iflynepal_card['body'] ); ?></blockquote>
 						<figcaption>
 							<?php

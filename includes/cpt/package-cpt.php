@@ -176,9 +176,21 @@ function iflynepal_register_package_taxonomy() {
  * express the same thing.
  *
  * `supports` covers what the card grids and the single template actually read:
- * a name, a body, a card image, a card summary, revisions on the copy, and
- * menu_order so an editor can set the running order of the cards by hand rather
- * than being stuck with publication date. Departure dates and every other
+ * a name, a card image and revisions on the copy.
+ *
+ * Three are deliberately absent. `excerpt`, because nothing reads it, and an
+ * unread box invites an editor to write a card summary into a field the card
+ * ignores — the hover summary in the Package Card box is where that copy goes.
+ * `editor`, pending a decision on where the package body is written; the single
+ * template still prints the_content() and every body already typed is still in
+ * the database. And `page-attributes`, which drew the Post Attributes box for a
+ * menu_order no query reads — the card grid has no orderby, so it runs newest
+ * first and a number typed into that box changed nothing. Any menu_order value
+ * already stored stays; restoring any of the three is one word here.
+ *
+ * ⚠ If the running order of the cards is ever wanted by hand, `page-attributes`
+ * comes back *and* iflynepal_archive_packages() needs an explicit
+ * 'orderby' => 'menu_order' — the support alone never ordered anything. Departure dates and every other
  * package field are meta boxes registered separately; `custom-fields` is
  * deliberately absent, because it only adds the raw meta UI, which would show
  * the plugin's private underscore-prefixed keys to editors alongside their
@@ -221,7 +233,7 @@ function iflynepal_register_package_cpt() {
 			'menu_icon'          => 'dashicons-palmtree',
 			'capability_type'    => 'page',
 			'map_meta_cap'       => true,
-			'supports'           => array( 'title', 'editor', 'excerpt', 'thumbnail', 'revisions', 'page-attributes' ),
+			'supports'           => array( 'title', 'thumbnail', 'revisions' ),
 			'taxonomies'         => array( IFLYNEPAL_PACKAGE_TAXONOMY ),
 
 			/*

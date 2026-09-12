@@ -74,6 +74,10 @@ function iflynepal_archive_the_heading( $term_id, $key ) {
 /**
  * Echoes the standard eyebrow / heading / lead block of a section.
  *
+ * The block carries the reveal hook, which is what the design puts `data-anim`
+ * on: a section heading rises into place as it is scrolled to, and the rest of
+ * the section follows it. See assets/js/archive/reveal.js.
+ *
  * @since 1.0.0
  *
  * @param int    $term_id Package type term.
@@ -90,7 +94,7 @@ function iflynepal_archive_the_head( $term_id, $prefix, $classes = '' ) {
 		return;
 	}
 
-	printf( '<div class="iflynepal-section-head %s">', esc_attr( $classes ) );
+	printf( '<div class="%s" data-iflynepal-anim>', esc_attr( trim( 'iflynepal-section-head ' . $classes ) ) );
 
 	if ( '' !== $eyebrow ) {
 		printf( '<span class="iflynepal-eyebrow">%s</span>', esc_html( $eyebrow ) );
@@ -103,7 +107,16 @@ function iflynepal_archive_the_head( $term_id, $prefix, $classes = '' ) {
 	}
 
 	if ( '' !== $lead ) {
-		printf( '<p class="iflynepal-lead">%s</p>', esc_html( $lead ) );
+		/*
+		 * The lead is a plain textarea, so a line break an editor typed is the
+		 * only way they can ask for one — and the design does ask, under the
+		 * plans heading. Escaped first and marked up second: nl2br only ever
+		 * adds <br> to a string that already has no markup left in it.
+		 */
+		printf(
+			'<p class="iflynepal-lead">%s</p>',
+			nl2br( esc_html( $lead ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above; nl2br only adds <br>.
+		);
 	}
 
 	echo '</div>';
@@ -161,6 +174,11 @@ function iflynepal_booking_arrow_icon() {
 /**
  * Echoes a pair of buttons, skipping either one that has no label or no link.
  *
+ * The two styles are a parameter because the design does not use the same pair
+ * twice: the hero is a solid navy action beside a ghost outline on the
+ * photograph, and the closing card is a white action beside the same ghost. The
+ * arrow follows the primary action only, and only where the design draws one.
+ *
  * @since 1.0.0
  *
  * @param int    $term_id Package type term.
@@ -168,20 +186,31 @@ function iflynepal_booking_arrow_icon() {
  * @param string $wrapper Class for the wrapping div. The theme's hero styles the
  *                        buttons through iflynepal-hero__actions, so a hero has
  *                        to pass that rather than the generic class.
+ * @param array  $styles  Optional. 'primary' and 'secondary' button modifiers,
+ *                        and 'arrow' for whether the primary carries one.
  * @return void
  */
-function iflynepal_archive_the_actions( $term_id, $prefix, $wrapper = 'iflynepal-actions' ) {
+function iflynepal_archive_the_actions( $term_id, $prefix, $wrapper = 'iflynepal-actions', $styles = array() ) {
+	$styles = wp_parse_args(
+		$styles,
+		array(
+			'primary'   => 'iflynepal-button--dark',
+			'secondary' => 'iflynepal-button--ghost',
+			'arrow'     => true,
+		)
+	);
+
 	$buttons = array(
 		array(
 			'label' => iflynepal_archive_field( $term_id, $prefix . '_cta_label' ),
 			'url'   => iflynepal_archive_field( $term_id, $prefix . '_cta_url' ),
-			'class' => 'iflynepal-button iflynepal-button--dark',
-			'arrow' => true,
+			'class' => 'iflynepal-button ' . $styles['primary'],
+			'arrow' => (bool) $styles['arrow'],
 		),
 		array(
 			'label' => iflynepal_archive_field( $term_id, $prefix . '_cta_alt_label' ),
 			'url'   => iflynepal_archive_field( $term_id, $prefix . '_cta_alt_url' ),
-			'class' => 'iflynepal-button iflynepal-button--light',
+			'class' => 'iflynepal-button ' . $styles['secondary'],
 			'arrow' => false,
 		),
 	);

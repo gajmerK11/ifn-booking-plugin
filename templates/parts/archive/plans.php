@@ -36,7 +36,7 @@ if ( empty( $iflynepal_plans ) ) {
 
 		<div class="iflynepal-plans__grid">
 			<?php foreach ( $iflynepal_plans as $iflynepal_plan ) : ?>
-				<article class="iflynepal-plan<?php echo $iflynepal_plan['featured'] ? ' is-featured' : ''; ?>">
+				<article class="iflynepal-plan<?php echo $iflynepal_plan['featured'] ? ' is-featured' : ''; ?>" data-iflynepal-anim>
 					<h3 class="iflynepal-plan__name"><?php echo esc_html( $iflynepal_plan['name'] ); ?></h3>
 
 					<?php if ( '' !== $iflynepal_plan['subtitle'] ) : ?>
@@ -64,8 +64,21 @@ if ( empty( $iflynepal_plans ) ) {
 						</ul>
 					<?php endif; ?>
 
+					<?php
+					/*
+					 * One button class for all three. The highlighted plan's
+					 * gold treatment is a descendant rule in catalogue.css
+					 * rather than a second class here, so which plan is
+					 * highlighted stays a single checkbox on the term and the
+					 * template never has to know what that does to a button.
+					 *
+					 * --line, not the theme's --outline: that name is already
+					 * the header's white-on-photograph pill and would put white
+					 * text on a white card.
+					 */
+					?>
 					<?php if ( '' !== $iflynepal_plan['cta_label'] && '' !== $iflynepal_plan['cta_url'] ) : ?>
-						<a class="iflynepal-button iflynepal-button--dark" href="<?php echo esc_url( $iflynepal_plan['cta_url'] ); ?>">
+						<a class="iflynepal-button iflynepal-button--line" href="<?php echo esc_url( $iflynepal_plan['cta_url'] ); ?>">
 							<?php echo esc_html( $iflynepal_plan['cta_label'] ); ?>
 						</a>
 					<?php endif; ?>

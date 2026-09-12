@@ -67,7 +67,18 @@ $iflynepal_children = iflynepal_archive_filter_terms( $iflynepal_id, $iflynepal_
 						</g>
 					</svg>
 					<b>
-						<span class="iflynepal-annot__static"><?php echo esc_html( $iflynepal_note_static ); ?></span>
+						<?php
+						/*
+						 * The gap before the ending is a non-breaking space
+						 * rather than a margin or a plain space: this span is an
+						 * inline-block, so an ordinary trailing space would be
+						 * trimmed off the end of its line box and the fixed part
+						 * would butt straight into the ending. The script picks
+						 * this text up as it stands, nbsp included, so the two
+						 * cannot drift apart.
+						 */
+						?>
+						<span class="iflynepal-annot__static"><?php echo esc_html( $iflynepal_note_static ); ?>&#160;</span>
 						<span class="iflynepal-annot__word"><?php echo esc_html( isset( $iflynepal_note_words[0] ) ? $iflynepal_note_words[0] : '' ); ?></span>
 					</b>
 				</span>
@@ -82,7 +93,7 @@ $iflynepal_children = iflynepal_archive_filter_terms( $iflynepal_id, $iflynepal_
 		 */
 		if ( ! empty( $iflynepal_children ) ) :
 			?>
-			<div class="iflynepal-filter-row" role="group" aria-label="<?php esc_attr_e( 'Filter packages', 'iflynepal' ); ?>">
+			<div class="iflynepal-filter-row" role="group" aria-label="<?php esc_attr_e( 'Filter packages', 'iflynepal' ); ?>" data-iflynepal-anim>
 				<button class="iflynepal-filter-btn is-active" type="button" data-filter="all" aria-pressed="true">
 					<?php esc_html_e( 'All', 'iflynepal' ); ?>
 				</button>
@@ -101,5 +112,50 @@ $iflynepal_children = iflynepal_archive_filter_terms( $iflynepal_id, $iflynepal_
 			}
 			?>
 		</div>
+
+		<?php
+		/*
+		 * One "view all" link per category, every one rendered and all but the
+		 * active filter's hidden, so the URLs are the terms' own and nothing is
+		 * assembled in JavaScript.
+		 *
+		 * "All" deliberately has no link: that filter is this archive, so its
+		 * link would point at the page the visitor is already on. That is also
+		 * what a visitor with JavaScript off sees, and the grid above them is
+		 * already the whole set.
+		 *
+		 * The inner wrapper is not decoration. The links are stacked into one
+		 * grid cell so swapping between two categories cross-fades in place
+		 * instead of changing the block's height, and the outer element is the
+		 * 0fr/1fr row that opens and closes that height when the link set goes
+		 * from none to one. Height cannot be animated on the element that also
+		 * lays the links out, so it takes two.
+		 */
+		if ( ! empty( $iflynepal_children ) ) :
+			?>
+			<div class="iflynepal-listing__foot">
+				<div class="iflynepal-listing__foot-inner">
+				<?php
+				foreach ( $iflynepal_children as $iflynepal_child ) :
+					$iflynepal_child_url = get_term_link( $iflynepal_child );
+
+					if ( is_wp_error( $iflynepal_child_url ) ) {
+						continue;
+					}
+					?>
+					<a class="iflynepal-listing__all" href="<?php echo esc_url( $iflynepal_child_url ); ?>" data-filter="<?php echo esc_attr( $iflynepal_child->slug ); ?>">
+						<?php
+						printf(
+							/* translators: %s: package category name. */
+							esc_html__( 'View all %s packages', 'iflynepal' ),
+							esc_html( $iflynepal_child->name )
+						);
+						?>
+						<?php echo iflynepal_booking_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, no input. ?>
+					</a>
+				<?php endforeach; ?>
+				</div>
+			</div>
+		<?php endif; ?>
 	</div>
 </section>

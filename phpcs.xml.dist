@@ -8,6 +8,15 @@
 	<exclude-pattern>/vendor/*</exclude-pattern>
 	<exclude-pattern>/assets/js/vendor/*</exclude-pattern>
 
+	<!--
+		scratchpad/ holds one-off CLI scripts — the migrations and the seeders —
+		which are development tools and are not part of what the plugin ships.
+		They print to a terminal rather than to a browser, so the escaping sniff
+		flags every printf in them and the gate stops meaning anything. Excluded
+		so a clean run is a statement about the plugin.
+	-->
+	<exclude-pattern>/scratchpad/*</exclude-pattern>
+
 	<arg name="extensions" value="php"/>
 	<arg name="colors"/>
 	<arg value="ps"/>

@@ -170,6 +170,20 @@
 		} );
 	}
 
+	/*
+	 * The fixed part types once and then stays, exactly as the design has it —
+	 * it is never touched again, not its text and not its box, which is what
+	 * keeps everything to the left of the ending still while a word grows.
+	 *
+	 * Read off the markup rather than written here, so the copy stays the
+	 * editor's and the trailing non-breaking space travels with it.
+	 */
+	var staticText = staticEl.textContent;
+
 	wordEl.textContent = '';
-	cycle( 0 );
+	staticEl.textContent = '';
+
+	typeInto( staticEl, staticText, function () {
+		cycle( 0 );
+	} );
 }() );

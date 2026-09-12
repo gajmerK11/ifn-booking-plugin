@@ -30,8 +30,10 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/cpt/package-cpt.php                              (done)
  *   includes/rewrites/package-rewrites.php                    (done)
  *   includes/archive/package-type-archive-schema.php          (done)
+ *   includes/package/package-details-schema.php               (done)
  *   includes/package/package-meta.php                         (done)
  *   includes/frontend/archive-render.php                      (done)
+ *   includes/frontend/package-render.php                      (done)
  *   includes/frontend/template-loader.php                     (done)
  *   includes/frontend/enqueue.php                             (done)
  *   includes/enquiry/class-ifly-nepal-enquiry-store.php       enquiry storage
@@ -39,26 +41,55 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/whatsapp/whatsapp-link.php                       click-to-chat
  *   includes/payment/class-ifly-nepal-paypal-listener.php     PayPal webhook / IPN capture
  *   includes/rest/route-base.php + includes/rest/route-*.php  iflynepal/v1 routes
- *   admin/class-ifly-nepal-package-type-meta-box.php          (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-type-meta-box.php          (built, not loaded)      (is_admin only)
+ *   admin/class-ifly-nepal-package-box-state.php              (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-type-archive-fields.php    (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-details-meta-box.php       (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-details-box.php            (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-video-box.php              (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-gallery-box.php            (done)                   (is_admin only)
  *   admin/class-ifly-nepal-bookings-screen.php                Bookings admin view      (is_admin only)
  */
 
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/helpers.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/cpt/package-cpt.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/archive/package-type-archive-schema.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/package/package-details-schema.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/package/package-meta.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/rewrites/package-rewrites.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/archive-render.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/package-render.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/template-loader.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/enqueue.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/lifecycle.php';
 
 if ( is_admin() ) {
-	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-type-meta-box.php';
+	/*
+	 * admin/class-ifly-nepal-package-type-meta-box.php is deliberately not
+	 * required. It draws the Primary Package Type picker, which was removed
+	 * from the editor; loading it is what puts the box back, because the file
+	 * instantiates itself at the bottom.
+	 *
+	 * Nothing about permalinks depends on it. The term a package's URL is
+	 * built from is resolved by iflynepal_package_primary_type() in
+	 * includes/rewrites/package-rewrites.php, which reads the stored choice
+	 * when there is one and otherwise picks the deepest term the package
+	 * holds, lowest term ID breaking a tie. Without the picker every package
+	 * takes that automatic path, and a package that already carries a stored
+	 * primary keeps honouring it.
+	 */
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-box-state.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-type-archive-fields.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-details-meta-box.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-details-box.php';
+
+	/*
+	 * Registered before the Gallery box, and both at `low`, so the sidebar reads
+	 * Featured image, Featured Video, Gallery: boxes of equal priority sit in
+	 * registration order.
+	 */
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-video-box.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-gallery-box.php';
 }
 
 register_activation_hook( IFLYNEPAL_BOOKING_FILE, 'iflynepal_booking_activate' );

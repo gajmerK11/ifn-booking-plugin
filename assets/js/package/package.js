@@ -1,0 +1,742 @@
+/**
+ * The single package page.
+ *
+ * Behaviour for the design's interactive parts: the gallery lightbox, the sticky
+ * section nav with its reading progress, the itinerary's view switch and
+ * accordions, the calendar booker, the mobile booking bar and the
+ * similar-packages rail.
+ *
+ * Everything here is an enhancement over a page that is already complete. With
+ * this file absent the photographs, the whole itinerary, the price, what is
+ * included and every FAQ are all in the document and readable.
+ *
+ * THE CALENDAR HOLDS NOTHING. Any date can be picked, the total is arithmetic in
+ * the browser, and there is no availability, capacity or reservation behind any
+ * of it — the client's explicit and repeated instruction for this plugin. What
+ * the booker produces is a quotation, not a booking.
+ *
+ * @package IFly_Nepal
+ * @since   1.0.0
+ */
+
+( function () {
+	'use strict';
+
+	var root = document.querySelector( '.iflynepal-package' );
+
+	if ( ! root ) {
+		return;
+	}
+
+	var strings = window.iflynepalPackage || {};
+	var reduced = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+	function id( name ) {
+		return document.getElementById( 'ifnpkg-' + name );
+	}
+
+	/* -------------------------------------------------------- featured video */
+
+	( function featuredVideo() {
+		var wrap = root.querySelector( '[data-iflynepal-video]' );
+
+		if ( ! wrap ) {
+			return;
+		}
+
+		var media = wrap.querySelector( '[data-iflynepal-video-media]' );
+		var toggle = wrap.querySelector( '[data-iflynepal-video-toggle]' );
+
+		if ( ! media || ! toggle ) {
+			return;
+		}
+
+		/*
+		 * The button follows the video, never the other way about. Autoplay is a
+		 * request, not a guarantee — a browser saving data, or one honouring a
+		 * reduced-motion setting, simply does not start — so the state is read
+		 * off the element's own play and pause events. Setting the icon at the
+		 * moment of the click would show a pause bar over a video that never
+		 * began.
+		 */
+		function sync() {
+			var playing = ! media.paused && ! media.ended;
+			var label = playing ? toggle.dataset.labelPause : toggle.dataset.labelPlay;
+
+			wrap.classList.toggle( 'iflynepal-pkg-is-playing', playing );
+			toggle.setAttribute( 'aria-pressed', playing ? 'true' : 'false' );
+
+			if ( label ) {
+				toggle.setAttribute( 'aria-label', label );
+			}
+		}
+
+		toggle.addEventListener( 'click', function () {
+			if ( media.paused || media.ended ) {
+				/*
+				 * play() rejects when the browser refuses — an unhandled rejection
+				 * in the console reads as a broken player. There is nothing to do
+				 * about a refusal but leave the button showing play, which sync()
+				 * on the pause event already does.
+				 */
+				var started = media.play();
+
+				if ( started && 'function' === typeof started.catch ) {
+					started.catch( sync );
+				}
+
+				return;
+			}
+
+			media.pause();
+		} );
+
+		media.addEventListener( 'play', sync );
+		media.addEventListener( 'pause', sync );
+		media.addEventListener( 'ended', sync );
+
+		sync();
+	}() );
+
+	/* ------------------------------------------------------------ lightbox */
+
+	( function gallery() {
+		var box = id( 'lightbox' );
+		var source = id( 'photos' );
+		var tiles = root.querySelectorAll( '.iflynepal-pkg-g-tile, .iflynepal-pkg-g-all' );
+
+		if ( ! box || ! source || ! tiles.length ) {
+			return;
+		}
+
+		var photos = Array.prototype.map.call( source.content.querySelectorAll( 'span' ), function ( item ) {
+			return {
+				full: item.dataset.full,
+				thumb: item.dataset.thumb,
+				alt: item.dataset.alt || ''
+			};
+		} );
+
+		if ( ! photos.length ) {
+			return;
+		}
+
+		var img = id( 'lb-img' );
+		var cap = id( 'lb-cap' );
+		var count = id( 'lb-count' );
+		var thumbs = id( 'lb-thumbs' );
+		var current = 0;
+		var lastFocus = null;
+
+		photos.forEach( function ( photo, index ) {
+			var button = document.createElement( 'button' );
+			var thumb = document.createElement( 'img' );
+
+			button.type = 'button';
+			button.setAttribute( 'aria-label', ( strings.showPhoto || 'Show photo %d' ).replace( '%d', index + 1 ) );
+			thumb.src = photo.thumb;
+			thumb.alt = '';
+			thumb.loading = 'lazy';
+
+			button.appendChild( thumb );
+			button.addEventListener( 'click', function () {
+				show( index );
+			} );
+
+			thumbs.appendChild( button );
+		} );
+
+		function show( index ) {
+			current = ( index + photos.length ) % photos.length;
+
+			img.src = photos[ current ].full;
+			img.alt = photos[ current ].alt;
+			cap.textContent = photos[ current ].alt;
+			count.textContent = ( current + 1 ) + ' / ' + photos.length;
+
+			Array.prototype.forEach.call( thumbs.children, function ( thumb, n ) {
+				thumb.setAttribute( 'aria-current', n === current ? 'true' : 'false' );
+
+				if ( n !== current ) {
+					return;
+				}
+
+				/*
+				 * Keep the marked thumbnail in view. The strip scrolls once there
+				 * are more photographs than fit, and paging with the arrows would
+				 * otherwise mark one that has scrolled off the end.
+				 */
+				thumbs.scrollBy( {
+					left: thumb.getBoundingClientRect().left
+						- thumbs.getBoundingClientRect().left
+						- ( ( thumbs.clientWidth - thumb.offsetWidth ) / 2 ),
+					behavior: 'smooth'
+				} );
+			} );
+		}
+
+		function open( index ) {
+			lastFocus = document.activeElement;
+			box.hidden = false;
+
+			/*
+			 * The page behind a modal must not scroll under it. The class goes on
+			 * <body>, which is where the stylesheet's rule is: `overflow: hidden`
+			 * there is propagated to the viewport as long as <html> is visible,
+			 * which is what makes this the ordinary way to lock a page.
+			 */
+			document.body.classList.add( 'iflynepal-pkg-lb-lock' );
+			show( index );
+
+			/*
+			 * The panel is opacity:0 until `is-open`, so un-hiding it alone opens
+			 * a transparent sheet over the whole page — every gallery tile read as
+			 * doing nothing, and the page stopped taking clicks until Escape.
+			 *
+			 * The class is added on the next frame, not this one. Setting `hidden`
+			 * and the class together gives the browser one style resolution to do
+			 * both in, so there is no earlier value to animate from and the fade
+			 * is skipped.
+			 */
+			requestAnimationFrame( function () {
+				box.classList.add( 'iflynepal-pkg-is-open' );
+			} );
+
+			id( 'lb-close' ).focus();
+		}
+
+		function close() {
+			box.classList.remove( 'iflynepal-pkg-is-open' );
+			document.body.classList.remove( 'iflynepal-pkg-lb-lock' );
+
+			// `hidden` waits for the fade out; the stylesheet's transition is .35s.
+			window.setTimeout( function () {
+				box.hidden = true;
+			}, 300 );
+
+			if ( lastFocus ) {
+				lastFocus.focus();
+			}
+		}
+
+		Array.prototype.forEach.call( tiles, function ( tile ) {
+			/*
+			 * A tile with no data-index is the featured video, which plays where
+			 * it is rather than opening anything — and its own controls are inside
+			 * it, so a lightbox on click would fire every time somebody pressed
+			 * pause.
+			 */
+			if ( ! tile.hasAttribute( 'data-index' ) ) {
+				return;
+			}
+
+			tile.addEventListener( 'click', function () {
+				open( parseInt( tile.dataset.index, 10 ) || 0 );
+			} );
+		} );
+
+		id( 'lb-close' ).addEventListener( 'click', close );
+		id( 'lb-prev' ).addEventListener( 'click', function () {
+			show( current - 1 );
+		} );
+		id( 'lb-next' ).addEventListener( 'click', function () {
+			show( current + 1 );
+		} );
+
+		box.addEventListener( 'click', function ( event ) {
+			// The backdrop closes; the photograph and the buttons do not.
+			if ( event.target === box || event.target.classList.contains( 'iflynepal-pkg-lb-stage' ) ) {
+				close();
+			}
+		} );
+
+		document.addEventListener( 'keydown', function ( event ) {
+			if ( box.hidden ) {
+				return;
+			}
+
+			if ( 'Escape' === event.key ) {
+				close();
+			} else if ( 'ArrowLeft' === event.key ) {
+				show( current - 1 );
+			} else if ( 'ArrowRight' === event.key ) {
+				show( current + 1 );
+			}
+		} );
+	}() );
+
+	/* ------------------------------------------------------------- sharing */
+
+	( function share() {
+		var wrap = id( 'share' );
+
+		if ( ! wrap ) {
+			return;
+		}
+
+		var copy = wrap.querySelector( '[data-share="copy"]' );
+
+		if ( ! copy || ! navigator.clipboard ) {
+			return;
+		}
+
+		copy.addEventListener( 'click', function () {
+			navigator.clipboard.writeText( wrap.dataset.url || window.location.href ).then( function () {
+				copy.classList.add( 'iflynepal-pkg-is-copied' );
+
+				window.setTimeout( function () {
+					copy.classList.remove( 'iflynepal-pkg-is-copied' );
+				}, 1600 );
+			} );
+		} );
+	}() );
+
+	/* ------------------------------------------- section nav + booking bar */
+
+	( function sectionNav() {
+		var nav = id( 'side-nav' );
+		var bar = id( 'book-bar' );
+		var card = id( 'price-card' );
+		var links = nav ? Array.prototype.slice.call( nav.querySelectorAll( 'a' ) ) : [];
+		var sections = links.map( function ( link ) {
+			return document.querySelector( link.getAttribute( 'href' ) );
+		} ).filter( Boolean );
+
+		function onScroll() {
+			if ( sections.length ) {
+				/*
+				 * The section whose top has most recently passed the docking
+				 * line is the one being read. Measured on scroll rather than
+				 * with an observer because the answer is "which is nearest",
+				 * which an observer cannot give directly.
+				 */
+				var line = 140;
+				var active = 0;
+
+				sections.forEach( function ( section, index ) {
+					if ( section.getBoundingClientRect().top <= line ) {
+						active = index;
+					}
+				} );
+
+				links.forEach( function ( link, index ) {
+					var on = index === active;
+
+					link.classList.toggle( 'iflynepal-pkg-is-active', on );
+
+					if ( on ) {
+						link.setAttribute( 'aria-current', 'true' );
+					} else {
+						link.removeAttribute( 'aria-current' );
+					}
+				} );
+			}
+
+			if ( bar && card ) {
+				/*
+				 * The bar appears once the price card has scrolled away, and
+				 * hides again over the booker itself — where the same numbers
+				 * and the same button are already on screen.
+				 */
+				var booker = id( 'booker' );
+				var past = card.getBoundingClientRect().bottom < 0;
+				var atBooker = booker && booker.getBoundingClientRect().top < window.innerHeight && booker.getBoundingClientRect().bottom > 0;
+				var on = past && ! atBooker;
+
+				bar.classList.toggle( 'iflynepal-pkg-is-on', on );
+				bar.setAttribute( 'aria-hidden', on ? 'false' : 'true' );
+
+				var action = bar.querySelector( 'a' );
+
+				if ( action ) {
+					// Out of the tab order while it is off screen.
+					action.tabIndex = on ? 0 : -1;
+				}
+			}
+		}
+
+		window.addEventListener( 'scroll', onScroll, { passive: true } );
+		window.addEventListener( 'resize', onScroll );
+		onScroll();
+	}() );
+
+	/* ----------------------------------------------------------- itinerary */
+
+	( function itinerary() {
+		var full = id( 'panel-full' );
+		var short = id( 'panel-short' );
+		var tabFull = id( 'tab-full' );
+		var tabShort = id( 'tab-short' );
+		var expand = id( 'expand-all' );
+		var days = full ? Array.prototype.slice.call( full.querySelectorAll( '.iflynepal-pkg-day' ) ) : [];
+
+		days.forEach( function ( day ) {
+			var toggle = day.querySelector( '.iflynepal-pkg-day-toggle' );
+
+			if ( ! toggle ) {
+				return;
+			}
+
+			toggle.addEventListener( 'click', function () {
+				var open = day.classList.toggle( 'iflynepal-pkg-is-open' );
+
+				toggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+				syncExpand();
+			} );
+		} );
+
+		function syncExpand() {
+			if ( ! expand ) {
+				return;
+			}
+
+			var allOpen = days.every( function ( day ) {
+				return day.classList.contains( 'iflynepal-pkg-is-open' );
+			} );
+
+			expand.setAttribute( 'aria-expanded', allOpen ? 'true' : 'false' );
+			expand.textContent = allOpen ? ( strings.collapseAll || 'Collapse all' ) : ( strings.expandAll || 'Expand all' );
+		}
+
+		if ( expand ) {
+			expand.addEventListener( 'click', function () {
+				var open = 'true' !== expand.getAttribute( 'aria-expanded' );
+
+				days.forEach( function ( day ) {
+					day.classList.toggle( 'iflynepal-pkg-is-open', open );
+					day.querySelector( '.iflynepal-pkg-day-toggle' ).setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+				} );
+
+				syncExpand();
+			} );
+		}
+
+		if ( ! tabFull || ! tabShort || ! short ) {
+			return;
+		}
+
+		function select( wantFull ) {
+			tabFull.setAttribute( 'aria-selected', wantFull ? 'true' : 'false' );
+			tabShort.setAttribute( 'aria-selected', wantFull ? 'false' : 'true' );
+			tabFull.tabIndex = wantFull ? 0 : -1;
+			tabShort.tabIndex = wantFull ? -1 : 0;
+			full.hidden = ! wantFull;
+			short.hidden = wantFull;
+
+			if ( expand ) {
+				expand.hidden = ! wantFull;
+			}
+		}
+
+		tabFull.addEventListener( 'click', function () {
+			select( true );
+		} );
+		tabShort.addEventListener( 'click', function () {
+			select( false );
+		} );
+
+		/*
+		 * Left and right move between tabs, which is what a tablist owes a
+		 * keyboard. The directions follow the order the tabs are rendered in —
+		 * short itinerary first, day by day second — so right goes to day by day.
+		 */
+		[ tabShort, tabFull ].forEach( function ( tab ) {
+			tab.addEventListener( 'keydown', function ( event ) {
+				if ( 'ArrowRight' === event.key ) {
+					select( true );
+					tabFull.focus();
+				} else if ( 'ArrowLeft' === event.key ) {
+					select( false );
+					tabShort.focus();
+				}
+			} );
+		} );
+
+		syncExpand();
+	}() );
+
+	/* -------------------------------------------------------------- booker */
+
+	( function booker() {
+		var wrap = id( 'booker' );
+
+		if ( ! wrap ) {
+			return;
+		}
+
+		var grid = id( 'cal-grid' );
+		var label = id( 'cal-month' );
+		var quick = id( 'cal-quick' );
+		var price = parseFloat( wrap.dataset.price ) || 0;
+		var currency = wrap.dataset.currency || 'USD';
+		/*
+		 * The trip's length in days, set on the package. The run is what the
+		 * visitor picks: a start date, and this many days from it. Floored at one
+		 * so a package with nothing typed in the field still picks a single day
+		 * rather than a run of none.
+		 */
+		var days = Math.max( 1, parseInt( wrap.dataset.days, 10 ) || 1 );
+		var today = new Date();
+		var view = new Date( today.getFullYear(), today.getMonth(), 1 );
+		var chosen = null;
+		var pax = 1;
+
+		today.setHours( 0, 0, 0, 0 );
+
+		function money( amount ) {
+			return currency + ' ' + amount.toFixed( 2 ).replace( /\B(?=(\d{3})+(?!\d))/g, ',' );
+		}
+
+		function longDate( date ) {
+			return date.toLocaleDateString( undefined, { day: 'numeric', month: 'short', year: 'numeric' } );
+		}
+
+		/**
+		 * The last day of the run that starts on a given date.
+		 *
+		 * Derived every time it is wanted and never stored: a stored end date is
+		 * a second copy of the same fact, and the two come apart the first time
+		 * somebody changes the duration on the package.
+		 *
+		 * setDate() past the end of a month rolls into the next one by itself, so
+		 * a five-day run from 30 January ends on 3 February with no arithmetic of
+		 * ours — and it handles leap days and the ends of years the same way.
+		 *
+		 * @param {Date} start First day of the run.
+		 * @return {Date} Last day of the run.
+		 */
+		function runEnd( start ) {
+			var last = new Date( start.getTime() );
+
+			last.setDate( last.getDate() + days - 1 );
+
+			return last;
+		}
+
+		/**
+		 * Whether a date can start a run.
+		 *
+		 * The one rule is that a trip cannot begin in the past. There is nothing
+		 * else to test: no availability, no capacity and no inventory exists
+		 * behind this calendar, by instruction — what it produces is a quotation.
+		 *
+		 * @param {Date} date Candidate start date.
+		 * @return {boolean} True when it may be picked.
+		 */
+		function selectable( date ) {
+			return date >= today;
+		}
+
+		function draw() {
+			var year = view.getFullYear();
+			var month = view.getMonth();
+			var first = new Date( year, month, 1 );
+			// How many days this month has — `days` is the trip's length, not this.
+			var count = new Date( year, month + 1, 0 ).getDate();
+			/* Monday-first, which is how the design's grid reads. */
+			var lead = ( first.getDay() + 6 ) % 7;
+
+			label.textContent = view.toLocaleDateString( undefined, { month: 'long', year: 'numeric' } );
+			grid.textContent = '';
+
+			/*
+			 * `iflynepal-pkg-dow`, which is the class the stylesheet carries.
+			 * This read `cal-dow` and so the weekday row had no styles at all —
+			 * the kind of miss that looks like a missing rule rather than a
+			 * misspelt one.
+			 */
+			( strings.weekdays || [ 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su' ] ).forEach( function ( name ) {
+				var head = document.createElement( 'span' );
+
+				head.className = 'iflynepal-pkg-dow';
+				head.textContent = name;
+				grid.appendChild( head );
+			} );
+
+			for ( var blank = 0; blank < lead; blank++ ) {
+				grid.appendChild( document.createElement( 'span' ) );
+			}
+
+			var last = chosen ? runEnd( chosen ) : null;
+
+			for ( var day = 1; day <= count; day++ ) {
+				( function ( dayNumber ) {
+					var date = new Date( year, month, dayNumber );
+					var cell = document.createElement( 'button' );
+
+					cell.type = 'button';
+					cell.className = 'iflynepal-pkg-cal-day';
+					cell.textContent = dayNumber;
+
+					if ( date.getTime() === today.getTime() ) {
+						cell.classList.add( 'iflynepal-pkg-is-today' );
+					}
+
+					/*
+					 * A date in the past is the only one that is refused, and
+					 * that is arithmetic rather than availability: nothing else
+					 * is checked, because nothing else is known.
+					 */
+					if ( ! selectable( date ) ) {
+						cell.disabled = true;
+					} else {
+						cell.addEventListener( 'click', function () {
+							/*
+							 * Every click sets the START of the run. The end is
+							 * derived from the trip's duration, so there is no
+							 * second pick to make and no way to ask for more days
+							 * than the package is: clicking inside a highlighted
+							 * run simply moves the run to that day.
+							 */
+							chosen = date;
+							draw();
+							total();
+						} );
+					}
+
+					if ( chosen && date.getTime() === chosen.getTime() ) {
+						cell.classList.add( 'iflynepal-pkg-is-start' );
+						cell.setAttribute( 'aria-current', 'date' );
+					}
+
+					if ( last && date.getTime() === last.getTime() ) {
+						cell.classList.add( 'iflynepal-pkg-is-end' );
+					}
+
+					// The days between the two ends, which is what shows the length.
+					if ( chosen && last && date > chosen && date < last ) {
+						cell.classList.add( 'iflynepal-pkg-is-range' );
+					}
+
+					grid.appendChild( cell );
+				}( day ) );
+			}
+
+			/*
+			 * Nothing before this month can be picked, so the way back to it is
+			 * closed rather than left to be pressed into a grid of dead cells.
+			 */
+			id( 'cal-prev' ).disabled =
+				view.getFullYear() === today.getFullYear() && view.getMonth() === today.getMonth();
+		}
+
+		function total() {
+			var start = id( 'sum-start' );
+			var end = id( 'sum-end' );
+			var each = id( 'sum-each' );
+			var paxOut = id( 'sum-pax' );
+			var sum = id( 'sum-total' );
+			var button = id( 'book-btn' );
+			var note = id( 'book-note' );
+
+			each.textContent = money( price );
+			paxOut.textContent = '× ' + pax;
+			sum.textContent = money( price * pax );
+
+			if ( chosen ) {
+				start.textContent = longDate( chosen );
+				end.textContent = longDate( runEnd( chosen ) );
+				start.classList.remove( 'iflynepal-pkg-is-empty' );
+				end.classList.remove( 'iflynepal-pkg-is-empty' );
+				button.removeAttribute( 'aria-disabled' );
+				note.textContent = strings.bookNote || note.textContent;
+			}
+		}
+
+		id( 'cal-prev' ).addEventListener( 'click', function () {
+			view.setMonth( view.getMonth() - 1 );
+			draw();
+		} );
+
+		id( 'cal-next' ).addEventListener( 'click', function () {
+			view.setMonth( view.getMonth() + 1 );
+			draw();
+		} );
+
+		id( 'pax-minus' ).addEventListener( 'click', function () {
+			pax = Math.max( 1, pax - 1 );
+			id( 'pax-out' ).textContent = pax;
+			total();
+		} );
+
+		id( 'pax-plus' ).addEventListener( 'click', function () {
+			pax = pax + 1;
+			id( 'pax-out' ).textContent = pax;
+			total();
+		} );
+
+		/* The next four Saturdays, as shortcuts rather than as offers. */
+		if ( quick ) {
+			var cursor = new Date( today.getTime() );
+
+			cursor.setDate( cursor.getDate() + ( ( 6 - cursor.getDay() + 7 ) % 7 || 7 ) );
+
+			for ( var n = 0; n < 4; n++ ) {
+				( function ( date ) {
+					var button = document.createElement( 'button' );
+
+					button.type = 'button';
+					button.textContent = date.toLocaleDateString( undefined, { day: 'numeric', month: 'short' } );
+					button.addEventListener( 'click', function () {
+						chosen = date;
+						view = new Date( date.getFullYear(), date.getMonth(), 1 );
+						draw();
+						total();
+					} );
+
+					quick.appendChild( button );
+				}( new Date( cursor.getTime() ) ) );
+
+				cursor.setDate( cursor.getDate() + 7 );
+			}
+		}
+
+		draw();
+		total();
+	}() );
+
+	/* ---------------------------------------------------------------- rail */
+
+	( function rail() {
+		var track = id( 'rail' );
+		var prev = id( 'rail-prev' );
+		var next = id( 'rail-next' );
+
+		if ( ! track || ! prev || ! next ) {
+			return;
+		}
+
+		var cards = track.querySelectorAll( '.iflynepal-pkg-trip-card' );
+
+		if ( cards.length < 2 ) {
+			return;
+		}
+
+		function step() {
+			var first = cards[ 0 ].getBoundingClientRect();
+			var second = cards[ 1 ].getBoundingClientRect();
+
+			return Math.round( second.left - first.left ) || Math.round( first.width );
+		}
+
+		function sync() {
+			var max = track.scrollWidth - track.clientWidth;
+
+			// A pixel of tolerance: a scrolled-to-the-end rail can sit a fraction short.
+			prev.disabled = track.scrollLeft <= 1;
+			next.disabled = track.scrollLeft >= max - 1;
+		}
+
+		prev.addEventListener( 'click', function () {
+			track.scrollBy( { left: -step(), behavior: reduced ? 'auto' : 'smooth' } );
+		} );
+
+		next.addEventListener( 'click', function () {
+			track.scrollBy( { left: step(), behavior: reduced ? 'auto' : 'smooth' } );
+		} );
+
+		track.addEventListener( 'scroll', sync, { passive: true } );
+		window.addEventListener( 'resize', sync );
+		sync();
+	}() );
+}() );

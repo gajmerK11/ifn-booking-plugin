@@ -37,6 +37,8 @@
 		var preview = field.querySelector('[data-iflynepal-media-preview]');
 		var select = field.querySelector('[data-iflynepal-media-select]');
 		var remove = field.querySelector('[data-iflynepal-media-remove]');
+		// Every picker on this screen but one is an image picker.
+		var type = field.dataset.iflynepalMediaType || 'image';
 		var frame = null;
 
 		if (!input || !preview || !select || !remove) {
@@ -53,28 +55,45 @@
 			// One frame per field, reopened rather than rebuilt.
 			if (!frame) {
 				frame = window.wp.media({
-					title: strings.chooseTitle || 'Choose image',
-					button: { text: strings.chooseUse || 'Use this image' },
-					library: { type: 'image' },
+					title: field.dataset.iflynepalMediaTitle || strings.chooseTitle || 'Choose image',
+					button: {
+						text: field.dataset.iflynepalMediaButton || strings.chooseUse || 'Use this image'
+					},
+					library: { type: type },
 					multiple: false
 				});
 
 				frame.on('select', function () {
 					var attachment = frame.state().get('selection').first().toJSON();
-					var size =
-						attachment.sizes && attachment.sizes.thumbnail
-							? attachment.sizes.thumbnail
-							: attachment;
 
 					input.value = attachment.id;
 					preview.textContent = '';
 
-					var img = document.createElement('img');
-					img.src = size.url;
-					img.alt = attachment.alt || '';
-					img.width = size.width || 64;
-					img.height = size.height || 64;
-					preview.appendChild(img);
+					/*
+					 * A video has no thumbnail sizes to pick from, so it previews as
+					 * the file itself with its controls — which is also the only way
+					 * to check the right clip was chosen without leaving the editor.
+					 */
+					if ('video' === type) {
+						var video = document.createElement('video');
+
+						video.src = attachment.url;
+						video.controls = true;
+						video.preload = 'metadata';
+						preview.appendChild(video);
+					} else {
+						var size =
+							attachment.sizes && attachment.sizes.thumbnail
+								? attachment.sizes.thumbnail
+								: attachment;
+						var img = document.createElement('img');
+
+						img.src = size.url;
+						img.alt = attachment.alt || '';
+						img.width = size.width || 64;
+						img.height = size.height || 64;
+						preview.appendChild(img);
+					}
 
 					remove.hidden = false;
 				});
@@ -142,6 +161,14 @@
 			add.hidden = max > 0 && rows().length >= max;
 		}
 
+		/*
+		 * The nested timeline repeater has to be able to ask for this: a row it
+		 * adds is named from the card's own <template>, which still carries the
+		 * __INDEX__ placeholder for the card, and only this function knows what
+		 * number that card now is.
+		 */
+		wrap.iflynepalRenumber = renumber;
+
 		add.addEventListener('click', function () {
 			if (max > 0 && rows().length >= max) {
 				return;
@@ -153,6 +180,7 @@
 			renumber();
 			refresh();
 			initField(row.querySelector('[data-iflynepal-media]'));
+			row.querySelectorAll('[data-iflynepal-timeline]').forEach(initTimeline);
 		});
 
 		list.addEventListener('click', function (event) {
@@ -165,6 +193,204 @@
 			button.closest('[data-iflynepal-card]').remove();
 			renumber();
 			refresh();
+		});
+
+		renumber();
+		refresh();
+	}
+
+	/* ------------------------------------------------- timeline repeater */
+
+	/**
+	 * Wires one day's timeline: a repeater of stops inside a card repeater.
+	 *
+	 * Same contract as the flat repeaters — a <template> row, indices re-derived
+	 * from position, the Add button hidden at the cap — with ordering on top,
+	 * because the order of a timeline is its meaning. A row moves by drag, and by
+	 * the arrow buttons, which are the half of that a keyboard can reach.
+	 *
+	 * @param {HTMLElement} wrap The [data-iflynepal-timeline] wrapper.
+	 */
+	function initTimeline(wrap) {
+		if (!wrap || wrap.dataset.iflynepalTimelineReady === '1') {
+			return;
+		}
+
+		var list = wrap.querySelector('[data-iflynepal-timeline-list]');
+		var add = wrap.querySelector('[data-iflynepal-timeline-add]');
+		var template = wrap.querySelector('[data-iflynepal-timeline-template]');
+		var max = parseInt(wrap.dataset.max, 10) || 0;
+		var dragging = null;
+
+		if (!list || !add || !template) {
+			return;
+		}
+
+		wrap.dataset.iflynepalTimelineReady = '1';
+
+		function rows() {
+			return Array.prototype.slice.call(list.querySelectorAll('[data-iflynepal-timeline-row]'));
+		}
+
+		/**
+		 * Puts the posted row indices back in order.
+		 *
+		 * The index to rewrite is the LAST one — the numbers before it belong to
+		 * the card this timeline sits inside, and rewriting one of those would
+		 * move a stop onto another day.
+		 */
+		function renumber() {
+			rows().forEach(function (row, i) {
+				row.querySelectorAll('input').forEach(function (input) {
+					var name = input.getAttribute('name');
+
+					if (name) {
+						input.setAttribute(
+							'name',
+							name.replace(/\[(?:\d+|__INDEX__)\]\[(time|text)\]$/, '[' + i + '][$1]')
+						);
+					}
+				});
+			});
+
+			/*
+			 * A row added to a card that was itself just added is still named with
+			 * the card's __INDEX__ placeholder, and only the card repeater knows
+			 * what to put there.
+			 */
+			var cards = wrap.closest('[data-iflynepal-cards]');
+
+			if (cards && typeof cards.iflynepalRenumber === 'function') {
+				cards.iflynepalRenumber();
+			}
+		}
+
+		// The button goes away at the cap rather than failing on click.
+		function refresh() {
+			add.hidden = max > 0 && rows().length >= max;
+		}
+
+		function move(row, delta) {
+			var all = rows();
+			var from = all.indexOf(row);
+			var to = from + delta;
+
+			if (from < 0 || to < 0 || to >= all.length) {
+				return;
+			}
+
+			if (delta < 0) {
+				list.insertBefore(row, all[to]);
+			} else {
+				list.insertBefore(row, all[to].nextSibling);
+			}
+
+			renumber();
+		}
+
+		add.addEventListener('click', function () {
+			if (max > 0 && rows().length >= max) {
+				return;
+			}
+
+			var row = template.content.firstElementChild.cloneNode(true);
+
+			list.appendChild(row);
+			renumber();
+			refresh();
+
+			var first = row.querySelector('input');
+
+			if (first) {
+				first.focus();
+			}
+		});
+
+		list.addEventListener('click', function (event) {
+			var row = event.target.closest('[data-iflynepal-timeline-row]');
+
+			if (!row) {
+				return;
+			}
+
+			if (event.target.closest('[data-iflynepal-timeline-remove]')) {
+				row.remove();
+				renumber();
+				refresh();
+
+				return;
+			}
+
+			if (event.target.closest('[data-iflynepal-timeline-up]')) {
+				move(row, -1);
+
+				return;
+			}
+
+			if (event.target.closest('[data-iflynepal-timeline-down]')) {
+				move(row, 1);
+			}
+		});
+
+		/*
+		 * Enter adds the next stop instead of submitting the post.
+		 *
+		 * The editor is one form, and a form submits on Enter from a text input.
+		 * Typing a stop and pressing Enter would otherwise save and reload the
+		 * whole screen mid-edit.
+		 */
+		list.addEventListener('keydown', function (event) {
+			if ('Enter' !== event.key || 'INPUT' !== event.target.tagName) {
+				return;
+			}
+
+			event.preventDefault();
+			add.click();
+		});
+
+		/* ------------------------------------------------------------ drag */
+
+		list.addEventListener('dragstart', function (event) {
+			var row = event.target.closest('[data-iflynepal-timeline-row]');
+
+			if (!row) {
+				return;
+			}
+
+			dragging = row;
+			row.classList.add('is-dragging');
+
+			// Firefox starts no drag at all unless something is put on the transfer.
+			if (event.dataTransfer) {
+				event.dataTransfer.effectAllowed = 'move';
+				event.dataTransfer.setData('text/plain', '');
+			}
+		});
+
+		list.addEventListener('dragover', function (event) {
+			var over = event.target.closest('[data-iflynepal-timeline-row]');
+
+			if (!dragging || !over || over === dragging) {
+				return;
+			}
+
+			// Without this the drop never happens: the default is to refuse it.
+			event.preventDefault();
+
+			var box = over.getBoundingClientRect();
+			var after = event.clientY > box.top + box.height / 2;
+
+			list.insertBefore(dragging, after ? over.nextSibling : over);
+		});
+
+		list.addEventListener('dragend', function () {
+			if (!dragging) {
+				return;
+			}
+
+			dragging.classList.remove('is-dragging');
+			dragging = null;
+			renumber();
 		});
 
 		renumber();
@@ -300,4 +526,5 @@
 	document.querySelectorAll('[data-iflynepal-media]').forEach(initField);
 	document.querySelectorAll('[data-iflynepal-cards]').forEach(initCards);
 	document.querySelectorAll('[data-iflynepal-table]').forEach(initTable);
+	document.querySelectorAll('[data-iflynepal-timeline]').forEach(initTimeline);
 })();
