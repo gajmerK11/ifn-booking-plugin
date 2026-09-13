@@ -479,7 +479,13 @@
 		var today = new Date();
 		var view = new Date( today.getFullYear(), today.getMonth(), 1 );
 		var chosen = null;
-		var pax = 1;
+		/*
+		 * Client-directed, 13 Sep 2026: nobody is assumed. A visitor has to say
+		 * how many people are travelling, the same way they have to say when —
+		 * neither is a sensible default to pick for them, and the booking
+		 * button stays locked until both are answered (see total() below).
+		 */
+		var pax = 0;
 
 		today.setHours( 0, 0, 0, 0 );
 
@@ -630,24 +636,41 @@
 			var note = id( 'book-note' );
 			var pay = id( 'pay-aside' );
 			var payNote = id( 'pay-note' );
+			var paxMinus = id( 'pax-minus' );
+			/*
+			 * Both answered, not just one. A date with nobody travelling, or a
+			 * traveller count with no date, is not a bookable trip either way —
+			 * derived fresh on every call rather than stored, because pax can
+			 * now go back down to zero and the button has to re-lock with it.
+			 */
+			var ready = Boolean( chosen ) && pax > 0;
 
 			each.textContent = money( price );
 			paxOut.textContent = '× ' + pax;
 			sum.textContent = money( price * pax );
+
+			if ( paxMinus ) {
+				paxMinus.disabled = pax <= 0;
+			}
 
 			if ( chosen ) {
 				start.textContent = longDate( chosen );
 				end.textContent = longDate( runEnd( chosen ) );
 				start.classList.remove( 'iflynepal-pkg-is-empty' );
 				end.classList.remove( 'iflynepal-pkg-is-empty' );
+			}
 
-				/*
-				 * Both are absent once a package is wired to a payment button:
-				 * the gateway's own button replaces the inert Book now and its
-				 * note. Guarded rather than assumed — reading removeAttribute
-				 * off null throws, and that throw would take the whole booker
-				 * with it, so picking a date would stop updating the summary.
-				 */
+			/*
+			 * Every element below is guarded rather than assumed: `button` and
+			 * `note` are absent once a package is wired to a payment button
+			 * (the gateway's own button replaces the inert Book now and its
+			 * note), and `pay`/`payNote` are absent on a package with no
+			 * payment button configured at all. Reading a property off null
+			 * throws, and that throw would take the whole booker with it, so
+			 * picking a date or a traveller count would stop updating the
+			 * summary.
+			 */
+			if ( ready ) {
 				if ( button ) {
 					button.removeAttribute( 'aria-disabled' );
 				}
@@ -656,12 +679,6 @@
 					note.textContent = strings.bookNote || note.textContent;
 				}
 
-				/*
-				 * The gateway's own button, in the aside — locked (pointer-
-				 * events: none, see package.css) until this point, guarded the
-				 * same way: a package with no button configured at all has no
-				 * #ifnpkg-pay-aside to find.
-				 */
 				if ( pay ) {
 					pay.classList.remove( 'iflynepal-pkg-is-locked' );
 					pay.removeAttribute( 'aria-disabled' );
@@ -669,6 +686,19 @@
 
 				if ( payNote ) {
 					payNote.hidden = true;
+				}
+			} else {
+				if ( button ) {
+					button.setAttribute( 'aria-disabled', 'true' );
+				}
+
+				if ( pay ) {
+					pay.classList.add( 'iflynepal-pkg-is-locked' );
+					pay.setAttribute( 'aria-disabled', 'true' );
+				}
+
+				if ( payNote ) {
+					payNote.hidden = false;
 				}
 			}
 		}
@@ -684,7 +714,7 @@
 		} );
 
 		id( 'pax-minus' ).addEventListener( 'click', function () {
-			pax = Math.max( 1, pax - 1 );
+			pax = Math.max( 0, pax - 1 );
 			id( 'pax-out' ).textContent = pax;
 			total();
 		} );

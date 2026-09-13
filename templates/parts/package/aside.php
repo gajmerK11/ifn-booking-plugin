@@ -85,21 +85,25 @@ $iflynepal_pay = iflynepal_package_payment_markup( $iflynepal_id );
 					<?php
 					/*
 					 * Client-directed, 13 Sep 2026: the button does not work
-					 * until a start date is picked below — the same principle
-					 * the old inert Book now already used when no gateway
-					 * button existed at all, applied here to a real one.
+					 * until a start date AND at least one traveller are picked
+					 * below — the same principle the old inert Book now
+					 * already used when no gateway button existed at all,
+					 * applied here to a real one. Travellers default to zero
+					 * rather than one, so this is the ordinary starting state
+					 * for every visitor, not an edge case.
 					 *
 					 * `iflynepal-pkg-is-locked` is CSS only (pointer-events:
 					 * none — see assets/css/package.css), which is what makes
 					 * this gateway-agnostic: it works whether the markup
 					 * underneath is a plain form or a script-rendered button
 					 * in an iframe, neither of which this plugin can reach
-					 * into to disable directly. package.js removes the class
-					 * once a date is chosen (see the booker's total()) — this
-					 * is a UX nudge, not enforcement, the same standing as
-					 * every other rule in this plugin: nothing stops the
-					 * amount or the payment itself, only when the button
-					 * becomes clickable.
+					 * into to disable directly. package.js's total() toggles
+					 * the class both ways — a traveller count that drops back
+					 * to zero re-locks the button just as picking a date
+					 * unlocked it. This is a UX nudge, not enforcement, the
+					 * same standing as every other rule in this plugin:
+					 * nothing stops the amount or the payment itself, only
+					 * when the button becomes clickable.
 					 */
 					?>
 					<div class="iflynepal-pkg-pay iflynepal-pkg-is-locked" id="ifnpkg-pay-aside" aria-disabled="true">
@@ -108,7 +112,7 @@ $iflynepal_pay = iflynepal_package_payment_markup( $iflynepal_id );
 						echo $iflynepal_pay; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						?>
 					</div>
-					<p class="iflynepal-pkg-sum-note" id="ifnpkg-pay-note"><?php esc_html_e( 'Pick a start date below to book.', 'iflynepal' ); ?></p>
+					<p class="iflynepal-pkg-sum-note" id="ifnpkg-pay-note"><?php esc_html_e( 'Pick a start date and how many are travelling below to book.', 'iflynepal' ); ?></p>
 				<?php else : ?>
 					<a class="iflynepal-pkg-button iflynepal-pkg-button--primary iflynepal-pkg-button--block" href="#ifnpkg-dates">
 						<?php esc_html_e( 'Book now', 'iflynepal' ); ?>
