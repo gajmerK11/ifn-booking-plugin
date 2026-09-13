@@ -146,11 +146,12 @@ function iflynepal_package_details_fields() {
 	 * correctly (the template completes it with filler cells), but eight facts
 	 * is the shape the design draws, so eight is what a package should carry.
 	 *
-	 * There are nine to choose from, because the eighth the design ships —
+	 * There are ten to choose from, because the eighth the design ships —
 	 * Check-in — is a fact about arriving at a building, and a retreat is more
 	 * often asked whether a beginner can come at all. Experience level answers
-	 * that, and a package fills whichever eight of the nine it has an answer
-	 * for.
+	 * that, and a package fills whichever eight of the ten it has an answer
+	 * for. Max altitude is the tenth, added for the trekking design's row —
+	 * retreat and tour packages simply leave it blank.
 	 */
 	$glance = array(
 		'glance_destination' => __( 'Destination', 'iflynepal' ),
@@ -158,6 +159,7 @@ function iflynepal_package_details_fields() {
 		'glance_activities'  => __( 'Activities', 'iflynepal' ),
 		'glance_meals'       => __( 'Meals', 'iflynepal' ),
 		'glance_stay'        => __( 'Accommodation', 'iflynepal' ),
+		'glance_altitude'    => __( 'Max altitude', 'iflynepal' ),
 		'glance_group'       => __( 'Group size', 'iflynepal' ),
 		'glance_level'       => __( 'Experience level', 'iflynepal' ),
 		'glance_best_time'   => __( 'Best time', 'iflynepal' ),
@@ -213,6 +215,21 @@ function iflynepal_package_details_fields() {
 		'help'    => __( 'Wrap a word in <em> for the accent style, e.g. "Two days, <em>gently</em> paced."', 'iflynepal' ),
 	);
 
+	/*
+	 * The altitude profile is one paragraph plus whatever Elevation values the
+	 * days below carry — there is no separate on/off switch, the same rule as
+	 * every other opt-in section on this page. Fewer than two days with a
+	 * number in Elevation and the whole chart, note included, is left off:
+	 * one point has no line to draw.
+	 */
+	$fields['altitude_note'] = array(
+		'box'     => 'details',
+		'section' => 'itinerary',
+		'label'   => __( 'Altitude profile note', 'iflynepal' ),
+		'type'    => 'textarea',
+		'help'    => __( 'The line above the chart, e.g. "Base camp at 5,364m on Day 9, with rest days at Namche and Dingboche on the way up." Needs at least two days below with an Elevation value, or the chart — and this note — is left off.', 'iflynepal' ),
+	);
+
 	$fields['itinerary_days'] = array(
 		'box'     => 'details',
 		'section' => 'itinerary',
@@ -223,22 +240,26 @@ function iflynepal_package_details_fields() {
 		'item'    => __( 'Day', 'iflynepal' ),
 		'max'     => IFLYNEPAL_PACKAGE_ITINERARY_MAX,
 		'parts'   => array(
-			'title'    => array(
+			'title'     => array(
 				'label' => __( 'Day title', 'iflynepal' ),
 				'type'  => 'text',
 			),
-			'meta'     => array(
+			'elevation' => array(
+				'label' => __( 'Elevation (m), for the altitude chart', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'meta'      => array(
 				'label' => __( 'Times and summary line', 'iflynepal' ),
 				'type'  => 'text',
 			),
-			'timeline' => array(
+			'timeline'  => array(
 				'label' => __( 'Timeline', 'iflynepal' ),
 				'type'  => 'timeline',
 				'item'  => __( 'Stop', 'iflynepal' ),
 				'max'   => IFLYNEPAL_PACKAGE_TIMELINE_MAX,
 				'help'  => __( 'One row per stop, in the order they happen. Drag a row by its handle, or use the arrows, to move it.', 'iflynepal' ),
 			),
-			'summary'  => array(
+			'summary'   => array(
 				'label' => __( 'Short itinerary entry', 'iflynepal' ),
 				'type'  => 'textarea',
 			),

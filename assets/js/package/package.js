@@ -628,6 +628,8 @@
 			var sum = id( 'sum-total' );
 			var button = id( 'book-btn' );
 			var note = id( 'book-note' );
+			var pay = id( 'pay-aside' );
+			var payNote = id( 'pay-note' );
 
 			each.textContent = money( price );
 			paxOut.textContent = '× ' + pax;
@@ -652,6 +654,21 @@
 
 				if ( note ) {
 					note.textContent = strings.bookNote || note.textContent;
+				}
+
+				/*
+				 * The gateway's own button, in the aside — locked (pointer-
+				 * events: none, see package.css) until this point, guarded the
+				 * same way: a package with no button configured at all has no
+				 * #ifnpkg-pay-aside to find.
+				 */
+				if ( pay ) {
+					pay.classList.remove( 'iflynepal-pkg-is-locked' );
+					pay.removeAttribute( 'aria-disabled' );
+				}
+
+				if ( payNote ) {
+					payNote.hidden = true;
 				}
 			}
 		}

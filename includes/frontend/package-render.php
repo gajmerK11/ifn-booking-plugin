@@ -87,7 +87,7 @@ function iflynepal_package_page_sections( $post_id ) {
  *
  * The icons are fixed to the rows rather than chosen by an editor: the design
  * draws one per fact, and a row with no icon is a row the layout has no slot
- * for. That is also why this is seven declared fields and not a repeater.
+ * for. That is also why this is ten declared fields and not a repeater.
  *
  * @since 1.0.0
  *
@@ -101,6 +101,7 @@ function iflynepal_package_glance( $post_id ) {
 		'glance_activities'  => array( __( 'Activities', 'iflynepal' ), 'lotus' ),
 		'glance_meals'       => array( __( 'Meals', 'iflynepal' ), 'bowl' ),
 		'glance_stay'        => array( __( 'Accommodation', 'iflynepal' ), 'bed' ),
+		'glance_altitude'    => array( __( 'Max altitude', 'iflynepal' ), 'peak' ),
 		'glance_group'       => array( __( 'Group size', 'iflynepal' ), 'group' ),
 		'glance_level'       => array( __( 'Experience level', 'iflynepal' ), 'level' ),
 		'glance_best_time'   => array( __( 'Best time', 'iflynepal' ), 'sun' ),
@@ -307,4 +308,149 @@ function iflynepal_package_the_heading( $value ) {
 			'span' => array( 'class' => array() ),
 		)
 	);
+}
+
+/**
+ * The itinerary's altitude profile, as chart geometry ready to draw.
+ *
+ * Neither the retreat nor the tour design ever needed this — it is new for
+ * trekking, and it is opt-in the same way everything else here is: a package
+ * fills in Elevation on as many or as few days as it has a reliable number
+ * for, and the chart plots exactly those, skipping the rest. Below two points
+ * there is no line to draw, so nothing is returned and the section is left off
+ * entirely, note included — a single dot is not a profile.
+ *
+ * The geometry is worked out here rather than baked into the template so that
+ * a 3-day trek and a 24-day one both produce a chart that fills the same box:
+ * the axis step is picked from the actual spread of elevations on the day
+ * (see iflynepal_package_altitude_axis_step()), not hardcoded to one trek's
+ * numbers the way the design's own mock-up is.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Package.
+ * @return array Empty when there are fewer than two usable points, otherwise
+ *               'points' (each with x, y, day, metres), 'gridlines' (each with
+ *               y and metres) and the peak index.
+ */
+function iflynepal_package_altitude_profile( $post_id ) {
+	$days   = iflynepal_package_cards( $post_id, 'itinerary_days' );
+	$points = array();
+
+	foreach ( $days as $index => $day ) {
+		$raw = isset( $day['elevation'] ) ? trim( (string) $day['elevation'] ) : '';
+
+		if ( '' === $raw ) {
+			continue;
+		}
+
+		// Digits only: an editor may well type "1,400m" rather than "1400".
+		$metres = (int) preg_replace( '/[^0-9]/', '', $raw );
+
+		if ( $metres <= 0 ) {
+			continue;
+		}
+
+		$points[] = array(
+			'day'    => $index + 1,
+			'title'  => (string) $day['title'],
+			'metres' => $metres,
+		);
+	}
+
+	if ( count( $points ) < 2 ) {
+		return array();
+	}
+
+	// The plot box, in the chart's own 0-0-660-230 viewBox — the design's own.
+	$left   = 52;
+	$right  = 642;
+	$top    = 40;
+	$bottom = 186;
+
+	$lowest  = $points[0]['metres'];
+	$highest = $points[0]['metres'];
+
+	foreach ( $points as $point ) {
+		$lowest  = min( $lowest, $point['metres'] );
+		$highest = max( $highest, $point['metres'] );
+	}
+
+	// A little headroom each side, so the line never touches the frame.
+	$span       = max( $highest - $lowest, 1 );
+	$padding    = $span * 0.15;
+	$scale_min  = max( 0, $lowest - $padding );
+	$scale_max  = $highest + $padding;
+	$scale_span = max( $scale_max - $scale_min, 1 );
+
+	$step      = iflynepal_package_altitude_axis_step( $scale_span );
+	$gridlines = array();
+	$value     = ceil( $scale_min / $step ) * $step;
+
+	while ( $value <= $scale_max ) {
+		$gridlines[] = array(
+			'metres' => (int) $value,
+			'y'      => round( $bottom - ( ( $value - $scale_min ) / $scale_span ) * ( $bottom - $top ), 1 ),
+		);
+		$value      += $step;
+	}
+
+	$count   = count( $points );
+	$plotted = array();
+
+	foreach ( $points as $index => $point ) {
+		$x = 1 === $count ? $left : $left + ( $index / ( $count - 1 ) ) * ( $right - $left );
+		$y = $bottom - ( ( $point['metres'] - $scale_min ) / $scale_span ) * ( $bottom - $top );
+
+		$plotted[] = array(
+			'x'      => round( $x, 1 ),
+			'y'      => round( $y, 1 ),
+			'day'    => $point['day'],
+			'title'  => $point['title'],
+			'metres' => $point['metres'],
+		);
+	}
+
+	$peak_index = 0;
+
+	foreach ( $plotted as $index => $point ) {
+		if ( $point['metres'] > $plotted[ $peak_index ]['metres'] ) {
+			$peak_index = $index;
+		}
+	}
+
+	return array(
+		'left'       => $left,
+		'right'      => $right,
+		'top'        => $top,
+		'bottom'     => $bottom,
+		'axis_y'     => $bottom + 26,
+		'points'     => $plotted,
+		'gridlines'  => $gridlines,
+		'peak_index' => $peak_index,
+	);
+}
+
+/**
+ * A round gridline step for an altitude range.
+ *
+ * Picks the smallest candidate that keeps the chart to six lines or fewer, so
+ * a short acclimatisation trek and a three-week expedition both read as one
+ * chart rather than one having two gridlines and the other twenty.
+ *
+ * @since 1.0.0
+ *
+ * @param float $span The scaled elevation range, in metres.
+ * @return int Metres between gridlines.
+ */
+function iflynepal_package_altitude_axis_step( $span ) {
+	$candidates = array( 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000 );
+
+	foreach ( $candidates as $candidate ) {
+		if ( $span / $candidate <= 6 ) {
+			return $candidate;
+		}
+	}
+
+	return (int) end( $candidates );
 }

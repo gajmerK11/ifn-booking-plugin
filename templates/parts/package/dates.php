@@ -169,44 +169,21 @@ $iflynepal_excluded = iflynepal_package_field_lines( $iflynepal_id, 'excluded' )
 
 				<?php
 				/*
-				 * Book now is the gateway's own button — Easy PayPal & Stripe,
-				 * rendered from its shortcode by
-				 * includes/payment/payment-buttons.php. Nothing about the
-				 * payment is reimplemented: the amount, the currency, the
-				 * PayPal and card flows and the redirect are all the gateway's,
-				 * and no card detail passes through this template or this
-				 * server.
+				 * Client-directed, 13 Sep 2026: no button and no CTA of any
+				 * kind renders in this card once a package has a payment
+				 * button configured — the gateway's own button lives once,
+				 * in the price-card aside (templates/parts/package/aside.php),
+				 * and this card is the quotation calculator, nothing else.
 				 *
-				 * ⚠ The button charges what the *button* says, not what the
-				 * calculator above shows. That is deliberate and it is the
-				 * safe way round: a total assembled in the browser and posted
-				 * to a gateway is a price the visitor can edit (§5.4.2). The
-				 * panel above is a quotation — the same rule as everywhere
-				 * else in this plugin — and the office confirms the final
-				 * figure by email.
-				 *
-				 * Without a button configured, or with the gateway switched
-				 * off, the old inert control is what renders: it says what it
-				 * is waiting for rather than silently doing nothing.
+				 * Without a button configured at all, the original inert
+				 * control still renders: it says what it is waiting for
+				 * rather than silently doing nothing.
 				 */
 				$iflynepal_pay = iflynepal_package_payment_markup( $iflynepal_id );
 				?>
 
 				<?php if ( '' !== $iflynepal_pay ) : ?>
-					<div class="iflynepal-pkg-pay" id="ifnpkg-pay">
-						<?php
-						// Rendered by the gateway plugin's own shortcode handler, which escapes its own output.
-						echo $iflynepal_pay; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						?>
-					</div>
-
-					<?php
-					$iflynepal_buffer = iflynepal_package_field( $iflynepal_id, 'buffer_notice' );
-					?>
-
-					<?php if ( '' !== $iflynepal_buffer ) : ?>
-						<p class="iflynepal-pkg-sum-note"><?php echo esc_html( $iflynepal_buffer ); ?></p>
-					<?php endif; ?>
+					<?php // Nothing renders here — see the note above. ?>
 				<?php else : ?>
 					<a class="iflynepal-pkg-button iflynepal-pkg-button--primary iflynepal-pkg-button--block" id="ifnpkg-book-btn" href="#ifnpkg-dates" aria-disabled="true">
 						<?php esc_html_e( 'Book now', 'iflynepal' ); ?>

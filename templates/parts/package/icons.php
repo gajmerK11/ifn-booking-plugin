@@ -66,5 +66,13 @@ defined( 'ABSPATH' ) || exit;
 		?>
 		<symbol id="ifnpkg-i-level" viewBox="0 0 24 24"><path d="M6 19v-4M12 19v-8M18 19V7"/></symbol>
 		<symbol id="ifnpkg-i-spark" viewBox="0 0 24 24"><path d="M12 3.5l2.1 5.2 5.4 1.9-5.4 1.9-2.1 5.2-2.1-5.2-5.4-1.9 5.4-1.9z"/><path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></symbol>
+			<?php
+			/*
+			 * Max altitude. First needed by the trekking design's at-a-glance row —
+			 * retreat and tour never fill this glance fact, so it never came up
+			 * before. The design's own mark, unchanged.
+			 */
+			?>
+			<symbol id="ifnpkg-i-peak" viewBox="0 0 24 24"><path d="M2.5 19.5 9 8.5l3.6 6 2.2-3.3 6.7 8.3z"/><path d="M7.4 11.2 9 12.3l1.6-1.1"/></symbol>
 	</defs>
 </svg>

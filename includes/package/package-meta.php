@@ -48,37 +48,37 @@ const IFLYNEPAL_PACKAGE_META_PREFIX = '_iflynepal_package_';
  */
 function iflynepal_package_detail_fields() {
 	$fields = array(
-		'pill'          => array(
+		'pill'           => array(
 			'box'   => 'card',
 			'label' => __( 'Card label', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'The small badge on the card image, e.g. "Yoga" or "Ayurveda".', 'iflynepal' ),
 		),
-		'duration'      => array(
+		'duration'       => array(
 			'box'   => 'card',
 			'label' => __( 'Duration', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'Written as it should read, e.g. "3–30 days".', 'iflynepal' ),
 		),
-		'suitability'   => array(
+		'suitability'    => array(
 			'box'   => 'card',
 			'label' => __( 'Place or suitability', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'The second fact on the card, e.g. "Kathmandu" or "Beginner friendly".', 'iflynepal' ),
 		),
-		'price'         => array(
+		'price'          => array(
 			'box'   => 'card',
 			'label' => __( 'Price', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'Written exactly as it should read, e.g. "From US$425". Shown as typed — no currency conversion happens here.', 'iflynepal' ),
 		),
-		'peek'          => array(
+		'peek'           => array(
 			'box'   => 'card',
 			'label' => __( 'Hover summary', 'iflynepal' ),
 			'type'  => 'textarea',
 			'help'  => __( 'One or two lines revealed over the card image. Left empty, the card shows no summary — the package\'s own text is never used here.', 'iflynepal' ),
 		),
-		'departures'    => array(
+		'departures'     => array(
 			'box'   => '',
 			'label' => __( 'Fixed departure dates', 'iflynepal' ),
 			'type'  => 'dates',
@@ -90,13 +90,24 @@ function iflynepal_package_detail_fields() {
 			'type'  => 'button',
 			'help'  => __( 'Which Easy PayPal & Stripe button the Book now panel pays with. The amount, the currency and the payment methods all live on the button itself — and the button only appears on the page once that plugin has a PayPal or Stripe account connected.', 'iflynepal' ),
 		),
-		'buffer_notice' => array(
-			'box'   => 'payment',
+
+		/*
+		 * Client-directed, 13 Sep 2026: taken off the Payment box. Not deleted —
+		 * a field whose box no screen draws is stored and still rendered, just
+		 * not editable (the same holding state §5.3l put Highlights, Fixed
+		 * departure dates and the Booking shortcode into when they left the
+		 * Package Details box). This is the field behind scope item 3 (§5.1):
+		 * the static "confirmed within 5–6 days" line for Trekking and
+		 * Volunteering packages, informational only. Where it should live
+		 * instead is P22's question now, alongside `departures`.
+		 */
+		'buffer_notice'  => array(
+			'box'   => '',
 			'label' => __( 'Confirmation notice', 'iflynepal' ),
 			'type'  => 'textarea',
 			'help'  => __( 'The static line beside the booking button, e.g. "Trekking and volunteering bookings are confirmed within 5–6 days." Informational only — nothing is delayed or enforced.', 'iflynepal' ),
 		),
-		'booking'       => array(
+		'booking'        => array(
 			'box'   => 'payment',
 			'label' => __( 'Booking shortcode', 'iflynepal' ),
 			'type'  => 'textarea',

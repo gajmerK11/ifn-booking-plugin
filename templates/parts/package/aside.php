@@ -33,6 +33,16 @@ $iflynepal_points   = iflynepal_package_field_lines( $iflynepal_id, 'price_point
 $iflynepal_inquire  = iflynepal_package_field( $iflynepal_id, 'inquire_link' );
 $iflynepal_foot     = iflynepal_package_field( $iflynepal_id, 'price_foot' );
 $iflynepal_eyebrow  = iflynepal_package_field( $iflynepal_id, 'price_eyebrow' );
+
+/*
+ * Client-directed, 13 Sep 2026: the aside's Book now is the gateway's own
+ * button once a package has one, not a link that scrolls to the Dates panel
+ * and asks a visitor to find a second button there. Same markup, same helper
+ * (includes/payment/payment-buttons.php) that templates/parts/package/dates.php
+ * uses for the calendar's own copy — no payment logic is duplicated, only the
+ * shortcode's rendered output is printed twice on the page.
+ */
+$iflynepal_pay = iflynepal_package_payment_markup( $iflynepal_id );
 ?>
 
 <aside class="iflynepal-pkg-trip-aside" aria-label="<?php esc_attr_e( 'Price and booking', 'iflynepal' ); ?>">
@@ -71,10 +81,40 @@ $iflynepal_eyebrow  = iflynepal_package_field( $iflynepal_id, 'price_eyebrow' );
 			<?php endif; ?>
 
 			<div class="iflynepal-pkg-price-actions">
-				<a class="iflynepal-pkg-button iflynepal-pkg-button--primary iflynepal-pkg-button--block" href="#ifnpkg-dates">
-					<?php esc_html_e( 'Book now', 'iflynepal' ); ?>
-					<svg class="iflynepal-pkg-link-arrow" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
-				</a>
+				<?php if ( '' !== $iflynepal_pay ) : ?>
+					<?php
+					/*
+					 * Client-directed, 13 Sep 2026: the button does not work
+					 * until a start date is picked below — the same principle
+					 * the old inert Book now already used when no gateway
+					 * button existed at all, applied here to a real one.
+					 *
+					 * `iflynepal-pkg-is-locked` is CSS only (pointer-events:
+					 * none — see assets/css/package.css), which is what makes
+					 * this gateway-agnostic: it works whether the markup
+					 * underneath is a plain form or a script-rendered button
+					 * in an iframe, neither of which this plugin can reach
+					 * into to disable directly. package.js removes the class
+					 * once a date is chosen (see the booker's total()) — this
+					 * is a UX nudge, not enforcement, the same standing as
+					 * every other rule in this plugin: nothing stops the
+					 * amount or the payment itself, only when the button
+					 * becomes clickable.
+					 */
+					?>
+					<div class="iflynepal-pkg-pay iflynepal-pkg-is-locked" id="ifnpkg-pay-aside" aria-disabled="true">
+						<?php
+						// Rendered by the gateway plugin's own shortcode handler, which escapes its own output.
+						echo $iflynepal_pay; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						?>
+					</div>
+					<p class="iflynepal-pkg-sum-note" id="ifnpkg-pay-note"><?php esc_html_e( 'Pick a start date below to book.', 'iflynepal' ); ?></p>
+				<?php else : ?>
+					<a class="iflynepal-pkg-button iflynepal-pkg-button--primary iflynepal-pkg-button--block" href="#ifnpkg-dates">
+						<?php esc_html_e( 'Book now', 'iflynepal' ); ?>
+						<svg class="iflynepal-pkg-link-arrow" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
+					</a>
+				<?php endif; ?>
 
 				<?php
 				/*

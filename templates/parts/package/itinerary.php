@@ -27,7 +27,10 @@ if ( empty( $iflynepal_days ) ) {
 	return;
 }
 
-$iflynepal_heading   = iflynepal_package_field( $iflynepal_id, 'itinerary_heading' );
+$iflynepal_heading  = iflynepal_package_field( $iflynepal_id, 'itinerary_heading' );
+$iflynepal_altitude = iflynepal_package_altitude_profile( $iflynepal_id );
+$iflynepal_alt_note = iflynepal_package_field( $iflynepal_id, 'altitude_note' );
+
 $iflynepal_has_short = false;
 
 foreach ( $iflynepal_days as $iflynepal_day ) {
@@ -46,6 +49,92 @@ foreach ( $iflynepal_days as $iflynepal_day ) {
 			<h2 id="ifnpkg-itinerary-h"><?php iflynepal_package_the_heading( $iflynepal_heading ); ?></h2>
 		<?php endif; ?>
 	</div>
+
+	<?php if ( ! empty( $iflynepal_altitude ) ) : ?>
+		<?php
+		$iflynepal_alt_label_bits = array();
+
+		foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_point ) {
+			$iflynepal_alt_label_bits[] = sprintf(
+				/* translators: 1: day number, 2: elevation in metres. */
+				__( 'day %1$d, %2$s metres', 'iflynepal' ),
+				$iflynepal_alt_point['day'],
+				number_format_i18n( $iflynepal_alt_point['metres'] )
+			);
+		}
+
+		$iflynepal_alt_label = sprintf(
+			/* translators: %s: a comma-separated list of "day N, X metres". */
+			__( 'Line chart of altitude by day: %s.', 'iflynepal' ),
+			implode( ', ', $iflynepal_alt_label_bits )
+		);
+
+		$iflynepal_alt_area = $iflynepal_altitude['left'] . ',' . $iflynepal_altitude['bottom'];
+
+		foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_point ) {
+			$iflynepal_alt_area .= ' ' . $iflynepal_alt_point['x'] . ',' . $iflynepal_alt_point['y'];
+		}
+
+		$iflynepal_alt_area .= ' ' . $iflynepal_altitude['right'] . ',' . $iflynepal_altitude['bottom'];
+
+		$iflynepal_alt_line = array();
+
+		foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_point ) {
+			$iflynepal_alt_line[] = $iflynepal_alt_point['x'] . ',' . $iflynepal_alt_point['y'];
+		}
+
+		$iflynepal_alt_peak = $iflynepal_altitude['points'][ $iflynepal_altitude['peak_index'] ];
+		?>
+		<div class="iflynepal-pkg-alt-card" data-iflynepal-anim>
+			<div class="iflynepal-pkg-alt-head">
+				<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Altitude profile', 'iflynepal' ); ?></span>
+				<?php if ( '' !== $iflynepal_alt_note ) : ?>
+					<p><?php echo esc_html( $iflynepal_alt_note ); ?></p>
+				<?php endif; ?>
+			</div>
+			<div class="iflynepal-pkg-alt-scroll">
+				<svg class="iflynepal-pkg-alt-svg" viewBox="0 0 660 230" role="img" aria-label="<?php echo esc_attr( $iflynepal_alt_label ); ?>">
+					<defs>
+						<linearGradient id="ifnpkg-alt-fill" x1="0" y1="0" x2="0" y2="1">
+							<stop offset="0" stop-color="#0B58D5" stop-opacity=".22"/>
+							<stop offset="1" stop-color="#0B58D5" stop-opacity="0"/>
+						</linearGradient>
+					</defs>
+
+					<g class="iflynepal-pkg-alt-grid">
+						<?php foreach ( $iflynepal_altitude['gridlines'] as $iflynepal_alt_grid ) : ?>
+							<line x1="<?php echo esc_attr( (string) $iflynepal_altitude['left'] ); ?>" x2="<?php echo esc_attr( (string) $iflynepal_altitude['right'] ); ?>" y1="<?php echo esc_attr( (string) $iflynepal_alt_grid['y'] ); ?>" y2="<?php echo esc_attr( (string) $iflynepal_alt_grid['y'] ); ?>"/>
+							<text x="<?php echo esc_attr( (string) ( $iflynepal_altitude['left'] - 10 ) ); ?>" y="<?php echo esc_attr( (string) ( $iflynepal_alt_grid['y'] + 4 ) ); ?>" text-anchor="end"><?php echo esc_html( number_format_i18n( $iflynepal_alt_grid['metres'] ) . 'm' ); ?></text>
+						<?php endforeach; ?>
+					</g>
+
+					<polygon class="iflynepal-pkg-alt-area" points="<?php echo esc_attr( $iflynepal_alt_area ); ?>" fill="url(#ifnpkg-alt-fill)"/>
+					<polyline class="iflynepal-pkg-alt-line" points="<?php echo esc_attr( implode( ' ', $iflynepal_alt_line ) ); ?>"/>
+
+					<g class="iflynepal-pkg-alt-dots">
+						<?php foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_index => $iflynepal_alt_point ) : ?>
+							<?php $iflynepal_alt_is_peak = ( $iflynepal_alt_index === $iflynepal_altitude['peak_index'] ); ?>
+							<circle class="<?php echo esc_attr( $iflynepal_alt_is_peak ? 'iflynepal-pkg-is-peak' : '' ); ?>" cx="<?php echo esc_attr( (string) $iflynepal_alt_point['x'] ); ?>" cy="<?php echo esc_attr( (string) $iflynepal_alt_point['y'] ); ?>" r="<?php echo esc_attr( $iflynepal_alt_is_peak ? '6' : '3.5' ); ?>"><title><?php echo esc_html( sprintf( /* translators: 1: day number, 2: elevation in metres. */ __( 'Day %1$d: %2$sm', 'iflynepal' ), $iflynepal_alt_point['day'], number_format_i18n( $iflynepal_alt_point['metres'] ) ) ); ?></title></circle>
+						<?php endforeach; ?>
+					</g>
+
+					<g class="iflynepal-pkg-alt-flag">
+						<g transform="translate(<?php echo esc_attr( (string) $iflynepal_alt_peak['x'] ); ?> <?php echo esc_attr( (string) $iflynepal_alt_peak['y'] ); ?>)">
+							<line y1="-8" y2="-18"/>
+							<text y="-24" text-anchor="middle"><?php echo esc_html( trim( $iflynepal_alt_peak['title'] . ' ' . number_format_i18n( $iflynepal_alt_peak['metres'] ) . 'm' ) ); ?></text>
+						</g>
+					</g>
+
+					<g class="iflynepal-pkg-alt-days">
+						<text x="<?php echo esc_attr( (string) ( $iflynepal_altitude['left'] - 10 ) ); ?>" y="<?php echo esc_attr( (string) $iflynepal_altitude['axis_y'] ); ?>" text-anchor="end"><?php esc_html_e( 'Day', 'iflynepal' ); ?></text>
+						<?php foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_index => $iflynepal_alt_point ) : ?>
+							<text class="<?php echo esc_attr( $iflynepal_alt_index === $iflynepal_altitude['peak_index'] ? 'iflynepal-pkg-is-peak' : '' ); ?>" x="<?php echo esc_attr( (string) $iflynepal_alt_point['x'] ); ?>" y="<?php echo esc_attr( (string) $iflynepal_altitude['axis_y'] ); ?>" text-anchor="middle"><?php echo esc_html( (string) $iflynepal_alt_point['day'] ); ?></text>
+						<?php endforeach; ?>
+					</g>
+				</svg>
+			</div>
+		</div>
+	<?php endif; ?>
 
 	<div class="iflynepal-pkg-itin-bar" data-iflynepal-anim>
 		<?php

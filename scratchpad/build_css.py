@@ -629,6 +629,71 @@ EXTRAS = u"""
 .iflynepal-pkg-pay + .iflynepal-pkg-sum-note {
 	margin-top: 10px;
 }
+
+/*
+ * The gateway's button, locked until a start date is picked. Client-directed,
+ * 13 Sep 2026.
+ *
+ * pointer-events: none is what makes this reach a script-rendered button
+ * inside a cross-origin iframe (PayPal's Smart Buttons/ACDC) as well as a
+ * plain form (legacy PayPal Standard) — this plugin cannot script into either
+ * one to disable it directly, but a browser can always refuse to deliver a
+ * click to anything underneath this rule, whatever that element turns out to
+ * be. package.js removes the class once a date is chosen.
+ */
+.iflynepal-pkg-pay.iflynepal-pkg-is-locked {
+	pointer-events: none;
+	opacity: .45;
+	filter: grayscale(.3);
+}
+
+/*
+ * The itinerary's altitude profile chart. New for trekking-package-single-
+ * design.html — neither the retreat nor the tour design ever needed one, so
+ * none of it comes from the transcription above.
+ *
+ * The values are the trekking design's own; the geometry inside the <svg> is
+ * generated at render time by iflynepal_package_altitude_profile(), not typed
+ * into markup, so the same rules read a 3-day trek and a 24-day one alike.
+ * Opt-in, same as everything else on this page: fewer than two days carrying
+ * an Elevation value and the whole card, chart and note included, is left off.
+ *
+ * No motion here, matching the rest of this page's static state (§ the page's
+ * own "no motion layer" decision) — the design animates the line drawing in
+ * and the dots popping; this renders the finished state directly.
+ */
+.iflynepal-pkg-alt-card{
+  margin-bottom:28px;
+  padding:24px 24px 14px;
+  border:1px solid var(--ifnpkg-line);
+  border-radius:var(--ifnpkg-r-md);
+  background:#fff;
+}
+.iflynepal-pkg-alt-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:6px 24px;
+  margin-bottom:10px;
+}
+.iflynepal-pkg-alt-head .iflynepal-pkg-eyebrow{margin:0}
+.iflynepal-pkg-alt-head p{margin:0;color:var(--ifnpkg-muted);font-size:13.5px}
+.iflynepal-pkg-alt-scroll{overflow-x:auto;margin:0 -8px;padding:0 8px}
+.iflynepal-pkg-alt-svg{display:block;width:100%;min-width:540px;height:auto;overflow:visible}
+.iflynepal-pkg-alt-grid line{stroke:var(--ifnpkg-line);stroke-dasharray:3 5}
+.iflynepal-pkg-alt-grid text,
+.iflynepal-pkg-alt-days text{fill:var(--ifnpkg-muted);font-size:10.5px;font-weight:600}
+.iflynepal-pkg-alt-days text.iflynepal-pkg-is-peak{fill:var(--ifnpkg-navy);font-weight:800}
+.iflynepal-pkg-alt-line{fill:none;stroke:var(--ifnpkg-navy);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.iflynepal-pkg-alt-dots circle{fill:#fff;stroke:var(--ifnpkg-navy);stroke-width:2}
+.iflynepal-pkg-alt-dots circle.iflynepal-pkg-is-peak{fill:var(--ifnpkg-gold);stroke:var(--ifnpkg-ink-deep)}
+.iflynepal-pkg-alt-flag line{stroke:var(--ifnpkg-ink-deep);stroke-width:1.5}
+.iflynepal-pkg-alt-flag text{fill:var(--ifnpkg-ink-deep);font-size:12px;font-weight:800}
+
+@media (max-width:640px){
+  .iflynepal-pkg-alt-card{padding:20px 20px 12px}
+}
 """
 
 header = """/**
