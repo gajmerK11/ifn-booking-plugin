@@ -38,6 +38,7 @@
 		<properties>
 			<property name="customAutoEscapedFunctions" type="array">
 				<element value="iflynepal_booking_kses_text"/>
+				<element value="iflynepal_enquiry_status_pill"/>
 			</property>
 		</properties>
 	</rule>

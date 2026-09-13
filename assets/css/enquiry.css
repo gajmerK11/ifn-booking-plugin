@@ -1,0 +1,419 @@
+/**
+ * The enquiry form — a section of the page without JavaScript, a modal with it.
+ *
+ * Its own file rather than a block in catalogue.css or a rule in the generated
+ * package.css: the form is printed on every catalogue template, and package.css
+ * is regenerated from the single-package design by scratchpad/build_css.py, so a
+ * hand-written block there is one re-run from being lost unless it is put in the
+ * generator's EXTRAS. A separate sheet is the cheaper answer and it keeps the
+ * form working if either of the other two is ever rebuilt.
+ *
+ * Tokens defer to the theme and fall back to the catalogue's own literals, the
+ * same rule the rest of the plugin follows, so the form matches the site today
+ * and still looks deliberate under another theme.
+ */
+
+.iflynepal-enquiry {
+	--ifn-enq-ink: var(--iflynepal-ink, #212529);
+	--ifn-enq-muted: var(--iflynepal-muted, #6d757e);
+	--ifn-enq-navy: var(--iflynepal-navy, #0545a7);
+	--ifn-enq-navy-deep: var(--iflynepal-navy-deep, #04347d);
+	--ifn-enq-line: var(--iflynepal-line, rgba(5, 69, 167, 0.16));
+	--ifn-enq-mist: #f0f5ff;
+	--ifn-enq-paper: #fff;
+	--ifn-enq-shadow: 0 22px 70px rgba(4, 26, 64, 0.16);
+	--ifn-enq-ease: var(--iflynepal-ease, cubic-bezier(0.22, 0.7, 0.24, 1));
+
+	position: relative;
+	padding: 72px 20px;
+	background: var(--ifn-enq-mist);
+	color: var(--ifn-enq-ink);
+}
+
+/*
+ * The whole modal treatment hangs off the class the inline head script adds.
+ * Under it the section starts hidden and is shown by .is-shown; without the
+ * script none of this applies and the section renders where it stands, which is
+ * what keeps the form usable with JavaScript off.
+ */
+.iflynepal-enquiry-js .iflynepal-enquiry {
+	position: fixed;
+	inset: 0;
+	z-index: 2400;
+	display: none;
+
+	/*
+	 * The gutter is the overlay's padding, not the panel's margin. A margin on
+	 * a panel sized `width: min(560px, 100%)` cannot inset it: the 100% is
+	 * already the full overlay, so the margin pushes the box past both edges
+	 * and the form runs edge to edge on a phone. Padding on the grid container
+	 * takes the width out of the track before the panel is measured.
+	 */
+	padding: 24px;
+	background: none;
+}
+
+.iflynepal-enquiry-js .iflynepal-enquiry.is-shown {
+	display: grid;
+	align-items: center;
+	justify-items: center;
+}
+
+.iflynepal-enquiry__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(4, 26, 64, 0.55);
+	opacity: 0;
+	transition: opacity 0.26s var(--ifn-enq-ease);
+}
+
+.iflynepal-enquiry.is-open .iflynepal-enquiry__backdrop {
+	opacity: 1;
+}
+
+.iflynepal-enquiry__panel {
+	position: relative;
+	width: min(560px, 100%);
+	max-width: 560px;
+	margin: 0 auto;
+	padding: 34px;
+	border-radius: 20px;
+	background: var(--ifn-enq-paper);
+	box-shadow: var(--ifn-enq-shadow);
+}
+
+/*
+ * Above the fixed layer the panel is a real dialog: it scrolls inside itself
+ * rather than growing past the viewport, because the page behind it is locked
+ * and a panel taller than the screen would have no way of reaching its own
+ * submit button.
+ */
+.iflynepal-enquiry-js .iflynepal-enquiry__panel {
+	/* The 48px is the container's two 24px gutters — keep the pair in step. */
+	max-height: calc(100dvh - 48px);
+	margin: 0;
+	overflow-y: auto;
+	opacity: 0;
+	transform: translateY(14px);
+	transition: opacity 0.26s var(--ifn-enq-ease), transform 0.26s var(--ifn-enq-ease);
+}
+
+.iflynepal-enquiry.is-open .iflynepal-enquiry__panel {
+	opacity: 1;
+	transform: none;
+}
+
+.iflynepal-enquiry-lock {
+	overflow: hidden;
+}
+
+/* ------------------------------------------------------------------- close */
+
+.iflynepal-enquiry__close {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	display: grid;
+	width: 38px;
+	height: 38px;
+	padding: 0;
+	border: 1px solid var(--ifn-enq-line);
+	border-radius: 12px;
+	background: var(--ifn-enq-paper);
+	color: var(--ifn-enq-navy);
+	cursor: pointer;
+	place-items: center;
+	transition: background 0.2s var(--ifn-enq-ease);
+}
+
+.iflynepal-enquiry__close:hover {
+	background: var(--ifn-enq-mist);
+}
+
+.iflynepal-enquiry__x {
+	width: 18px;
+	height: 18px;
+}
+
+/* -------------------------------------------------------------------- head */
+
+.iflynepal-enquiry__head {
+	margin: 0 0 22px;
+	padding-right: 44px;
+}
+
+.iflynepal-enquiry__eyebrow {
+	margin: 0 0 8px;
+	color: var(--ifn-enq-navy);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.iflynepal-enquiry__title {
+	margin: 0 0 10px;
+	font-family: 'Poppins', system-ui, sans-serif;
+	font-size: clamp(22px, 3vw, 28px);
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.iflynepal-enquiry__lead {
+	margin: 0;
+	color: var(--ifn-enq-muted);
+	font-size: 15px;
+	line-height: 1.6;
+}
+
+.iflynepal-enquiry__package {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 8px;
+	margin: 16px 0 0;
+	padding: 12px 14px;
+	border-radius: 14px;
+	background: var(--ifn-enq-mist);
+	font-size: 14px;
+}
+
+.iflynepal-enquiry__package span {
+	color: var(--ifn-enq-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.iflynepal-enquiry__package strong {
+	color: var(--ifn-enq-navy-deep);
+	font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ notice */
+
+.iflynepal-enquiry__notice {
+	margin: 0 0 18px;
+	padding: 12px 14px;
+	border-left: 3px solid currentColor;
+	border-radius: 10px;
+	font-size: 14px;
+	line-height: 1.55;
+}
+
+.iflynepal-enquiry__notice--success {
+	background: #edf7ef;
+	color: #1c6b35;
+}
+
+.iflynepal-enquiry__notice--error {
+	background: #fdf0ef;
+	color: #96261c;
+}
+
+/* ------------------------------------------------------------------ fields */
+
+.iflynepal-enquiry__field {
+	margin: 0 0 16px;
+}
+
+.iflynepal-enquiry__field label {
+	display: block;
+	margin-bottom: 6px;
+	color: var(--ifn-enq-ink);
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.iflynepal-enquiry__req {
+	color: var(--ifn-enq-navy);
+}
+
+.iflynepal-enquiry__field input,
+.iflynepal-enquiry__field textarea {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid var(--ifn-enq-line);
+	border-radius: 12px;
+	background: var(--ifn-enq-paper);
+	color: inherit;
+	font: inherit;
+	font-size: 15px;
+}
+
+.iflynepal-enquiry__field textarea {
+	min-height: 130px;
+	resize: vertical;
+}
+
+.iflynepal-enquiry__field input:focus,
+.iflynepal-enquiry__field textarea:focus {
+	border-color: var(--ifn-enq-navy);
+	outline: 2px solid rgba(5, 69, 167, 0.18);
+	outline-offset: 1px;
+}
+
+.iflynepal-enquiry__help {
+	display: block;
+	margin-top: 6px;
+	color: var(--ifn-enq-muted);
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+/*
+ * The honeypot. Taken out of the layout entirely rather than moved off-screen
+ * with a negative offset, because it is already out of the tab order and out of
+ * the accessibility tree — nobody using the form can reach it, and a script
+ * filling every field will.
+ */
+.iflynepal-enquiry__hp {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------- actions */
+
+.iflynepal-enquiry__actions {
+	margin: 22px 0 0;
+}
+
+.iflynepal-enquiry__submit {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 24px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--ifn-enq-navy);
+	color: #fff;
+	cursor: pointer;
+	font: inherit;
+	font-size: 15px;
+	font-weight: 600;
+	transition: background 0.2s var(--ifn-enq-ease);
+}
+
+.iflynepal-enquiry__submit:hover {
+	background: var(--ifn-enq-navy-deep);
+}
+
+/*
+ * The arrow is the theme's own icon component, so it nudges on hover the way
+ * every other primary button on the site does rather than sitting still beside
+ * one that moves.
+ */
+.iflynepal-enquiry__submit .iflynepal-ico-arr {
+	transition: transform 0.2s var(--ifn-enq-ease);
+}
+
+.iflynepal-enquiry__submit:hover .iflynepal-ico-arr {
+	transform: translateX(4px);
+}
+
+.iflynepal-enquiry__small {
+	margin: 14px 0 0;
+	color: var(--ifn-enq-muted);
+	font-size: 13px;
+}
+
+@media (max-width: 560px) {
+	.iflynepal-enquiry__panel {
+		padding: 26px 20px;
+	}
+
+	.iflynepal-enquiry-js .iflynepal-enquiry {
+		padding: 16px;
+	}
+
+	.iflynepal-enquiry-js .iflynepal-enquiry__panel {
+		max-height: calc(100dvh - 32px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.iflynepal-enquiry__backdrop,
+	.iflynepal-enquiry-js .iflynepal-enquiry__panel,
+	.iflynepal-enquiry__submit,
+	.iflynepal-enquiry__submit .iflynepal-ico-arr,
+	.iflynepal-enquiry__close {
+		transition: none;
+	}
+
+	.iflynepal-enquiry-js .iflynepal-enquiry__panel {
+		transform: none;
+	}
+}
+
+/* --------------------------------------------------- the aside's stand-in */
+
+/*
+ * Shown in the booking aside of a package that carries no price, in the place
+ * the price card would hold. It is here rather than in package.css because that
+ * sheet is generated from the single-package design by build_css.py, and a
+ * hand-written rule in its output is one re-run from being lost.
+ */
+.iflynepal-enquiry-card {
+	padding: 24px;
+	border: 1px solid var(--iflynepal-line, rgba(5, 69, 167, 0.16));
+	border-radius: 20px;
+	background: var(--iflynepal-paper, #fff);
+	box-shadow: 0 10px 30px rgba(4, 26, 64, 0.06);
+}
+
+.iflynepal-enquiry-card__title {
+	margin: 0 0 8px;
+	color: var(--iflynepal-ink, #212529);
+	font-family: 'Poppins', system-ui, sans-serif;
+	font-size: 19px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.iflynepal-enquiry-card__text {
+	margin: 0 0 18px;
+	color: var(--iflynepal-muted, #6d757e);
+	font-size: 14.5px;
+	line-height: 1.6;
+}
+
+.iflynepal-enquiry__alt {
+	margin: 18px 0 0;
+	padding-top: 16px;
+	border-top: 1px solid var(--ifn-enq-line);
+	color: var(--ifn-enq-muted);
+	font-size: 14px;
+}
+
+.iflynepal-enquiry__alt a,
+.iflynepal-enquiry-card__chat {
+	color: var(--iflynepal-navy, #0545a7);
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.iflynepal-enquiry-card__chat {
+	display: block;
+	margin-top: 12px;
+	font-size: 14px;
+	text-align: center;
+}
+
+/*
+ * The panel takes focus when the form opens so a screen reader announces the
+ * dialog and its title, and the browser draws a focus ring around the whole
+ * sheet for it. The ring is dropped here and here only: the panel is not an
+ * interactive control, the dialog is unmissable without it, and every control
+ * inside keeps its own outline.
+ */
+.iflynepal-enquiry__panel:focus {
+	outline: none;
+}

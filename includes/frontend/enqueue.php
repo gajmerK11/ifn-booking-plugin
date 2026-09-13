@@ -232,47 +232,24 @@ function iflynepal_booking_hero_image_url( $url ) {
 }
 add_filter( 'iflynepal_pre_current_hero_image_url', 'iflynepal_booking_hero_image_url' );
 
-/**
- * Tells the theme this archive renders its testimonial section.
+/*
+ * The theme's carousel script used to need a filter here.
  *
- * The archive draws the reviews with the theme's own reusable template part —
- * the component the design was ported from — and that part needs the theme's
- * carousel script to become a carousel rather than a scaled-up row.
+ * It decides whether to enqueue by asking whether any review is assigned to the
+ * request being rendered, and that question could not be answered for an
+ * archive: a review was assigned to a *page*, a term archive is not one, so the
+ * answer was always no however many reviews existed. The plugin answered "yes"
+ * for it, and the band drew every review on the site.
  *
- * The theme decides whether to load that script by asking whether any review is
- * assigned to the page being viewed. A term archive is not a page and no review
- * can be assigned to one, so the answer is always no here however many reviews
- * exist. This says yes on exactly the archives that do render the band: the
- * section has to apply to the term, and its heading has to be written, which is
- * the same opt-in the template part itself uses.
+ * Reviews can now be assigned to an archive — the theme asks which targets exist
+ * through `iflynepal_testimonial_display_targets` and the plugin names its own
+ * (includes/frontend/testimonial-targets.php) — so the theme's own question is
+ * now a true one on an archive, and it answers it from the same query the band
+ * renders from. The two cannot disagree, which the filter could not promise.
  *
- * @since 1.0.0
- *
- * @param bool $has_testimonials Whether the theme thinks a section is rendered.
- * @return bool
+ * `iflynepal_has_testimonials` is still a theme filter; this plugin no longer
+ * needs to hook it.
  */
-function iflynepal_booking_has_testimonials( $has_testimonials ) {
-	if ( ! is_tax( IFLYNEPAL_PACKAGE_TAXONOMY ) ) {
-		return $has_testimonials;
-	}
-
-	$term = get_queried_object();
-
-	if ( ! $term instanceof WP_Term ) {
-		return $has_testimonials;
-	}
-
-	if ( ! in_array( 'testimonials', iflynepal_booking_archive_sections( $term ), true ) ) {
-		return $has_testimonials;
-	}
-
-	if ( '' === iflynepal_archive_field( $term->term_id, 'testimonials_eyebrow' ) ) {
-		return $has_testimonials;
-	}
-
-	return true;
-}
-add_filter( 'iflynepal_has_testimonials', 'iflynepal_booking_has_testimonials' );
 
 /**
  * The theme's GSAP handles, when the theme has put them on this page.
@@ -417,3 +394,67 @@ function iflynepal_booking_enqueue_archive_scripts() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_archive_scripts', 20 );
+
+/**
+ * Enqueues the enquiry form's stylesheet and its modal behaviour.
+ *
+ * On every catalogue template, because the form is printed on every one of them:
+ * a visitor standing on an archive who has not chosen a package yet is exactly
+ * the person an enquiry form is for.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function iflynepal_booking_enqueue_enquiry_assets() {
+	if ( ! iflynepal_booking_is_package_template() ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'iflynepal-enquiry',
+		IFLYNEPAL_BOOKING_URL . 'assets/css/enquiry.css',
+		array( 'iflynepal-catalogue' ),
+		iflynepal_booking_asset_version( 'assets/css/enquiry.css' )
+	);
+
+	wp_enqueue_script(
+		'iflynepal-enquiry',
+		IFLYNEPAL_BOOKING_URL . 'assets/js/enquiry/enquiry.js',
+		array(),
+		iflynepal_booking_asset_version( 'assets/js/enquiry/enquiry.js' ),
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+}
+add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_enquiry_assets', 20 );
+
+/**
+ * Marks the document as able to run the enquiry modal.
+ *
+ * 🔴 The stylesheet hides the form only under this class, which is what keeps
+ * the form usable with JavaScript off: without the class it renders as an
+ * ordinary section at the foot of the page and the "Inquire now" control is an
+ * anchor that jumps to it. The same shape as the catalogue's animation gate, and
+ * in the head for the same reason — a class added on load would paint the form
+ * at the bottom of the page and then snatch it away.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function iflynepal_booking_enqueue_enquiry_gate() {
+	if ( ! iflynepal_booking_is_package_template() ) {
+		return;
+	}
+
+	wp_register_script( 'iflynepal-enquiry-gate', '', array(), IFLYNEPAL_BOOKING_VERSION, false );
+	wp_enqueue_script( 'iflynepal-enquiry-gate' );
+	wp_add_inline_script(
+		'iflynepal-enquiry-gate',
+		'document.documentElement.classList.add("iflynepal-enquiry-js");'
+	);
+}
+add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_enquiry_gate' );

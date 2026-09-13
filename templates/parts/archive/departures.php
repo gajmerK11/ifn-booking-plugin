@@ -148,5 +148,22 @@ $iflynepal_reserve = __( 'Reserve', 'iflynepal' );
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
+
+		<?php
+		/*
+		 * The footnote sits under the rail rather than inside a bordered box, so
+		 * it takes the comparison footnote's type and drops that box's rule and
+		 * padding — which is exactly what the design's own `.rail-foot` does to
+		 * `.compare-foot`. Same class pair here, for the same reason: one piece of
+		 * type described once.
+		 */
+		$iflynepal_foot = iflynepal_archive_field( $iflynepal_id, 'departures_foot' );
+		?>
+
+		<?php if ( '' !== $iflynepal_foot ) : ?>
+			<p class="iflynepal-compare__foot iflynepal-rail__foot" data-iflynepal-anim>
+				<?php echo esc_html( $iflynepal_foot ); ?>
+			</p>
+		<?php endif; ?>
 	</div>
 </section>

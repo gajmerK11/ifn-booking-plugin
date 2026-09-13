@@ -40,21 +40,20 @@ if ( ! $iflynepal_term instanceof WP_Term ) {
 $iflynepal_id = $iflynepal_term->term_id;
 
 /*
- * The reviews are a query, but the section is opt-in.
+ * The section is opt-in, and what opts it in is the assignment.
  *
- * Testimonials are published site-wide and are not filed against a package
- * type, so "are there any" is true on every archive from the moment the first
- * one exists — which would put this band on all five type archives whether or
- * not anyone meant it to be there. The editor says yes by writing the section's
- * heading; an untouched term gets no testimonials band.
+ * This used to be gated on the section's heading being written, because the
+ * band showed every review on the site: testimonials are published site-wide,
+ * so "are there any" was true on every archive from the moment the first one
+ * existed, and without a gate the band appeared on all five type archives
+ * whether anyone meant it to or not.
  *
- * It does not gate the package grid: the grid is what the archive is for, and
- * its heading is decoration rather than a switch.
+ * A review can now be assigned to an archive — Testimonials > Display On Page
+ * lists them — so the archive shows the reviews assigned to it and no others,
+ * and an archive nobody has assigned a review to has nothing to draw. That is
+ * the gate, and it is the same one the rest of the site uses. The heading is
+ * back to being what it is everywhere else: the section's copy, not a switch.
  */
-if ( ! iflynepal_archive_has_any( $iflynepal_id, array( 'testimonials_eyebrow' ) ) ) {
-	return;
-}
-
 if ( ! post_type_exists( 'ifly_testimonial' ) ) {
 	return;
 }
@@ -62,21 +61,26 @@ if ( ! post_type_exists( 'ifly_testimonial' ) ) {
 $iflynepal_eyebrow = iflynepal_archive_field( $iflynepal_id, 'testimonials_eyebrow' );
 
 /*
- * page => 0 turns off the theme's "reviews assigned to the page being viewed"
- * filter. A term archive is not a page, so every review would otherwise be
- * tested against a term ID that no review can carry and the carousel would come
- * back empty.
+ * The target is named rather than left to the theme's 'current', which would
+ * resolve to the same thing on an archive this part is rendered on. Named,
+ * because this part is handed the term it is drawing and a section that draws
+ * one term's reviews while reading another's would be a hard thing to see.
+ *
+ * The kicker is passed only when there is one: the part's own default is a
+ * written line, and passing an empty string in its place takes the section's
+ * whole head with it — including the carousel's previous and next buttons.
  */
 if ( locate_template( 'template-parts/sections/testimonials.php' ) && function_exists( 'iflynepal_get_testimonials' ) ) {
-	get_template_part(
-		'template-parts/sections/testimonials',
-		null,
-		array(
-			'id'     => 'iflynepal-proof',
-			'kicker' => $iflynepal_eyebrow,
-			'page'   => 0,
-		)
+	$iflynepal_section_args = array(
+		'id'     => 'iflynepal-proof',
+		'target' => 'term:' . $iflynepal_id,
 	);
+
+	if ( '' !== $iflynepal_eyebrow ) {
+		$iflynepal_section_args['kicker'] = $iflynepal_eyebrow;
+	}
+
+	get_template_part( 'template-parts/sections/testimonials', null, $iflynepal_section_args );
 
 	return;
 }
@@ -95,6 +99,8 @@ $iflynepal_reviews = get_posts(
 		'post_status'      => 'publish',
 		'numberposts'      => 9,
 		'suppress_filters' => false,
+		'meta_key'         => '_iflynepal_display_page', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- The set is a handful of posts.
+		'meta_value'       => 'term:' . $iflynepal_id,   // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Exact match on the assignment.
 	)
 );
 

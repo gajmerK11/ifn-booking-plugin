@@ -352,6 +352,14 @@ function iflynepal_package_details_fields() {
 		'help'    => __( 'Where the second button goes — a WhatsApp click-to-chat link, or a page. Left empty, the button is left off.', 'iflynepal' ),
 	);
 
+	$fields['whatsapp_number'] = array(
+		'box'     => 'details',
+		'section' => 'booking',
+		'label'   => __( 'WhatsApp number for this package', 'iflynepal' ),
+		'type'    => 'text',
+		'help'    => __( 'Only if this package is answered on a different phone. Country code first, digits only. Left empty — which is the normal case — the site-wide number at Packages > Settings is used.', 'iflynepal' ),
+	);
+
 	$fields['price_foot'] = array(
 		'box'     => 'details',
 		'section' => 'booking',

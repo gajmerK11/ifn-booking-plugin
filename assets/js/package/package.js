@@ -638,8 +638,21 @@
 				end.textContent = longDate( runEnd( chosen ) );
 				start.classList.remove( 'iflynepal-pkg-is-empty' );
 				end.classList.remove( 'iflynepal-pkg-is-empty' );
-				button.removeAttribute( 'aria-disabled' );
-				note.textContent = strings.bookNote || note.textContent;
+
+				/*
+				 * Both are absent once a package is wired to a payment button:
+				 * the gateway's own button replaces the inert Book now and its
+				 * note. Guarded rather than assumed — reading removeAttribute
+				 * off null throws, and that throw would take the whole booker
+				 * with it, so picking a date would stop updating the summary.
+				 */
+				if ( button ) {
+					button.removeAttribute( 'aria-disabled' );
+				}
+
+				if ( note ) {
+					note.textContent = strings.bookNote || note.textContent;
+				}
 			}
 		}
 

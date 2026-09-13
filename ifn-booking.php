@@ -36,9 +36,14 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/frontend/package-render.php                      (done)
  *   includes/frontend/template-loader.php                     (done)
  *   includes/frontend/enqueue.php                             (done)
- *   includes/enquiry/class-ifly-nepal-enquiry-store.php       enquiry storage
- *   includes/enquiry/class-ifly-nepal-enquiry-form.php        front-end enquiry handler
- *   includes/whatsapp/whatsapp-link.php                       click-to-chat
+ *   includes/frontend/testimonial-targets.php                 (done)
+ *   includes/settings/settings.php                            (done)
+ *   includes/enquiry/enquiry-cpt.php                          (done)
+ *   includes/enquiry/enquiry-store.php                        (done)
+ *   includes/enquiry/enquiry-form.php                         (done)
+ *   (the WhatsApp click-to-chat link is built in includes/settings/settings.php,
+ *    which is where its number and message are configured)
+ *   includes/payment/payment-buttons.php                      (done)
  *   includes/payment/class-ifly-nepal-paypal-listener.php     PayPal webhook / IPN capture
  *   includes/rest/route-base.php + includes/rest/route-*.php  iflynepal/v1 routes
  *   admin/class-ifly-nepal-package-type-meta-box.php          (built, not loaded)      (is_admin only)
@@ -48,6 +53,10 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   admin/class-ifly-nepal-package-details-box.php            (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-video-box.php              (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-gallery-box.php            (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-enquiry-details-box.php            (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-payment-box.php            (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-enquiry-status-box.php             (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-booking-settings.php               (done)                   (is_admin only)
  *   admin/class-ifly-nepal-bookings-screen.php                Bookings admin view      (is_admin only)
  */
 
@@ -61,6 +70,32 @@ require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/archive-render.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/package-render.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/template-loader.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/enqueue.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/testimonial-targets.php';
+
+/*
+ * The settings come before the enquiry pieces and before anything that renders:
+ * the WhatsApp link the templates ask for is built from them.
+ */
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/settings/settings.php';
+
+/*
+ * The bridge to the payment gateway. Loaded before the templates that ask for a
+ * button and before the admin box that chooses one, and guarded throughout on
+ * that plugin being active — no payment logic of our own, and nothing printed
+ * when the gateway is not there to print it.
+ */
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/payment/payment-buttons.php';
+
+/*
+ * The enquiry pieces load after the front end, not before it: the form part is
+ * rendered through iflynepal_booking_get_part() and printed only on the
+ * templates iflynepal_booking_is_package_template() answers for, both of which
+ * are declared in includes/frontend/.
+ */
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/enquiry/enquiry-cpt.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/enquiry/enquiry-store.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/enquiry/enquiry-form.php';
+
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/lifecycle.php';
 
 if ( is_admin() ) {
@@ -90,6 +125,11 @@ if ( is_admin() ) {
 	 */
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-video-box.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-gallery-box.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-payment-box.php';
+
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-enquiry-details-box.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-enquiry-status-box.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-booking-settings.php';
 }
 
 register_activation_hook( IFLYNEPAL_BOOKING_FILE, 'iflynepal_booking_activate' );

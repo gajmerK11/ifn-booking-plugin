@@ -1568,6 +1568,13 @@ a.iflynepal-departure__reserve:focus-visible {
 	line-height: 1.6;
 }
 
+/* The same type under the departures rail, where there is no box to sit in:
+   the rule and the box padding go, the space above it stays. */
+.iflynepal-rail__foot {
+	border-top: 0;
+	padding: 20px 0 0;
+}
+
 /* ----------------------------------------------------------- testimonials */
 
 /*

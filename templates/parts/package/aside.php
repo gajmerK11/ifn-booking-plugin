@@ -19,9 +19,14 @@ if ( ! $iflynepal_id ) {
 $iflynepal_price  = iflynepal_package_field( $iflynepal_id, 'price_amount' );
 $iflynepal_expert = iflynepal_package_field( $iflynepal_id, 'expert_name' );
 
-if ( '' === $iflynepal_price && '' === $iflynepal_expert ) {
-	return;
-}
+/*
+ * The aside used to return early when a package carried neither a price nor an
+ * expert. It no longer can: Inquire now lives in it, and an enquiry is the one
+ * thing every package has to offer whether or not anybody has typed a price yet
+ * — a package with an empty price field would otherwise be a page with no way of
+ * asking about it at all. Without a price card the enquiry card below stands in
+ * its place, so the aside is never empty.
+ */
 
 $iflynepal_currency = iflynepal_package_field( $iflynepal_id, 'price_currency' );
 $iflynepal_points   = iflynepal_package_field_lines( $iflynepal_id, 'price_points' );
@@ -71,9 +76,56 @@ $iflynepal_eyebrow  = iflynepal_package_field( $iflynepal_id, 'price_eyebrow' );
 					<svg class="iflynepal-pkg-link-arrow" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
 				</a>
 
-				<?php if ( '' !== $iflynepal_inquire ) : ?>
-					<a class="iflynepal-pkg-button iflynepal-pkg-button--outline iflynepal-pkg-button--block" href="<?php echo esc_url( $iflynepal_inquire ); ?>">
-						<?php esc_html_e( 'Inquire now', 'iflynepal' ); ?>
+				<?php
+				/*
+				 * Inquire now opens the enquiry form, which is rendered in the
+				 * page footer by includes/enquiry/enquiry-form.php. It is not
+				 * conditional on anything: an enquiry is the one thing every
+				 * package has to offer.
+				 *
+				 * It is an anchor rather than a button, and its href is the
+				 * form's own id, because with JavaScript off the form is an
+				 * ordinary section at the foot of the page and this jumps to it
+				 * — the enquiry still gets sent. enquiry.js intercepts the click
+				 * and opens it as a modal instead.
+				 */
+				?>
+				<a class="iflynepal-pkg-button iflynepal-pkg-button--outline iflynepal-pkg-button--block"
+					href="#iflynepal-enquiry" data-iflynepal-enquiry-open>
+					<?php esc_html_e( 'Inquire now', 'iflynepal' ); ?>
+				</a>
+
+				<?php
+				/*
+				 * The WhatsApp button is built from a number, not from a pasted
+				 * link: the number lives once at Packages > Settings (a package
+				 * may override it), and the message it opens the chat with is
+				 * assembled by iflynepal_whatsapp_url() with the package's name
+				 * filled in. Nothing is shown when no number is configured.
+				 *
+				 * ⚠ The Inquire link field used to *be* the Inquire now button,
+				 * so a package with a link in it sent Inquire now wherever that
+				 * link pointed and the enquiry form could not be reached at
+				 * all. It is kept here only as a fallback for the wa.me links
+				 * already stored in it, so nothing published stops working
+				 * before the number is filled in — see the report.
+				 */
+				$iflynepal_whatsapp = iflynepal_whatsapp_url( $iflynepal_id );
+
+				if ( '' === $iflynepal_whatsapp && '' !== $iflynepal_inquire ) {
+					$iflynepal_host = strtolower( (string) wp_parse_url( $iflynepal_inquire, PHP_URL_HOST ) );
+
+					if ( in_array( $iflynepal_host, array( 'wa.me', 'api.whatsapp.com', 'web.whatsapp.com' ), true ) ) {
+						$iflynepal_whatsapp = $iflynepal_inquire;
+					}
+				}
+				?>
+
+				<?php if ( '' !== $iflynepal_whatsapp ) : ?>
+					<a class="iflynepal-pkg-button iflynepal-pkg-button--outline iflynepal-pkg-button--block"
+						href="<?php echo esc_url( $iflynepal_whatsapp ); ?>"
+						target="_blank" rel="noopener noreferrer">
+						<?php esc_html_e( 'Chat on WhatsApp', 'iflynepal' ); ?>
 					</a>
 				<?php endif; ?>
 			</div>
@@ -83,6 +135,31 @@ $iflynepal_eyebrow  = iflynepal_package_field( $iflynepal_id, 'price_eyebrow' );
 					<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-shield"/></svg>
 					<?php echo esc_html( $iflynepal_foot ); ?>
 				</p>
+			<?php endif; ?>
+		</div>
+	<?php else : ?>
+		<?php
+		/*
+		 * The stand-in for the price card. Same trigger, so a package priced
+		 * later simply gains the card above and loses this one.
+		 */
+		?>
+		<div class="iflynepal-enquiry-card">
+			<h2 class="iflynepal-enquiry-card__title"><?php esc_html_e( 'Ask us about this journey', 'iflynepal' ); ?></h2>
+			<p class="iflynepal-enquiry-card__text">
+				<?php esc_html_e( 'Tell us your dates and group size and we will send you a price.', 'iflynepal' ); ?>
+			</p>
+			<a class="iflynepal-pkg-button iflynepal-pkg-button--primary iflynepal-pkg-button--block"
+				href="#iflynepal-enquiry" data-iflynepal-enquiry-open>
+				<?php esc_html_e( 'Inquire now', 'iflynepal' ); ?>
+			</a>
+
+			<?php $iflynepal_chat = iflynepal_whatsapp_url( $iflynepal_id ); ?>
+
+			<?php if ( '' !== $iflynepal_chat ) : ?>
+				<a class="iflynepal-enquiry-card__chat" href="<?php echo esc_url( $iflynepal_chat ); ?>" target="_blank" rel="noopener noreferrer">
+					<?php esc_html_e( 'Or chat on WhatsApp', 'iflynepal' ); ?>
+				</a>
 			<?php endif; ?>
 		</div>
 	<?php endif; ?>

@@ -452,6 +452,12 @@ function iflynepal_package_type_archive_schema() {
 		),
 	);
 
+	$departures['departures_foot'] = array(
+		'label' => __( 'Footnote', 'iflynepal' ),
+		'type'  => 'textarea',
+		'help'  => __( 'The small line under the rail, for what the dates are and are not — e.g. that spot counts are indicative. Left empty, nothing is drawn.', 'iflynepal' ),
+	);
+
 	$sections['departures'] = array(
 		'label'       => __( 'Upcoming departures', 'iflynepal' ),
 		'description' => __( 'The heading band, and the rail of departure cards under it. Dates, durations and prices are written exactly as they should read — nothing here is parsed, converted or checked against anything.', 'iflynepal' ),

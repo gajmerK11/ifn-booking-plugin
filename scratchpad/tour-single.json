@@ -1,0 +1,499 @@
+{
+ "heading": "15-Day <em>Badimalika</em> Trek",
+ "glance": [
+  [
+   "Destination",
+   "Bajura, Nepal"
+  ],
+  [
+   "Duration",
+   "15 days"
+  ],
+  [
+   "Activities",
+   "Trek & pilgrimage"
+  ],
+  [
+   "Meals",
+   "Included on trek"
+  ],
+  [
+   "Accommodation",
+   "Hotels & camping"
+  ],
+  [
+   "Max altitude",
+   "4,200m"
+  ],
+  [
+   "Group size",
+   "12–16"
+  ],
+  [
+   "Best time",
+   "Mar–May, Jul–Aug"
+  ]
+ ],
+ "overview_intro": "Most of Nepal’s trekking routes are busy enough that you will pass other groups every day. Badimalika is not one of them. This 15-day journey crosses Bajura, one of the country’s least-visited districts, to reach a small white temple standing alone at 4,200 meters, a Shakti Peetha that draws Hindu pilgrims from across Nepal and northern India.",
+ "overview_body": "Fifteen days, one temple, and a route through Far-Western Nepal that most trekking itineraries never touch.\n\nThe trip starts in Kathmandu with sightseeing and trek preparation, then flies to Dhangadhi before a multi-day overland journey into Bajura district, where the walking begins. From there, the trail climbs steadily through forest, then open high-altitude grassland known locally as patans, before the final steep push to Badimalika Temple itself. The descent takes a different route, past Dhawalpur Lake and through villages where stone-and-mud architecture has barely changed in generations.\n\nThis is not a trip for a first-time trekker looking for an easy introduction to Nepal. Expect long days on foot, simple teahouse and tented accommodation, and genuinely remote terrain with limited infrastructure. What you get in return is one of Far-Western Nepal’s most significant sacred sites, sweeping views of Mount Api and Mount Saipal, and a route where you will likely see more yaks than other trekking groups.\n\nWant the full story first: the goddess Bhagwati, temple etiquette, and the safest time to go? Read our Badimalika pilgrimage guide.",
+ "highlights": [
+  "Reach Badimalika Temple at 4,200m, one of Nepal’s most significant Shakti Peethas, after a demanding final climb through Far-Western Nepal’s least-crowded terrain.",
+  "Walk through Khaptad National Park, known for its high meadows and its connection to the late saint Khaptad Baba.",
+  "Stand in front of Mount Api and Mount Saipal, two of the region’s most striking peaks, visible from the high grasslands surrounding the temple.",
+  "Bathe at Triveni, the sacred river confluence pilgrims traditionally visit before the final ascent.",
+  "Camp beside Dhawalpur Lake on the return route, a quiet contrast after the trek’s central, more intense day.",
+  "Pass through Bajura’s Chhetri and Brahmin villages, where stone-and-mud architecture and daily life have changed little in generations.",
+  "See old Kathmandu before you go, with a full day for Swayambhunath and Pashupatinath ahead of the trek itself."
+ ],
+ "itinerary_heading": "Fifteen days, one <em>temple</em>.",
+ "dates_heading": "Choose your start date.",
+ "packing_heading": "What to <em>bring</em>.",
+ "map_heading": "Where you’ll <em>walk</em>.",
+ "faq_heading": "Questions, answered <em>simply</em>.",
+ "dates_lead": "Secure your spot now on our best-selling trip. Spaces fill up fast, so book early, and feel free to ask any questions later.",
+ "faq_lead": "Still unsure? Message Prem on WhatsApp and get an answer from someone who runs the trek.",
+ "short": [
+  {
+   "num": "1",
+   "title": "Arrival in Kathmandu",
+   "sub": "1,400m · Arrival day"
+  },
+  {
+   "num": "2",
+   "title": "Kathmandu Sightseeing and Trek Preparation",
+   "sub": "1,400m · Swayambhunath, Pashupatinath, trek briefing"
+  },
+  {
+   "num": "3",
+   "title": "Fly to Dhangadhi, Drive to Dadeldhura",
+   "sub": "109m → 2,000m · Flight and hill drive"
+  },
+  {
+   "num": "4",
+   "title": "Drive to Jadga (Sanphebagar)",
+   "sub": "1,280m · Full-day drive to the trailhead"
+  },
+  {
+   "num": "5",
+   "title": "Trek to Budha Krodh",
+   "sub": "2,700m · 5–6 hours walking"
+  },
+  {
+   "num": "6",
+   "title": "Trek to Bhito",
+   "sub": "3,500m · 6–7 hours walking"
+  },
+  {
+   "num": "7",
+   "title": "Trek to Triveni",
+   "sub": "3,870m · 4–5 hours walking"
+  },
+  {
+   "num": "9",
+   "title": "Explore the area and trek back to Dhawalpur Lake",
+   "sub": "2,500m · 6–7 hours walking"
+  },
+  {
+   "num": "10",
+   "title": "Trek to Lamagadh",
+   "sub": "2,195m · 5–6 hours walking"
+  },
+  {
+   "num": "11",
+   "title": "Trek to Mourya",
+   "sub": "2,350m · 5–6 hours walking"
+  },
+  {
+   "num": "12",
+   "title": "Trek to Sanphebagar",
+   "sub": "1,280m · 4–5 hours · Last day on foot"
+  },
+  {
+   "num": "13",
+   "title": "Drive to Dhangadhi",
+   "sub": "109m · Full-day drive"
+  },
+  {
+   "num": "14",
+   "title": "Fly back to Kathmandu",
+   "sub": "1,400m · Flight and farewell dinner"
+  },
+  {
+   "num": "15",
+   "title": "Final Departure",
+   "sub": "Airport transfer"
+  }
+ ],
+ "days": [
+  {
+   "title": "Arrival in Kathmandu",
+   "sub": "1,400m · Arrival day",
+   "foot": [
+    "Overnight: Kathmandu",
+    "Altitude: 1,400m",
+    "Travel: Airport transfer"
+   ],
+   "rows": [
+    [
+     "",
+     "Your trip starts when you get to Tribhuvan International Airport (TIA) in Kathmandu. After you get settled, you can rest from your flight, or go out and see the busy streets of Thamel, the city’s main tourist area. It has many shops, foods to try, and a special, lively feel."
+    ],
+    [
+     "",
+     "Take your time to walk around. See the local shops and enjoy the mix of old and new. The air here is often full of sounds and smells."
+    ]
+   ]
+  },
+  {
+   "title": "Kathmandu Sightseeing & Trek Preparation",
+   "sub": "1,400m · Swayambhunath, Pashupatinath, trek briefing",
+   "foot": [
+    "Overnight: Kathmandu",
+    "Altitude: 1,400m",
+    "Travel: City sightseeing"
+   ],
+   "rows": [
+    [
+     "Morning",
+     "This day is for seeing culture and getting ready. In the morning, you visit some of Kathmandu’s well-known UNESCO World Heritage Sites. One is the old Swayambhunath Stupa, also called the Monkey Temple, with wide views of the city. Another is the holy Hindu temple of Pashupatinath, beside the Bagmati River, where you can see people doing their prayers."
+    ],
+    [
+     "Afternoon",
+     "In the afternoon you meet your guide for a talk about the trek. You go through the trip plan in detail and check all your hiking gear one last time, so you are fully ready for the days ahead. Ask any questions you have; your guide will share important tips."
+    ]
+   ]
+  },
+  {
+   "title": "Fly to Dhangadhi, Drive to Dadeldhura",
+   "sub": "109m → 2,000m · Flight and hill drive",
+   "foot": [
+    "Overnight: Dadeldhura",
+    "Altitude: 2,000m",
+    "Travel: Flight + drive"
+   ],
+   "rows": [
+    [
+     "",
+     "You start early with a flight to Dhangadhi, a city in the flat Terai plains. As the plane comes down, you see the land change from hills to flat ground. A car is ready when you land."
+    ],
+    [
+     "",
+     "Next is a long, winding drive up into the hills to Dadeldhura. The road climbs through the mountains, the air gets cooler, and you pass small towns and farms along the way."
+    ]
+   ]
+  },
+  {
+   "title": "Drive to Jadga (Sanphebagar)",
+   "sub": "1,280m · Full-day drive to the trailhead",
+   "foot": [
+    "Overnight: Sanphebagar",
+    "Altitude: 1,280m",
+    "Travel: Full-day drive"
+   ],
+   "rows": [
+    [
+     "",
+     "Another day of driving takes you deeper into the far-western hills, towards Jadga near Sanphebagar, where the trek begins. The drive is a trip in itself, through small towns, far-off places and changing nature zones."
+    ],
+    [
+     "",
+     "It gives you a good look at daily life in this rough, less-travelled part of Nepal. Notice the small farms and local homes along the way. The roads can be dusty; the views are always changing."
+    ]
+   ]
+  },
+  {
+   "title": "Trek to Budha Krodh",
+   "sub": "2,700m · 5–6 hours walking",
+   "foot": [
+    "Overnight: Budha Krodh",
+    "Altitude: 2,700m",
+    "Walking: 5–6 hours"
+   ],
+   "rows": [
+    [
+     "",
+     "The walk starts today. You leave the road behind and the path climbs steadily through farm fields, where locals grow grains and root crops, then into thick woods of pine and rhododendron."
+    ],
+    [
+     "",
+     "The path is often rough and steep in parts; this first day shows you how far away this area is. You stay the night at Budha Krodh in a tent or a simple local home. The air feels fresh and clean."
+    ]
+   ]
+  },
+  {
+   "title": "Trek to Bhito",
+   "sub": "3,500m · 6–7 hours walking",
+   "foot": [
+    "Overnight: Bhito",
+    "Altitude: 3,500m",
+    "Walking: 6–7 hours"
+   ],
+   "rows": [
+    [
+     "",
+     "Today’s walk is hard but amazing. The path keeps climbing steeply and takes you above the tree line, where thick woods give way to small, tough bushes and then wide, green, rolling fields called patans."
+    ],
+    [
+     "",
+     "The air gets thinner and you feel the effort, but the reward is the ever-growing view of the valleys around you. You reach camp at Bhito. Look back at the path you have walked; the silence up here is deep."
+    ]
+   ]
+  },
+  {
+   "title": "Trek to Triveni",
+   "sub": "3,870m · 4–5 hours walking",
+   "foot": [
+    "Overnight: Triveni",
+    "Altitude: 3,870m",
+    "Walking: 4–5 hours"
+   ],
+   "rows": [
+    [
+     "",
+     "The path leads to the holy place of Triveni, where three rivers meet. People come here to wash in the rivers, especially during the Janai Purnima festival. The land is grand: wide, open grasslands under a big sky."
+    ],
+    [
+     "",
+     "This is a shorter day on purpose. It helps you get used to the high air before the final push to Badimalika. Take time to rest and breathe."
+    ]
+   ]
+  },
+  {
+   "title": "Trek to Badimalika Temple",
+   "sub": "4,200m · 3–4 hours · Highest point",
+   "foot": [
+    "Overnight: Near the temple",
+    "Altitude: 4,200m",
+    "Walking: 3–4 hours"
+   ],
+   "rows": [
+    [
+     "Morning",
+     "This is the main day of the trek. In the morning you climb a steep, rough last path to the holy Badimalika Temple, on top of a hill at 4,200 meters. Reaching the top feels like a big win."
+    ],
+    [
+     "",
+     "The temple itself is small, but its holy meaning and the 360-degree views are truly great, with the Api and Saipal mountains all around. You have time to look around the temple area before camp nearby. The wind can be strong here."
+    ]
+   ]
+  },
+  {
+   "title": "Explore and Trek to Dhawalpur Lake",
+   "sub": "2,500m · 6–7 hours walking",
+   "foot": [
+    "Overnight: Dhawalpur Lake",
+    "Altitude: 2,500m",
+    "Walking: 6–7 hours"
+   ],
+   "rows": [
+    [
+     "",
+     "You might wake to a stunning sunrise over the mountains, with more time to look around before going down. The way back is different: a long downhill path towards Dhawalpur Lake, so walk carefully."
+    ],
+    [
+     "",
+     "The day ends at the calm, blue-green water of the lake, a peaceful and pretty place to camp for the night."
+    ]
+   ]
+  },
+  {
+   "title": "Trek to Lamagadh",
+   "sub": "2,195m · 5–6 hours walking",
+   "foot": [
+    "Overnight: Lamagadh",
+    "Altitude: 2,195m",
+    "Walking: 5–6 hours"
+   ],
+   "rows": [
+    [
+     "",
+     "The trail winds down from the high country, back into thick woods of pine, fir and rhododendron, past small shelters shepherds use for their animals. You see the land from a new angle."
+    ],
+    [
+     "",
+     "You reach the village of Lamagadh, back among places where people live all year. The air feels warmer again."
+    ]
+   ]
+  },
+  {
+   "title": "Trek to Mourya",
+   "sub": "2,350m · 5–6 hours walking",
+   "foot": [
+    "Overnight: Mourya",
+    "Altitude: 2,350m",
+    "Walking: 5–6 hours"
+   ],
+   "rows": [
+    [
+     "",
+     "Today’s walk goes through the heart of the area’s culture, passing old Chhetri and Brahmin villages with houses of stone and mud, and a way of life that has stayed the same for hundreds of years."
+    ],
+    [
+     "",
+     "The walk has gentle ups and downs as you move from one valley to the next towards Mourya. Say hello to the people you meet; their smiles are warm."
+    ]
+   ]
+  },
+  {
+   "title": "Trek to Sanphebagar",
+   "sub": "1,280m · 4–5 hours · Last day on foot",
+   "foot": [
+    "Overnight: Sanphebagar",
+    "Altitude: 1,280m",
+    "Walking: 4–5 hours"
+   ],
+   "rows": [
+    [
+     "",
+     "The last day of walking closes the circle back to Sanphebagar. The path gets wider and clearer as you go down towards the town."
+    ],
+    [
+     "",
+     "Seeing Sanphebagar marks the end of the hard trip in the wild, a time to think about everything you saw this past week. Your legs might feel tired, but your mind will be full of good memories."
+    ]
+   ]
+  },
+  {
+   "title": "Drive to Dhangadhi",
+   "sub": "109m · Full-day drive",
+   "foot": [
+    "Overnight: Dhangadhi",
+    "Altitude: 109m",
+    "Travel: Full-day drive"
+   ],
+   "rows": [
+    [
+     "",
+     "A car is ready for the long drive from Sanphebagar back to Dhangadhi, a day for resting your legs while the rough hills turn to the flat, warm lands of the Terai."
+    ],
+    [
+     "",
+     "In Dhangadhi a hotel awaits, with the welcome comfort of a hot shower and a proper bed after many days of simple living."
+    ]
+   ]
+  },
+  {
+   "title": "Fly back to Kathmandu",
+   "sub": "1,400m · Flight and farewell dinner",
+   "foot": [
+    "Overnight: Kathmandu",
+    "Altitude: 1,400m",
+    "Travel: Morning flight"
+   ],
+   "rows": [
+    [
+     "",
+     "A morning flight takes you from Dhangadhi back to Kathmandu. After checking in to your hotel, the rest of the day is free: buy last-minute gifts in Thamel, revisit a favourite place, or just relax."
+    ],
+    [
+     "Evening",
+     "In the evening there is a goodbye dinner to celebrate finishing the trek. Share stories and talk about your favourite parts."
+    ]
+   ]
+  },
+  {
+   "title": "Final Departure",
+   "sub": "Airport transfer",
+   "foot": [
+    "Travel: Airport transfer"
+   ],
+   "rows": [
+    [
+     "",
+     "Your trip to Nepal ends today. A ride is arranged to Tribhuvan International Airport for your flight home, timed to your departure. You leave with memories of a special trip, and the peace of the mountains with you."
+    ]
+   ]
+  }
+ ],
+ "price_eyebrow": "Pilgrimage trek · Far-Western Nepal 15-Day Badimalika Trek At a glance DestinationBajura, Nepal Duration15 days ActivitiesTrek & pilgrimage MealsIncluded on trek AccommodationHotels & camping Max altitude4,200m Group size12–16 Best timeMar–May, Jul–Aug Explore the trek Overview Itinerary Dates & Prices Packing & map FAQs Similar tours Most of Nepal’s trekking routes are busy enough that you will pass other groups every day. Badimalika is not one of them. This 15-day journey crosses Bajura, one of the country’s least-visited districts, to reach a small white temple standing alone at 4,200 meters, a Shakti Peetha that draws Hindu pilgrims from across Nepal and northern India. Fifteen days, one temple, and a route through Far-Western Nepal that most trekking itineraries never touch. The trip starts in Kathmandu with sightseeing and trek preparation, then flies to Dhangadhi before a multi-day overland journey into Bajura district, where the walking begins. From there, the trail climbs steadily through forest, then open high-altitude grassland known locally as patans, before the final steep push to Badimalika Temple itself. The descent takes a different route, past Dhawalpur Lake and through villages where stone-and-mud architecture has barely changed in generations. This is not a trip for a first-time trekker looking for an easy introduction to Nepal. Expect long days on foot, simple teahouse and tented accommodation, and genuinely remote terrain with limited infrastructure. What you get in return is one of Far-Western Nepal’s most significant sacred sites, sweeping views of Mount Api and Mount Saipal, and a route where you will likely see more yaks than other trekking groups. Want the full story first: the goddess Bhagwati, temple etiquette, and the safest time to go? Read our Badimalika pilgrimage guide. Highlights Reach Badimalika Temple at 4,200m, one of Nepal’s most significant Shakti Peethas, after a demanding final climb through Far-Western Nepal’s least-crowded terrain. Walk through Khaptad National Park, known for its high meadows and its connection to the late saint Khaptad Baba. Stand in front of Mount Api and Mount Saipal, two of the region’s most striking peaks, visible from the high grasslands surrounding the temple. Bathe at Triveni, the sacred river confluence pilgrims traditionally visit before the final ascent. Camp beside Dhawalpur Lake on the return route, a quiet contrast after the trek’s central, more intense day. Pass through Bajura’s Chhetri and Brahmin villages, where stone-and-mud architecture and daily life have changed little in generations. See old Kathmandu before you go, with a full day for Swayambhunath and Pashupatinath ahead of the trek itself. Itinerary Fifteen days, one temple. Altitude profileFrom Kathmandu at 1,400m to the temple at 4,200m on Day 8, then down by a different route. 1,000m2,000m3,000m4,000m Day 1: 1,400mDay 2: 1,400mDay 3: 2,000mDay 4: 1,280mDay 5: 2,700mDay 6: 3,500mDay 7: 3,870mDay 8: 4,200mDay 9: 2,500mDay 10: 2,195mDay 11: 2,350mDay 12: 1,280mDay 13: 109mDay 14: 1,400mDay 15: 1,400m Badimalika 4,200m Day123456789101112131415 Day by day Short itinerary Expand all Day1 Arrival in Kathmandu1,400m · Arrival day Your trip starts when you get to Tribhuvan International Airport (TIA) in Kathmandu. After you get settled, you can rest from your flight, or go out and see the busy streets of Thamel, the city’s main tourist area. It has many shops, foods to try, and a special, lively feel. Take your time to walk around. See the local shops and enjoy the mix of old and new. The air here is often full of sounds and smells. Overnight: Kathmandu Altitude: 1,400m Travel: Airport transfer Day2 Kathmandu Sightseeing & Trek Preparation1,400m · Swayambhunath, Pashupatinath, trek briefing This day is for seeing culture and getting ready. In the morning, you visit some of Kathmandu’s well-known UNESCO World Heritage Sites. One is the old Swayambhunath Stupa, also called the Monkey Temple, with wide views of the city. Another is the holy Hindu temple of Pashupatinath, beside the Bagmati River, where you can see people doing their prayers. In the afternoon you meet your guide for a talk about the trek. You go through the trip plan in detail and check all your hiking gear one last time, so you are fully ready for the days ahead. Ask any questions you have; your guide will share important tips. Overnight: Kathmandu Altitude: 1,400m Travel: City sightseeing Day3 Fly to Dhangadhi, Drive to Dadeldhura109m → 2,000m · Flight and hill drive You start early with a flight to Dhangadhi, a city in the flat Terai plains. As the plane comes down, you see the land change from hills to flat ground. A car is ready when you land. Next is a long, winding drive up into the hills to Dadeldhura. The road climbs through the mountains, the air gets cooler, and you pass small towns and farms along the way. Overnight: Dadeldhura Altitude: 2,000m Travel: Flight + drive Day4 Drive to Jadga (Sanphebagar)1,280m · Full-day drive to the trailhead Another day of driving takes you deeper into the far-western hills, towards Jadga near Sanphebagar, where the trek begins. The drive is a trip in itself, through small towns, far-off places and changing nature zones. It gives you a good look at daily life in this rough, less-travelled part of Nepal. Notice the small farms and local homes along the way. The roads can be dusty; the views are always changing. Overnight: Sanphebagar Altitude: 1,280m Travel: Full-day drive Day5 Trek to Budha Krodh2,700m · 5–6 hours walking The walk starts today. You leave the road behind and the path climbs steadily through farm fields, where locals grow grains and root crops, then into thick woods of pine and rhododendron. The path is often rough and steep in parts; this first day shows you how far away this area is. You stay the night at Budha Krodh in a tent or a simple local home. The air feels fresh and clean. Overnight: Budha Krodh Altitude: 2,700m Walking: 5–6 hours Day6 Trek to Bhito3,500m · 6–7 hours walking Today’s walk is hard but amazing. The path keeps climbing steeply and takes you above the tree line, where thick woods give way to small, tough bushes and then wide, green, rolling fields called patans. The air gets thinner and you feel the effort, but the reward is the ever-growing view of the valleys around you. You reach camp at Bhito. Look back at the path you have walked; the silence up here is deep. Overnight: Bhito Altitude: 3,500m Walking: 6–7 hours Day7 Trek to Triveni3,870m · 4–5 hours walking The path leads to the holy place of Triveni, where three rivers meet. People come here to wash in the rivers, especially during the Janai Purnima festival. The land is grand: wide, open grasslands under a big sky. This is a shorter day on purpose. It helps you get used to the high air before the final push to Badimalika. Take time to rest and breathe. Overnight: Triveni Altitude: 3,870m Walking: 4–5 hours Day8 Trek to Badimalika Temple4,200m · 3–4 hours · Highest point This is the main day of the trek. In the morning you climb a steep, rough last path to the holy Badimalika Temple, on top of a hill at 4,200 meters. Reaching the top feels like a big win. The temple itself is small, but its holy meaning and the 360-degree views are truly great, with the Api and Saipal mountains all around. You have time to look around the temple area before camp nearby. The wind can be strong here. Overnight: Near the temple Altitude: 4,200m Walking: 3–4 hours Day9 Explore and Trek to Dhawalpur Lake2,500m · 6–7 hours walking You might wake to a stunning sunrise over the mountains, with more time to look around before going down. The way back is different: a long downhill path towards Dhawalpur Lake, so walk carefully. The day ends at the calm, blue-green water of the lake, a peaceful and pretty place to camp for the night. Overnight: Dhawalpur Lake Altitude: 2,500m Walking: 6–7 hours Day10 Trek to Lamagadh2,195m · 5–6 hours walking The trail winds down from the high country, back into thick woods of pine, fir and rhododendron, past small shelters shepherds use for their animals. You see the land from a new angle. You reach the village of Lamagadh, back among places where people live all year. The air feels warmer again. Overnight: Lamagadh Altitude: 2,195m Walking: 5–6 hours Day11 Trek to Mourya2,350m · 5–6 hours walking Today’s walk goes through the heart of the area’s culture, passing old Chhetri and Brahmin villages with houses of stone and mud, and a way of life that has stayed the same for hundreds of years. The walk has gentle ups and downs as you move from one valley to the next towards Mourya. Say hello to the people you meet; their smiles are warm. Overnight: Mourya Altitude: 2,350m Walking: 5–6 hours Day12 Trek to Sanphebagar1,280m · 4–5 hours · Last day on foot The last day of walking closes the circle back to Sanphebagar. The path gets wider and clearer as you go down towards the town. Seeing Sanphebagar marks the end of the hard trip in the wild, a time to think about everything you saw this past week. Your legs might feel tired, but your mind will be full of good memories. Overnight: Sanphebagar Altitude: 1,280m Walking: 4–5 hours Day13 Drive to Dhangadhi109m · Full-day drive A car is ready for the long drive from Sanphebagar back to Dhangadhi, a day for resting your legs while the rough hills turn to the flat, warm lands of the Terai. In Dhangadhi a hotel awaits, with the welcome comfort of a hot shower and a proper bed after many days of simple living. Overnight: Dhangadhi Altitude: 109m Travel: Full-day drive Day14 Fly back to Kathmandu1,400m · Flight and farewell dinner A morning flight takes you from Dhangadhi back to Kathmandu. After checking in to your hotel, the rest of the day is free: buy last-minute gifts in Thamel, revisit a favourite place, or just relax. In the evening there is a goodbye dinner to celebrate finishing the trek. Share stories and talk about your favourite parts. Overnight: Kathmandu Altitude: 1,400m Travel: Morning flight Day15 Final DepartureAirport transfer Your trip to Nepal ends today. A ride is arranged to Tribhuvan International Airport for your flight home, timed to your departure. You leave with memories of a special trip, and the peace of the mountains with you. Travel: Airport transfer Day1Arrival in Kathmandu1,400m · Arrival day Day2Kathmandu Sightseeing and Trek Preparation1,400m · Swayambhunath, Pashupatinath, trek briefing Day3Fly to Dhangadhi, Drive to Dadeldhura109m → 2,000m · Flight and hill drive Day4Drive to Jadga (Sanphebagar)1,280m · Full-day drive to the trailhead Day5Trek to Budha Krodh2,700m · 5–6 hours walking Day6Trek to Bhito3,500m · 6–7 hours walking Day7Trek to Triveni3,870m · 4–5 hours walking Day8Trek to Badimalika Temple4,200m · 3–4 hours · Highest point Day9Explore the area and trek back to Dhawalpur Lake2,500m · 6–7 hours walking Day10Trek to Lamagadh2,195m · 5–6 hours walking Day11Trek to Mourya2,350m · 5–6 hours walking Day12Trek to Sanphebagar1,280m · 4–5 hours · Last day on foot Day13Drive to Dhangadhi109m · Full-day drive Day14Fly back to Kathmandu1,400m · Flight and farewell dinner Day15Final DepartureAirport transfer Dates & prices Choose your start date. Secure your spot now on our best-selling trip. Spaces fill up fast, so book early, and feel free to ask any questions later. spring is kindest Month Best-season starts Your trek StartsPick a date Ends— Trip duration: 15 days, 14 nights TravellersGroups of 12–16; solo travellers join a group − 1 + Per personUSD 3,200.00 Travellers× 1 TotalUSD 3,200.00 Book now Pick a start date to continue to checkout. Included in the price Local transportation with experienced drivers, including the Kathmandu–Dhangadhi flights Experienced, licensed guide and necessary porters Accommodation All entry fees Government taxes Service charges Not included Nepal entry visa fee International airfare Lunch and dinner in Kathmandu and Dhangadhi Travel insurance (mandatory) Personal expenses (drinks, snacks, Wi-Fi) Tips for the guide and porters All inclusive price",
+ "price_raw": "FromUSD3,200.00 / person",
+ "price_amount": "3200",
+ "price_currency": "USD",
+ "price_points": [
+  "Local transportation with experienced drivers, including the Kathmandu–Dhangadhi flights Experienced, licensed guide and necessary porters Accommodation All entry fees Government taxes Service charges"
+ ],
+ "price_foot": "No payment needed to enquire",
+ "price_cols": [
+  {
+   "head": "Included in the price",
+   "items": [
+    "Local transportation with experienced drivers, including the Kathmandu–Dhangadhi flights",
+    "Experienced, licensed guide and necessary porters",
+    "Accommodation",
+    "All entry fees",
+    "Government taxes",
+    "Service charges"
+   ]
+  },
+  {
+   "head": "Not included",
+   "items": [
+    "Nepal entry visa fee",
+    "International airfare",
+    "Lunch and dinner in Kathmandu and Dhangadhi",
+    "Travel insurance (mandatory)",
+    "Personal expenses (drinks, snacks, Wi-Fi)",
+    "Tips for the guide and porters"
+   ]
+  }
+ ],
+ "packing_items": [
+  "Clothing — Layered clothing, waterproof jacket and pants, thermal wear, fleece jacket, trekking shirts and trousers.",
+  "Footwear — Broken-in waterproof trekking boots, comfortable camp shoes or sandals.",
+  "Gear — Four-season sleeping bag, trekking poles, headlamp, water bottle or purification system, daypack.",
+  "Documents — Passport, visa, travel insurance, permits, and copies of each.",
+  "Other items — First-aid kit, sunscreen, sunglasses, hat, toiletries, power bank."
+ ],
+ "map_embed": "https://maps.google.com/maps?q=Badimalika%20Temple%2C%20Bajura%2C%20Nepal&z=9&output=embed",
+ "map_place": "Badimalika Temple, Bajura",
+ "faqs": [
+  {
+   "q": "What is the Badimalika Trek offered by iFly Nepal?",
+   "a": "The Badimalika Trek is a 15-day pilgrimage trek in Nepal’s Far-Western Bajura district, priced at USD 3,200.00 per person with iFly Nepal. This remote trekking adventure combines spiritual visits to the sacred Badimalika Temple, dedicated to Goddess Bhagwati, with stunning Api Saipal mountain views, ideal for those seeking an authentic religious tour and off-the-grid Himalayan experience."
+  },
+  {
+   "q": "Why is the Badimalika Trek considered a top pilgrimage trek in Nepal?",
+   "a": "The Badimalika Trek is a top pilgrimage trek in Nepal due to its spiritual significance, leading to the revered Badimalika Temple at 4,200 meters in Bajura district, a key site for Hindu devotees. The trek blends devotion with remote Himalayan beauty, offering Api Saipal views and cultural immersion in Far-Western Nepal’s untouched villages, as highlighted by Nepal Tourism Board."
+  },
+  {
+   "q": "How challenging is the Badimalika Trek in Bajura district for beginners?",
+   "a": "The Badimalika Trek in Bajura district is moderately challenging, with altitudes up to 4,200 meters and daily treks of 5–7 hours on rugged trails. iFly Nepal’s package suits fit beginners with prior hiking experience, offering gradual ascents, porter support, and acclimatization days to ensure safety on this remote trekking route in Far-Western Nepal."
+  },
+  {
+   "q": "What are the highlights of a religious tour to Badimalika Temple?",
+   "a": "Highlights of a religious tour to Badimalika Temple include worshipping at the sacred Bhagwati shrine, experiencing vibrant festival gatherings (like Janai Purnima), and enjoying panoramic Api Saipal views."
+  },
+  {
+   "q": "What should I pack for a 15-day trek in Nepal’s Badimalika region?",
+   "a": "For a 15-day trek in Nepal’s Badimalika region, pack layered clothing, sturdy trekking boots, a sleeping bag, a water purifier, sunscreen, and prayer items for the temple. iFly Nepal’s trek provides tents and meals, but personal gear ensures comfort on this remote trekking and religious tour in Far-Western Nepal’s high altitudes."
+  },
+  {
+   "q": "How to prepare physically for the Badimalika Trek in Far-Western Nepal?",
+   "a": "To prepare physically for the Badimalika Trek, train with 6–8 weeks of cardio (hiking, running), strength exercises, and practice walks with a backpack. The 15-day trek reaches 4,200 meters, so stamina and altitude readiness are key for this pilgrimage trek in Nepal’s rugged Bajura district, ensuring a safe remote trekking experience."
+  },
+  {
+   "q": "What are the best months to join the Badimalika Trek?",
+   "a": "March to May offers the most reliable trekking conditions and clear mountain views for the Badimalika Trek. Pilgrims prioritizing the temple’s spiritual calendar often travel during Shrawan, mid-July to mid-August, when Malika Chaturdashi and Janai Purnima both fall. Shrawan is monsoon season in Bajura, though, so trail conditions are considerably harder and less predictable during that window. Talk to your guide about which timing fits your priorities before booking."
+  },
+  {
+   "q": "Is the Badimalika Trek safe for solo travelers or women?",
+   "a": "Yes, the Badimalika Trek is safe for solo travelers and women. The spiritual vibe and welcoming locals in Bajura district enhance safety, making this remote trekking and religious tour ideal for all seeking a pilgrimage trek in Nepal."
+  },
+  {
+   "q": "What cultural experiences await on a Badimalika Trek in Bajura district?",
+   "a": "On a Badimalika Trek, expect cultural experiences like interacting with Thakuri and Chhetri communities, witnessing temple rituals, and joining local festival dances. The 15-day trek immerses you in Far-Western Nepal’s traditions, enriching this pilgrimage trek with authentic village encounters and spiritual moments."
+  },
+  {
+   "q": "Why choose Far-Western Nepal for remote trekking like the Badimalika Trek?",
+   "a": "Far-Western Nepal is ideal for remote trekking due to its untouched landscapes, low tourist crowds, and sacred sites like Badimalika Temple. The 15-day trek showcases Api Saipal views, pristine forests, and cultural depth, making it a standout choice for adventurers seeking unique pilgrimage treks in Nepal’s Bajura district."
+  },
+  {
+   "q": "What is the highest point of the Badimalika Trek?",
+   "a": "Badimalika Temple itself, at 4,200 meters, is reached on Day 8 of the itinerary after a steep 3–4 hour climb on the final morning."
+  },
+  {
+   "q": "Does the trip price include the Kathmandu–Dhangadhi flights?",
+   "a": "Yes. Local transportation, including the flight segments to and from Dhangadhi, is included in the USD 3,200 price. International airfare to Nepal is not included."
+  }
+ ]
+}

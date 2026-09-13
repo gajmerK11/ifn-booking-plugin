@@ -78,23 +78,29 @@ function iflynepal_package_detail_fields() {
 			'type'  => 'textarea',
 			'help'  => __( 'One or two lines revealed over the card image. Left empty, the card shows no summary — the package\'s own text is never used here.', 'iflynepal' ),
 		),
-		'buffer_notice' => array(
-			'box'   => '',
-			'label' => __( 'Confirmation notice', 'iflynepal' ),
-			'type'  => 'textarea',
-			'help'  => __( 'The static line beside the booking button, e.g. "Trekking and volunteering bookings are confirmed within 5–6 days." Informational only — nothing is delayed or enforced.', 'iflynepal' ),
-		),
 		'departures'    => array(
 			'box'   => '',
 			'label' => __( 'Fixed departure dates', 'iflynepal' ),
 			'type'  => 'dates',
 			'help'  => __( 'One date per line, as YYYY-MM-DD. Past dates are dropped automatically. Leave empty for a package that runs year-round.', 'iflynepal' ),
 		),
-		'booking'       => array(
-			'box'   => '',
-			'label' => __( 'Booking button shortcode', 'iflynepal' ),
+		'booking_button' => array(
+			'box'   => 'payment',
+			'label' => __( 'Payment button', 'iflynepal' ),
+			'type'  => 'button',
+			'help'  => __( 'Which Easy PayPal & Stripe button the Book now panel pays with. The amount, the currency and the payment methods all live on the button itself — and the button only appears on the page once that plugin has a PayPal or Stripe account connected.', 'iflynepal' ),
+		),
+		'buffer_notice' => array(
+			'box'   => 'payment',
+			'label' => __( 'Confirmation notice', 'iflynepal' ),
 			'type'  => 'textarea',
-			'help'  => __( 'The PayPal buy-now shortcode for this package. Pasted from the gateway plugin and rendered as-is.', 'iflynepal' ),
+			'help'  => __( 'The static line beside the booking button, e.g. "Trekking and volunteering bookings are confirmed within 5–6 days." Informational only — nothing is delayed or enforced.', 'iflynepal' ),
+		),
+		'booking'       => array(
+			'box'   => 'payment',
+			'label' => __( 'Booking shortcode', 'iflynepal' ),
+			'type'  => 'textarea',
+			'help'  => __( 'Only if the button above cannot express what this package needs — an inline [wpecpp name="…" price="…"], or the shortcode of another gateway. Ignored while a button is chosen, and never printed if nothing on the site registers it.', 'iflynepal' ),
 		),
 	);
 
@@ -206,9 +212,15 @@ function iflynepal_package_sanitize_value( $value, $type, $field = array() ) {
 		case 'gallery':
 			return iflynepal_package_sanitize_gallery( $value, $field );
 
+		case 'button':
 		case 'image':
 		case 'video':
-			// Both store the attachment ID, never a URL — see the gallery note below.
+			/*
+			 * All three store a post ID, never a URL or a name. For the payment
+			 * button that is what keeps the price out of this plugin: the ID
+			 * names a button the gateway owns, and the amount is read from that
+			 * button by the gateway at render time.
+			 */
 			return (string) absint( $value );
 
 		case 'url':

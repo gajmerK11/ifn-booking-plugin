@@ -608,6 +608,27 @@ EXTRAS = u"""
 #ifnpkg-dates .iflynepal-pkg-annot--dates svg{
   transform:scaleX(-1);
 }
+
+/*
+ * The gateway's button, in the Book now panel.
+ *
+ * Only the box it sits in is styled — its width, where it sits and what is under
+ * it. The button itself is Easy PayPal & Stripe's own markup and is left exactly
+ * as that plugin renders it: PayPal's and Stripe's buttons are brand assets with
+ * their own rules, and a stylesheet that restyles them is one that breaks them
+ * on the next gateway update.
+ */
+.iflynepal-pkg-pay {
+	margin-top: 4px;
+}
+
+.iflynepal-pkg-pay > * {
+	max-width: 100%;
+}
+
+.iflynepal-pkg-pay + .iflynepal-pkg-sum-note {
+	margin-top: 10px;
+}
 """
 
 header = """/**

@@ -13,9 +13,15 @@
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 /*
- * Nothing is stored yet. As storage lands, remove it here, e.g.:
+ * Deliberately a no-op, and it should stay one for the content this plugin now
+ * holds. Packages, package types and enquiries are the business's own records —
+ * a catalogue somebody wrote and sales enquiries from real people — and
+ * deleting a plugin is not a decision to destroy them. WordPress keeps posts and
+ * their meta when a post type stops being registered, so reinstalling brings
+ * every one of them back.
+ *
+ * As other storage lands, remove only what the plugin invented, e.g.:
  *   - delete_option( 'iflynepal_booking_settings' );
- *   - drop the custom enquiry / bookings table
- *   - delete package / enquiry posts if the client wants a full teardown
- * Guard destructive table work behind an explicit opt-in setting.
+ *   - drop a custom bookings table, if one is ever created
+ * Guard anything that destroys content behind an explicit opt-in setting.
  */
