@@ -317,6 +317,16 @@
 	margin-top: 30px;
 }
 
+/*
+ * 🔴 Was used on the explore page's empty-state button
+ * (includes/frontend/type-explorer.php) with no matching rule here — flex's
+ * own default is justify-content: flex-start, so the button sat pinned to
+ * the left under a centred heading instead of centred under it.
+ */
+.iflynepal-actions--center {
+	justify-content: center;
+}
+
 /* -------------------------------------------------------------------- hero */
 
 /*
@@ -1965,4 +1975,58 @@ a.iflynepal-departure__reserve:focus-visible {
 		position: sticky;
 		top: 112px;
 	}
+}
+
+/* ------------------------------------------------------------- explore page */
+
+/*
+ * The [iflynepal_type_explorer] results page's own scroll reveal.
+ *
+ * Deliberately NOT the GSAP-driven [data-iflynepal-anim] the real archive
+ * templates use (assets/js/archive/reveal.js): that reveal only ever works
+ * because those templates carry the theme's hero component, which is what
+ * pulls GSAP and ScrollTrigger onto the page in the first place. This
+ * shortcode is dropped into an ordinary Page with no hero, so nothing
+ * guarantees GSAP is there — and duplicating ~115KB of it into the plugin
+ * just to fade in a page title would blow the performance budget (JS ≤ 50KB
+ * per page, see the project doc §8.8) for one small visual touch. A plain
+ * CSS transition plus assets/js/explore/reveal.js's IntersectionObserver
+ * gets the same fade-and-rise look at a few hundred bytes instead.
+ *
+ * A different attribute from [data-iflynepal-anim] on purpose — reusing that
+ * one here, on a page reveal.js never runs on, would be a silent trap for
+ * whoever next assumes every data-iflynepal-anim element is GSAP's.
+ */
+[data-iflynepal-fade] {
+	opacity: 0;
+	transform: translateY(20px);
+	transition:
+		opacity 0.6s var(--ifn-ease, ease),
+		transform 0.6s var(--ifn-ease, ease);
+}
+
+[data-iflynepal-fade].is-revealed {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	[data-iflynepal-fade] {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}
+
+/*
+ * Closes the gap the theme's header docking leaves on this page specifically
+ * — see the `iflynepal-type-explorer-page` body class in type-explorer.php
+ * for the full reasoning. 70px is the theme's own docked nav height
+ * (`.site-header.is-docked .iflynepal-nav{min-height:70px}`); this page's
+ * header is docked from the first frame, so that is its real height the
+ * whole time, not only after a scroll.
+ */
+body.iflynepal-type-explorer-page .site-main {
+	padding-top: 70px;
 }

@@ -39,6 +39,8 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/frontend/testimonial-targets.php                 (done)
  *   includes/frontend/homepage-departures.php                 (done)
  *   includes/frontend/homepage-reasons.php                    (done)
+ *   includes/frontend/type-explorer.php                       (done)
+ *   includes/frontend/homepage-trip-finder.php                (done)
  *   includes/settings/settings.php                            (done)
  *   includes/enquiry/enquiry-cpt.php                          (done)
  *   includes/enquiry/enquiry-store.php                        (done)
@@ -76,6 +78,8 @@ require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/enqueue.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/testimonial-targets.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/homepage-departures.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/homepage-reasons.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/type-explorer.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/homepage-trip-finder.php';
 
 /*
  * The settings come before the enquiry pieces and before anything that renders:

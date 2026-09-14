@@ -50,6 +50,12 @@ function iflynepal_booking_settings_schema() {
 			'default' => __( 'Hello iFly Nepal, I would like to know more about {package}.', 'iflynepal' ),
 			'help'    => __( 'What the visitor\'s chat opens with, already typed for them. {package} is replaced with the package name — or with the site name on a page that is not a package.', 'iflynepal' ),
 		),
+		'trip_finder_page' => array(
+			'label'   => __( 'Trip finder results page', 'iflynepal' ),
+			'type'    => 'page',
+			'default' => '0',
+			'help'    => __( 'The Page holding the [iflynepal_type_explorer] shortcode. The homepage hero\'s "I want to" picker links here with the visitor\'s chosen trip types. Left unset, the picker is not shown at all.', 'iflynepal' ),
+		),
 	);
 
 	/**
@@ -129,6 +135,10 @@ function iflynepal_booking_sanitize_setting( $value, $type ) {
 		 * nobody, silently.
 		 */
 		return ltrim( $digits, '0' );
+	}
+
+	if ( 'page' === $type ) {
+		return (string) absint( $value );
 	}
 
 	if ( 'textarea' === $type ) {

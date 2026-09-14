@@ -171,6 +171,18 @@ class IFly_Nepal_Booking_Settings {
 
 						<?php if ( 'textarea' === $field['type'] ) : ?>
 							<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="3"><?php echo esc_textarea( $value ); ?></textarea>
+						<?php elseif ( 'page' === $field['type'] ) : ?>
+							<?php
+							wp_dropdown_pages(
+								array(
+									'name'              => $name, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
+									'id'                => $id, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Same as above.
+									'selected'          => absint( $value ),
+									'show_option_none'  => __( '— Select a page —', 'iflynepal' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
+									'option_none_value' => '0',
+								)
+							);
+							?>
 						<?php else : ?>
 							<input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" inputmode="numeric">
 						<?php endif; ?>
