@@ -37,6 +37,8 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/frontend/template-loader.php                     (done)
  *   includes/frontend/enqueue.php                             (done)
  *   includes/frontend/testimonial-targets.php                 (done)
+ *   includes/frontend/homepage-departures.php                 (done)
+ *   includes/frontend/homepage-reasons.php                    (done)
  *   includes/settings/settings.php                            (done)
  *   includes/enquiry/enquiry-cpt.php                          (done)
  *   includes/enquiry/enquiry-store.php                        (done)
@@ -50,6 +52,7 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   admin/class-ifly-nepal-package-box-state.php              (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-type-archive-fields.php    (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-details-meta-box.php       (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-homepage-box.php           (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-details-box.php            (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-video-box.php              (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-gallery-box.php            (done)                   (is_admin only)
@@ -71,6 +74,8 @@ require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/package-render.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/template-loader.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/enqueue.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/testimonial-targets.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/homepage-departures.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/homepage-reasons.php';
 
 /*
  * The settings come before the enquiry pieces and before anything that renders:
@@ -116,6 +121,7 @@ if ( is_admin() ) {
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-box-state.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-type-archive-fields.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-details-meta-box.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-homepage-box.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-details-box.php';
 
 	/*

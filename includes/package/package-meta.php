@@ -48,47 +48,80 @@ const IFLYNEPAL_PACKAGE_META_PREFIX = '_iflynepal_package_';
  */
 function iflynepal_package_detail_fields() {
 	$fields = array(
-		'pill'           => array(
+		'pill'            => array(
 			'box'   => 'card',
 			'label' => __( 'Card label', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'The small badge on the card image, e.g. "Yoga" or "Ayurveda".', 'iflynepal' ),
 		),
-		'duration'       => array(
+		'duration'        => array(
 			'box'   => 'card',
 			'label' => __( 'Duration', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'Written as it should read, e.g. "3–30 days".', 'iflynepal' ),
 		),
-		'suitability'    => array(
+		'suitability'     => array(
 			'box'   => 'card',
 			'label' => __( 'Place or suitability', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'The second fact on the card, e.g. "Kathmandu" or "Beginner friendly".', 'iflynepal' ),
 		),
-		'price'          => array(
+		'price'           => array(
 			'box'   => 'card',
 			'label' => __( 'Price', 'iflynepal' ),
 			'type'  => 'text',
 			'help'  => __( 'Written exactly as it should read, e.g. "From US$425". Shown as typed — no currency conversion happens here.', 'iflynepal' ),
 		),
-		'peek'           => array(
+		'peek'            => array(
 			'box'   => 'card',
 			'label' => __( 'Hover summary', 'iflynepal' ),
 			'type'  => 'textarea',
 			'help'  => __( 'One or two lines revealed over the card image. Left empty, the card shows no summary — the package\'s own text is never used here.', 'iflynepal' ),
 		),
-		'departures'     => array(
+		'departures'      => array(
 			'box'   => '',
 			'label' => __( 'Fixed departure dates', 'iflynepal' ),
 			'type'  => 'dates',
 			'help'  => __( 'One date per line, as YYYY-MM-DD. Past dates are dropped automatically. Leave empty for a package that runs year-round.', 'iflynepal' ),
 		),
-		'booking_button' => array(
+		'booking_button'  => array(
 			'box'   => 'payment',
 			'label' => __( 'Payment button', 'iflynepal' ),
 			'type'  => 'button',
 			'help'  => __( 'Which Easy PayPal & Stripe button the Book now panel pays with. The amount, the currency and the payment methods all live on the button itself — and the button only appears on the page once that plugin has a PayPal or Stripe account connected.', 'iflynepal' ),
+		),
+
+		/*
+		 * Two homepage sections, both opt-in per package, both fields sitting
+		 * in one small side box above the Package Types taxonomy box.
+		 *
+		 * "Upcoming journeys" needs both of its fields to be ticked and dated:
+		 * a tick with no month has no chip to file the card under, and a month
+		 * with no tick is a package nobody asked to feature. See
+		 * iflynepal_package_shows_on_homepage().
+		 *
+		 * "A few good reasons" needs only its own tick — the section's copy is
+		 * "a curated mix ... not an endless catalogue", so showing every
+		 * published package there by default would be exactly the catalogue
+		 * that line is promising visitors this is not.
+		 */
+		'show_homepage'   => array(
+			'box'   => 'homepage',
+			'label' => __( 'Show in "Upcoming journeys"', 'iflynepal' ),
+			'type'  => 'checkbox',
+			'help'  => __( 'Shows this package in the "Upcoming journeys" rail on the front page, card style included.', 'iflynepal' ),
+		),
+		'available_month' => array(
+			'box'   => 'homepage',
+			'label' => __( 'When available?', 'iflynepal' ),
+			'type'  => 'month',
+			'help'  => __( 'The month this package next runs. Becomes one of the month filters on the homepage rail — pick it there to see this package.', 'iflynepal' ),
+		),
+		'show_reasons'    => array(
+			'box'   => 'homepage',
+			'label' => __( 'Show in "A few good reasons"', 'iflynepal' ),
+			'type'  => 'checkbox',
+			'help'  => __( 'Shows this package in the front page\'s curated card grid, filed under its own package type there.', 'iflynepal' ),
 		),
 
 		/*
@@ -101,13 +134,13 @@ function iflynepal_package_detail_fields() {
 		 * Volunteering packages, informational only. Where it should live
 		 * instead is P22's question now, alongside `departures`.
 		 */
-		'buffer_notice'  => array(
+		'buffer_notice'   => array(
 			'box'   => '',
 			'label' => __( 'Confirmation notice', 'iflynepal' ),
 			'type'  => 'textarea',
 			'help'  => __( 'The static line beside the booking button, e.g. "Trekking and volunteering bookings are confirmed within 5–6 days." Informational only — nothing is delayed or enforced.', 'iflynepal' ),
 		),
-		'booking'        => array(
+		'booking'         => array(
 			'box'   => 'payment',
 			'label' => __( 'Booking shortcode', 'iflynepal' ),
 			'type'  => 'textarea',
@@ -214,6 +247,12 @@ function iflynepal_package_field_lines( $post_id, $key ) {
  */
 function iflynepal_package_sanitize_value( $value, $type, $field = array() ) {
 	switch ( $type ) {
+		case 'checkbox':
+			return $value ? '1' : '';
+
+		case 'month':
+			return iflynepal_package_sanitize_month( $value );
+
 		case 'dates':
 			return implode( "\n", iflynepal_package_sanitize_dates( $value ) );
 
@@ -286,6 +325,91 @@ function iflynepal_package_sanitize_dates( $value ) {
 	sort( $dates );
 
 	return $dates;
+}
+
+/**
+ * Keeps a "when available" value only when it is a real month and year.
+ *
+ * Stored as the HTML month input's own YYYY-MM shape, which is also the shape
+ * that sorts correctly as a plain string — no parsing is needed to put two of
+ * these in date order.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value Raw submitted value, e.g. '2026-09'.
+ * @return string The value, or an empty string when it is not YYYY-MM.
+ */
+function iflynepal_package_sanitize_month( $value ) {
+	$value = trim( (string) $value );
+
+	if ( ! preg_match( '/^\d{4}-(0[1-9]|1[0-2])$/', $value ) ) {
+		return '';
+	}
+
+	return $value;
+}
+
+/**
+ * Whether a package belongs on the homepage's "Upcoming journeys" rail.
+ *
+ * Both the tick and a month are required, not either alone: a ticked package
+ * with no month has no chip to file its card under on the rail, and a month
+ * typed against an unticked package is a package nobody asked to feature.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Package.
+ * @return bool
+ */
+function iflynepal_package_shows_on_homepage( $post_id ) {
+	return '1' === iflynepal_package_field( $post_id, 'show_homepage' )
+		&& '' !== iflynepal_package_field( $post_id, 'available_month' );
+}
+
+/**
+ * A package's "when available" value, as stored.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Package.
+ * @return string YYYY-MM, or an empty string when unset.
+ */
+function iflynepal_package_available_month( $post_id ) {
+	return iflynepal_package_field( $post_id, 'available_month' );
+}
+
+/**
+ * A package's "when available" value, as a short chip label.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Package.
+ * @return string e.g. 'Sep 2026', or an empty string when unset.
+ */
+function iflynepal_package_available_month_label( $post_id ) {
+	return iflynepal_booking_month_label( iflynepal_package_available_month( $post_id ) );
+}
+
+/**
+ * Turns a stored YYYY-MM value into its short display label.
+ *
+ * Shared by the package accessor above and the archive-wide query in
+ * includes/frontend/homepage-departures.php, so the two cannot read the same
+ * value two different ways.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value YYYY-MM, or empty.
+ * @return string e.g. 'Sep 2026', or an empty string when $value is not usable.
+ */
+function iflynepal_booking_month_label( $value ) {
+	if ( '' === $value ) {
+		return '';
+	}
+
+	$timestamp = strtotime( $value . '-01' );
+
+	return $timestamp ? date_i18n( 'M Y', $timestamp ) : '';
 }
 
 /**
