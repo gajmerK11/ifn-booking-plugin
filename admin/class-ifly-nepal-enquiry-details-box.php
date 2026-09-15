@@ -92,6 +92,7 @@ class IFly_Nepal_Enquiry_Details_Box {
 			.iflynepal-enquiry-view td { padding: 14px 0; }
 			.iflynepal-enquiry-view tr + tr th,
 			.iflynepal-enquiry-view tr + tr td { border-top: 1px solid #f0f0f1; }
+			.iflynepal-enquiry-view td { overflow-wrap: anywhere; }
 			.iflynepal-enquiry-view .iflynepal-enquiry-message { margin: 0; white-space: pre-wrap; line-height: 1.7; }
 			.iflynepal-enquiry-view .iflynepal-enquiry-muted { color: #646970; }
 		</style>

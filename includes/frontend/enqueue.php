@@ -448,3 +448,80 @@ function iflynepal_booking_enqueue_enquiry_gate() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_enquiry_gate' );
+
+/* ----------------------------------------------------------------- connect */
+
+/**
+ * The "Connect With Us" tab's stylesheet and behaviour.
+ *
+ * On whatever iflynepal_connect_should_render() answers for — the landing page
+ * today — so the pair is asked the same question as the markup and neither can
+ * be loaded without the other.
+ *
+ * Priority 20, like every other enqueue in this file: plugins load before
+ * themes, so a callback at the default priority runs before the theme has
+ * registered its own styles, and this sheet would print before main.css and
+ * lose every specificity tie with it.
+ *
+ * No dependency is declared on iflynepal-catalogue: that sheet is enqueued only
+ * on the catalogue templates, and this widget is on the landing page, which is
+ * none of them — naming it would drag the whole catalogue stylesheet onto the
+ * homepage for a drawer's worth of rules. connect.css carries its own token
+ * fallbacks for that reason.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function iflynepal_booking_enqueue_connect_assets() {
+	if ( ! iflynepal_connect_should_render() ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'iflynepal-connect',
+		IFLYNEPAL_BOOKING_URL . 'assets/css/connect.css',
+		array(),
+		iflynepal_booking_asset_version( 'assets/css/connect.css' )
+	);
+
+	wp_enqueue_script(
+		'iflynepal-connect',
+		IFLYNEPAL_BOOKING_URL . 'assets/js/connect/connect.js',
+		array(),
+		iflynepal_booking_asset_version( 'assets/js/connect/connect.js' ),
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+}
+add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_connect_assets', 20 );
+
+/**
+ * Marks the document as able to run the connect drawer.
+ *
+ * 🔴 The stylesheet turns the panel into a drawer only under this class, which
+ * is what keeps the form usable with JavaScript off: without it the panel
+ * renders as an ordinary section at the foot of the page and the tab is an
+ * anchor that jumps to it. In the head rather than on load, so the panel is
+ * never painted at the bottom of the page and then snatched away — the same
+ * shape as the enquiry form's gate and the catalogue's animation gate.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function iflynepal_booking_enqueue_connect_gate() {
+	if ( ! iflynepal_connect_should_render() ) {
+		return;
+	}
+
+	wp_register_script( 'iflynepal-connect-gate', '', array(), IFLYNEPAL_BOOKING_VERSION, false );
+	wp_enqueue_script( 'iflynepal-connect-gate' );
+	wp_add_inline_script(
+		'iflynepal-connect-gate',
+		'document.documentElement.classList.add("iflynepal-connect-js");'
+	);
+}
+add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_connect_gate' );

@@ -14,8 +14,8 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 /*
  * Deliberately a no-op, and it should stay one for the content this plugin now
- * holds. Packages, package types and enquiries are the business's own records —
- * a catalogue somebody wrote and sales enquiries from real people — and
+ * holds. Packages, package types, enquiries and connect requests are the business's
+ * own records — a catalogue somebody wrote, and messages from real people — and
  * deleting a plugin is not a decision to destroy them. WordPress keeps posts and
  * their meta when a post type stops being registered, so reinstalling brings
  * every one of them back.

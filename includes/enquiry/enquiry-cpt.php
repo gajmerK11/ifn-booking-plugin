@@ -215,6 +215,80 @@ function iflynepal_enquiry_status_pill( $status ) {
 }
 
 /**
+ * The post types whose admin screens draw a follow-up pill.
+ *
+ * A list rather than one constant, and taken by a filter rather than hardcoded,
+ * because the pills, their colours and the radio control are generated from
+ * iflynepal_enquiry_statuses() and are identical wherever a follow-up state is
+ * shown. The connect requests screen adds itself here (see
+ * includes/connect/connect-cpt.php), so the one CSS builder serves both rather
+ * than a second copy of it being kept in step.
+ *
+ * The same shape as the answer §5.3p gave for testimonial display targets: one
+ * hook that takes a list, rather than one hook per question.
+ *
+ * @since 1.0.0
+ *
+ * @return string[] Post type keys.
+ */
+function iflynepal_enquiry_pill_screens() {
+	/**
+	 * Filters the post types whose screens draw a follow-up pill.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string[] $post_types Post type keys.
+	 */
+	return (array) apply_filters( 'iflynepal_enquiry_pill_screens', array( IFLYNEPAL_ENQUIRY_POST_TYPE ) );
+}
+
+/**
+ * A message trimmed short enough to sit in a list-table cell.
+ *
+ * 🔴 `wp_trim_words()` alone is not enough, and the way it fails is not obvious.
+ * It counts words by splitting on whitespace, so a message with no spaces in it
+ * — 500 characters of keyboard-mashing, a pasted URL, a language this site does
+ * not put spaces between words in — is **one word**, and a cap of fourteen is a
+ * ceiling it can never reach. The whole message is returned untouched and the
+ * cell stretches the table past the edge of the screen. Measured: 506 characters
+ * in, 506 characters out.
+ *
+ * So the words are trimmed first, which is what gives a clean cut on ordinary
+ * prose, and then the result is cut to a length as well, which is what catches
+ * the run that has no words to count. The ellipsis is added once, at the end,
+ * only if something was actually removed — appended before the length cut it
+ * would be the part that gets cut off.
+ *
+ * `mb_*` throughout, or a cut can land in the middle of a multi-byte character
+ * and print a replacement glyph.
+ *
+ * This is a display cap only. What the visitor sent is stored whole and is
+ * printed whole on the record's own screen.
+ *
+ * @since 1.0.0
+ *
+ * @param string $text  The message.
+ * @param int    $words Word ceiling.
+ * @param int    $chars Character ceiling.
+ * @return string Plain text, ready to escape. '' when there was nothing to show.
+ */
+function iflynepal_enquiry_preview( $text, $words = 14, $chars = 90 ) {
+	$text = trim( wp_strip_all_tags( (string) $text ) );
+
+	if ( '' === $text ) {
+		return '';
+	}
+
+	$short = wp_trim_words( $text, $words, '' );
+
+	if ( mb_strlen( $short ) > $chars ) {
+		$short = rtrim( mb_substr( $short, 0, $chars ) );
+	}
+
+	return $short === $text ? $text : $short . '…';
+}
+
+/**
  * The admin styles for the pills and the status control.
  *
  * Built from the status list rather than written out, so a status added through
@@ -236,7 +310,7 @@ function iflynepal_enquiry_admin_styles() {
 	 */
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
-	if ( ! $screen || IFLYNEPAL_ENQUIRY_POST_TYPE !== $screen->post_type ) {
+	if ( ! $screen || ! in_array( $screen->post_type, iflynepal_enquiry_pill_screens(), true ) ) {
 		return;
 	}
 
@@ -264,6 +338,23 @@ function iflynepal_enquiry_admin_styles() {
 			sanitize_hex_color( $status['line'] )
 		);
 	}
+
+	/*
+	 * 🔴 `overflow-wrap: anywhere`, not `break-word`, and the difference is the
+	 * entire fix. Both break a long run of characters onto the next line, but
+	 * only `anywhere` counts toward the element's min-content width — which is
+	 * the number a table with `table-layout: auto` sizes its columns from. Under
+	 * `break-word` the cell still *demands* the full width of the unbroken run,
+	 * so the table stretches past the edge of the screen exactly as before and
+	 * the rule looks as though it did nothing.
+	 *
+	 * The cap in iflynepal_enquiry_preview() above is what stops a long message
+	 * reaching the cell at all; this is the belt to its braces, and it also
+	 * covers the columns that are not trimmed — a pasted address with no spaces
+	 * in it, or a name somebody held a key down in.
+	 */
+	$css .= '.wp-list-table td.column-title,.wp-list-table td.column-preview,.wp-list-table td.column-email,.wp-list-table td.column-whatsapp,.wp-list-table td.column-interest{overflow-wrap:anywhere}';
+	$css .= '.wp-list-table td.column-preview{max-width:22em}';
 
 	wp_register_style( 'iflynepal-enquiry-admin', false, array(), IFLYNEPAL_BOOKING_VERSION );
 	wp_enqueue_style( 'iflynepal-enquiry-admin' );
@@ -367,10 +458,9 @@ function iflynepal_enquiry_column_content( $column, $post_id ) {
 	}
 
 	if ( 'preview' === $column ) {
-		$message = (string) get_post_field( 'post_content', $post_id );
-		$preview = wp_trim_words( $message, 14, '&hellip;' );
+		$preview = iflynepal_enquiry_preview( get_post_field( 'post_content', $post_id ) );
 
-		echo '' === trim( $preview ) ? '&mdash;' : esc_html( $preview );
+		echo '' === $preview ? '&mdash;' : esc_html( $preview );
 	}
 }
 add_action( 'manage_' . IFLYNEPAL_ENQUIRY_POST_TYPE . '_posts_custom_column', 'iflynepal_enquiry_column_content', 10, 2 );

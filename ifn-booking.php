@@ -45,6 +45,9 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/enquiry/enquiry-cpt.php                          (done)
  *   includes/enquiry/enquiry-store.php                        (done)
  *   includes/enquiry/enquiry-form.php                         (done)
+ *   includes/connect/connect-cpt.php                          (done)
+ *   includes/connect/connect-store.php                        (done)
+ *   includes/connect/connect-form.php                         (done)
  *   (the WhatsApp click-to-chat link is built in includes/settings/settings.php,
  *    which is where its number and message are configured)
  *   includes/payment/payment-buttons.php                      (done)
@@ -61,6 +64,8 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   admin/class-ifly-nepal-enquiry-details-box.php            (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-payment-box.php            (done)                   (is_admin only)
  *   admin/class-ifly-nepal-enquiry-status-box.php             (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-connect-details-box.php            (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-connect-status-box.php             (done)                   (is_admin only)
  *   admin/class-ifly-nepal-booking-settings.php               (done)                   (is_admin only)
  *   admin/class-ifly-nepal-bookings-screen.php                Bookings admin view      (is_admin only)
  */
@@ -105,6 +110,16 @@ require_once IFLYNEPAL_BOOKING_DIR . 'includes/enquiry/enquiry-cpt.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/enquiry/enquiry-store.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/enquiry/enquiry-form.php';
 
+/*
+ * The "Connect With Us" tab on the landing page. After the enquiry pieces, not
+ * before them: it reuses the enquiry's follow-up states, its pill renderer and
+ * its admin CSS rather than carrying a second copy, and registers itself on the
+ * pill-screens filter that enquiry-cpt.php declares.
+ */
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/connect/connect-cpt.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/connect/connect-store.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/connect/connect-form.php';
+
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/lifecycle.php';
 
 if ( is_admin() ) {
@@ -139,6 +154,9 @@ if ( is_admin() ) {
 
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-enquiry-details-box.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-enquiry-status-box.php';
+
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-connect-details-box.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-connect-status-box.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-booking-settings.php';
 }
 

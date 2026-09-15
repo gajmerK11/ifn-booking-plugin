@@ -38,23 +38,32 @@ const IFLYNEPAL_BOOKING_OPTION = 'iflynepal_booking_settings';
  */
 function iflynepal_booking_settings_schema() {
 	$settings = array(
-		'whatsapp_number'  => array(
+		'whatsapp_number'       => array(
 			'label'   => __( 'WhatsApp number', 'iflynepal' ),
 			'type'    => 'digits',
 			'default' => '',
 			'help'    => __( 'Country code first, digits only — no +, no spaces, no dashes. Nepal example: 9779812345678. Left empty, no WhatsApp button is shown anywhere.', 'iflynepal' ),
 		),
-		'whatsapp_message' => array(
+		'whatsapp_message'      => array(
 			'label'   => __( 'WhatsApp default message', 'iflynepal' ),
 			'type'    => 'textarea',
 			'default' => __( 'Hello iFly Nepal, I would like to know more about {package}.', 'iflynepal' ),
 			'help'    => __( 'What the visitor\'s chat opens with, already typed for them. {package} is replaced with the package name — or with the site name on a page that is not a package.', 'iflynepal' ),
 		),
-		'trip_finder_page' => array(
+		'trip_finder_durations' => array(
+			'label'   => __( 'Trip finder length options', 'iflynepal' ),
+			'type'    => 'durations',
+			'default' => iflynepal_trip_finder_default_durations(),
+			'help'    => __( 'The choices the hero picker offers for how long a visitor has. Each row is one option, and its wording is worked out from the numbers, so there is nothing to type. The numbers on offer run from your shortest published package to your longest: a length no package has is not a length worth offering.', 'iflynepal' ),
+		),
+		'trip_finder_page'      => array(
 			'label'   => __( 'Trip finder results page', 'iflynepal' ),
 			'type'    => 'page',
 			'default' => '0',
-			'help'    => __( 'The Page holding the [iflynepal_type_explorer] shortcode. The homepage hero\'s "I want to" picker links here with the visitor\'s chosen trip types. Left unset, the picker is not shown at all.', 'iflynepal' ),
+			'help'    => __(
+				'The Page holding the [ iflynepal_type_explorer ] shortcode . The homepage hero\'s "I want to" picker links here with the visitor\'s chosen trip types. Left unset, the picker is not shown at all.',
+				'iflynepal'
+			),
 		),
 	);
 
@@ -92,11 +101,18 @@ function iflynepal_booking_setting( $key ) {
 	 * that cannot be cleared. The form prefills with the default, so a stored
 	 * empty value is always a deliberate one.
 	 */
-	if ( is_array( $stored ) && array_key_exists( $key, $stored ) ) {
-		$value = (string) $stored[ $key ];
-	} else {
-		$value = (string) $schema[ $key ]['default'];
-	}
+	$raw = ( is_array( $stored ) && array_key_exists( $key, $stored ) )
+		? $stored[ $key ]
+		: $schema[ $key ]['default'];
+
+	/*
+	 * 🔴 Not every setting is a string any more. The cast below is what keeps a
+	 * number or a message honest, and it is exactly wrong for a setting whose
+	 * value is a list — `(string) array()` is the word "Array" and a PHP notice
+	 * with it. The type decides which of the two this is, in one place, rather
+	 * than each caller remembering.
+	 */
+	$value = iflynepal_booking_setting_is_list( $schema[ $key ]['type'] ) ? $raw : (string) $raw;
 
 	/*
 	 * Sanitized on the way out as well as on the way in. register_setting()'s
@@ -106,6 +122,23 @@ function iflynepal_booking_setting( $key ) {
 	 * sign inside a URL.
 	 */
 	return iflynepal_booking_sanitize_setting( $value, $schema[ $key ]['type'] );
+}
+
+/**
+ * Whether a setting of this type holds a list rather than a scalar.
+ *
+ * One function rather than a comparison repeated in the getter, the sanitizer
+ * and the settings screen: the three have to agree about which types are lists,
+ * and three copies of that judgement is three places for a fourth type to be
+ * forgotten.
+ *
+ * @since 1.0.0
+ *
+ * @param string $type Declared type.
+ * @return bool
+ */
+function iflynepal_booking_setting_is_list( $type ) {
+	return 'durations' === $type;
 }
 
 /**
@@ -123,6 +156,10 @@ function iflynepal_booking_setting( $key ) {
  * @return string Clean value.
  */
 function iflynepal_booking_sanitize_setting( $value, $type ) {
+	if ( 'durations' === $type ) {
+		return iflynepal_booking_sanitize_durations( $value );
+	}
+
 	if ( 'digits' === $type ) {
 		$digits = preg_replace( '/[^0-9]/', '', (string) $value );
 
@@ -146,6 +183,100 @@ function iflynepal_booking_sanitize_setting( $value, $type ) {
 	}
 
 	return sanitize_text_field( $value );
+}
+
+/**
+ * Cleans the trip-finder's length options.
+ *
+ * Stored as a list of `{ min, max }` rows, `max` null for the open-ended one.
+ * Every row is rebuilt from two integers rather than trusted as submitted: the
+ * control offers selects, so nothing legitimate can arrive malformed, but the
+ * option row is reachable by an import, WP-CLI or a hand-edited database, and a
+ * bad row here reaches the homepage.
+ *
+ * Four rules, each of which stops a row that would otherwise publish a picker
+ * option nothing can ever match:
+ *
+ *  1. A row with no usable `min` is dropped. There is no sensible reading of
+ *     "from nothing to five days".
+ *  2. A `max` below its `min` is raised to it rather than swapped or dropped —
+ *     a one-day bucket is a coherent thing to ask for, and silently reversing
+ *     somebody's two numbers is a screen that disagrees with what they chose.
+ *  3. Rows are sorted by `min`, so the picker reads shortest to longest
+ *     whatever order they were added in. Nobody should have to drag rows to fix
+ *     a list whose correct order is arithmetic.
+ *  4. Only the open-ended row with the highest `min` survives. Two of them mean
+ *     the lower one swallows everything the higher one was for, and the higher
+ *     one can then never match anything.
+ *
+ * Overlaps are deliberately left alone. The picker is a single-select, so two
+ * options that both cover nine days is a redundancy rather than a fault, and
+ * refusing to save it would block a site mid-edit.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $value Raw rows.
+ * @return array<int,array{min:int,max:int|null}> Clean rows, re-indexed from zero.
+ */
+function iflynepal_booking_sanitize_durations( $value ) {
+	if ( ! is_array( $value ) ) {
+		return array();
+	}
+
+	$rows = array();
+
+	foreach ( $value as $row ) {
+		if ( ! is_array( $row ) ) {
+			continue;
+		}
+
+		$min = isset( $row['min'] ) ? absint( $row['min'] ) : 0;
+
+		if ( $min < 1 ) {
+			continue;
+		}
+
+		/*
+		 * An empty max is the open-ended row — "15 days and over" — and is
+		 * stored as null rather than as 0 or as a very large number, because
+		 * iflynepal_explore_duration_matches() reads null as "no upper bound".
+		 * A 0 there would read as a ceiling of zero days and match nothing.
+		 */
+		$max = ( isset( $row['max'] ) && '' !== $row['max'] ) ? absint( $row['max'] ) : null;
+
+		if ( null !== $max && $max < $min ) {
+			$max = $min;
+		}
+
+		$rows[] = array(
+			'min' => $min,
+			'max' => $max,
+		);
+	}
+
+	usort(
+		$rows,
+		static function ( $a, $b ) {
+			return $a['min'] <=> $b['min'];
+		}
+	);
+
+	$seen_open = false;
+
+	foreach ( array_reverse( array_keys( $rows ) ) as $i ) {
+		if ( null !== $rows[ $i ]['max'] ) {
+			continue;
+		}
+
+		if ( $seen_open ) {
+			unset( $rows[ $i ] );
+			continue;
+		}
+
+		$seen_open = true;
+	}
+
+	return array_slice( array_values( $rows ), 0, IFLYNEPAL_TRIP_FINDER_MAX_DURATIONS );
 }
 
 /* ---------------------------------------------------------------- whatsapp */

@@ -1,0 +1,523 @@
+/**
+ * The "Connect With Us" tab and its slide-in panel.
+ *
+ * Its own file rather than a block in catalogue.css, and that is not tidiness:
+ * catalogue.css is enqueued only on the catalogue templates, and this widget is
+ * on the landing page, which is none of them. It is also not in the generated
+ * package.css, which scratchpad/build_css.py rewrites from the single-package
+ * design file — a hand-written block there is one re-run from being lost.
+ *
+ * Tokens defer to the theme and fall back to the same literals on their own, the
+ * rule the rest of the plugin follows, so the widget matches the site exactly
+ * today and still looks deliberate under another theme rather than collapsing to
+ * browser defaults.
+ *
+ * The tab is navy rather than the reference site's orange: the behaviour was
+ * what was asked for, not the palette, and iFly Nepal's is navy and gold. The
+ * three custom properties below are the whole of it if that is ever revisited.
+ */
+
+.iflynepal-connect {
+	--ifn-con-ink: var(--iflynepal-ink, #212529);
+	--ifn-con-muted: var(--iflynepal-muted, #6d757e);
+	--ifn-con-navy: var(--iflynepal-navy, #0545a7);
+	--ifn-con-navy-deep: var(--iflynepal-navy-deep, #04347d);
+	--ifn-con-line: var(--iflynepal-line, rgba(5, 69, 167, 0.16));
+	--ifn-con-mist: #f0f5ff;
+	--ifn-con-paper: #fff;
+	--ifn-con-shadow: 0 22px 70px rgba(4, 26, 64, 0.18);
+	--ifn-con-ease: var(--iflynepal-ease, cubic-bezier(0.22, 0.7, 0.24, 1));
+
+	/*
+	 * How long the tab takes to open out into its pill. One value, because the
+	 * track, the gap, the padding, the colour and the label's fade all have to
+	 * arrive together — four durations that nearly agree read as the pill
+	 * assembling itself in pieces.
+	 */
+	--ifn-con-reveal: 0.55s;
+
+	/*
+	 * The reveal gets its own curve rather than the site's `--iflynepal-ease`,
+	 * which the drawer and the backdrop still use. That one is a hard ease-out
+	 * built for something arriving from off-screen, and it is right there —
+	 * measured on this tween it put 63% of the travel into the first 25% of the
+	 * time, so the pill flicked most of the way open and then crawled the rest,
+	 * which is exactly what it was reported as. This curve moves closer to even,
+	 * so the edge is still travelling in the middle of the tween where the eye
+	 * is actually following it.
+	 */
+	--ifn-con-reveal-ease: cubic-bezier(0.4, 0, 0.25, 1);
+
+	/* The tab's own colours, kept apart so a repaint is three values. */
+	--ifn-con-tab-bg: var(--iflynepal-navy, #0545a7);
+	--ifn-con-tab-ink: #fff;
+	--ifn-con-tab-bg-hover: var(--iflynepal-navy-deep, #04347d);
+
+	color: var(--ifn-con-ink);
+}
+
+/* ---------------------------------------------------------------- the tab */
+
+/*
+ * Fixed to the right edge whether or not the script runs. Without it the tab is
+ * an ordinary anchor to the panel at the foot of the page, which is still a
+ * working way to reach the form — so there is nothing here to gate on the
+ * JavaScript class.
+ *
+ * The vertical position is a little above centre: dead centre collides with the
+ * hero's own right-hand furniture on this design, and sitting lower keeps it
+ * clear of the WhatsApp button most travel sites end up with in the corner.
+ */
+.iflynepal-connect__tab {
+	position: fixed;
+	top: 45%;
+	right: 0;
+	z-index: 2500;
+
+	display: inline-flex;
+	align-items: center;
+	gap: 0;
+
+	padding: 12px 12px 12px 18px;
+	border: 0;
+	border-radius: 999px 0 0 999px;
+
+	background: var(--ifn-con-tab-bg);
+	color: var(--ifn-con-tab-ink);
+	box-shadow: 0 10px 30px rgba(4, 26, 64, 0.28);
+
+	font: inherit;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+
+	transition:
+		background-color var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
+		padding var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
+		box-shadow var(--ifn-con-reveal) var(--ifn-con-reveal-ease);
+}
+
+.iflynepal-connect__tab:hover,
+.iflynepal-connect__tab:focus-visible {
+	background: var(--ifn-con-tab-bg-hover);
+	color: var(--ifn-con-tab-ink);
+	box-shadow: 0 14px 38px rgba(4, 26, 64, 0.34);
+}
+
+.iflynepal-connect__tab:focus-visible {
+	outline: 2px solid var(--ifn-con-tab-ink);
+	outline-offset: -5px;
+}
+
+.iflynepal-connect__tab-icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	width: 26px;
+	height: 26px;
+}
+
+.iflynepal-connect__tab-icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+/*
+ * 🔴 The label is expanded by default and collapsed only inside
+ * `@media (hover: hover)`, which is the opposite way round from how this reads
+ * at first — and it is deliberate. A touch screen has no hover to give, so a
+ * label that waits for one is a label nobody on a phone ever sees, and the tab
+ * is then a bare icon with nothing to say what it does. Writing the collapse as
+ * the exception means the fallback — a touch device, an older browser, anything
+ * that does not match the query — is the state that works, rather than the one
+ * that hides the only label the control has. Same construction as the package
+ * page's video play button.
+ *
+ * 🔴 **The reveal is a `0fr → 1fr` grid track, not a `max-width`**, and that is
+ * what makes it read as smooth rather than as a snap followed by a stall. A
+ * max-width has to be a guess at how wide the text will be, and it has to guess
+ * high to survive translation — 14em against a label measured at 127px here. An
+ * interpolation to a ceiling 40% wider than the content spends the first part of
+ * its time moving the edge and the rest animating nothing, which is exactly what
+ * "too fast, then it hangs" looks like. A grid track sized `1fr` resolves to the
+ * content's own width, so every frame of the tween is the edge actually moving,
+ * and the duration means what it says. Same technique, and the same reasoning,
+ * as the archive's "View all" block (§5.3k), which opens a `grid-template-rows`
+ * row rather than a max-height.
+ *
+ * The inner element is what carries `overflow: hidden`: the track can only size
+ * something, so there has to be something inside it to be clipped. `min-width:
+ * 0` on it is load-bearing — a grid item's automatic minimum size is its
+ * content, so without it the track refuses to go below the text's width and
+ * never collapses at all.
+ *
+ * `white-space: nowrap` matters more than it looks: without it the label wraps
+ * to two lines inside the collapsed box for the first frame and the pill jolts.
+ */
+.iflynepal-connect__tab-label {
+	display: inline-grid;
+	grid-template-columns: 1fr;
+	margin-left: 10px;
+	opacity: 1;
+	transition:
+		grid-template-columns var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
+		margin-left var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
+		opacity calc(var(--ifn-con-reveal) * 0.7) var(--ifn-con-reveal-ease);
+}
+
+.iflynepal-connect__tab-text {
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+@media (hover: hover) {
+	.iflynepal-connect__tab {
+		padding-left: 12px;
+	}
+
+	.iflynepal-connect__tab-label {
+		grid-template-columns: 0fr;
+		margin-left: 0;
+		opacity: 0;
+	}
+
+	.iflynepal-connect__tab:hover,
+	.iflynepal-connect__tab:focus-visible {
+		padding-left: 18px;
+	}
+
+	.iflynepal-connect__tab:hover .iflynepal-connect__tab-label,
+	.iflynepal-connect__tab:focus-visible .iflynepal-connect__tab-label {
+		grid-template-columns: 1fr;
+		margin-left: 10px;
+		opacity: 1;
+	}
+}
+
+/* -------------------------------------------------------------- the panel */
+
+/*
+ * Without the script the panel is an ordinary section at the foot of the page:
+ * a heading, a notice if there is one, and a form. Everything below this point
+ * is the enhancement, and all of it hangs off the class the inline head script
+ * adds — which is what keeps the form usable with JavaScript off.
+ */
+.iflynepal-connect__panel {
+	max-width: 560px;
+	margin: 0 auto;
+	padding: 40px 20px 64px;
+	background: var(--ifn-con-paper);
+}
+
+.iflynepal-connect-js .iflynepal-connect__panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 2600;
+
+	display: none;
+	width: min(420px, 100%);
+	max-width: none;
+	margin: 0;
+	padding: 26px 26px 34px;
+
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	box-shadow: var(--ifn-con-shadow);
+
+	transform: translateX(100%);
+	transition: transform 0.34s var(--ifn-con-ease);
+}
+
+/*
+ * Shown and opened on separate frames — the drawer is displayed first and only
+ * then given the class that moves it, because setting both in one frame gives
+ * the browser a single style resolution, leaves no earlier transform to animate
+ * from, and the slide never plays. Same rule as the gallery lightbox and the
+ * enquiry modal.
+ */
+.iflynepal-connect.is-shown .iflynepal-connect__panel {
+	display: block;
+}
+
+.iflynepal-connect.is-open .iflynepal-connect__panel {
+	transform: translateX(0);
+}
+
+/*
+ * 🔴 The backdrop defaults to `display: none`, and that is load-bearing rather
+ * than tidy. The wrapper cannot be hidden the way the enquiry modal's is — the
+ * tab lives inside it and has to stay on screen — so a `position: fixed;
+ * inset: 0` backdrop that is merely transparent would sit over the whole page
+ * swallowing every click on the site, invisibly. It is displayed only while the
+ * drawer is shown.
+ */
+.iflynepal-connect__backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 2550;
+	display: none;
+	background: rgba(4, 26, 64, 0.5);
+	opacity: 0;
+	transition: opacity 0.3s var(--ifn-con-ease);
+}
+
+.iflynepal-connect.is-shown .iflynepal-connect__backdrop {
+	display: block;
+}
+
+.iflynepal-connect.is-open .iflynepal-connect__backdrop {
+	opacity: 1;
+}
+
+/*
+ * The tab slides out with the drawer rather than sitting on top of it. It is
+ * moved by its own width plus the drawer's, so it leaves the screen entirely
+ * instead of parking against the panel's edge.
+ */
+.iflynepal-connect-js .iflynepal-connect__tab {
+	transition:
+		background-color var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
+		padding var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
+		box-shadow var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
+		transform 0.34s var(--ifn-con-ease),
+		opacity 0.2s var(--ifn-con-ease);
+}
+
+.iflynepal-connect.is-open .iflynepal-connect__tab {
+	transform: translateX(120%);
+	opacity: 0;
+	pointer-events: none;
+}
+
+/*
+ * The page behind the drawer is locked while it is open. On <body>, where the
+ * stylesheet's rule and the script agree it should be: `overflow: hidden` there
+ * propagates to the viewport while <html> is visible, which is what makes it
+ * the ordinary way to lock a page — putting it on the document element instead
+ * is the bug §5.3o found in the lightbox.
+ */
+body.iflynepal-connect-lock {
+	overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- the head */
+
+.iflynepal-connect__head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 18px;
+}
+
+.iflynepal-connect__title {
+	margin: 0;
+	font-family: 'Poppins', var(--iflynepal-font-heading, ui-sans-serif, system-ui, sans-serif);
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.25;
+	color: var(--ifn-con-ink);
+}
+
+.iflynepal-connect__close {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border: 1px solid var(--ifn-con-line);
+	border-radius: 999px;
+	background: var(--ifn-con-paper);
+	color: var(--ifn-con-ink);
+	cursor: pointer;
+	transition: background-color 0.2s var(--ifn-con-ease);
+}
+
+.iflynepal-connect__close:hover {
+	background: var(--ifn-con-mist);
+}
+
+.iflynepal-connect__x {
+	width: 18px;
+	height: 18px;
+}
+
+/* -------------------------------------------------------------- the notice */
+
+.iflynepal-connect__notice {
+	margin: 0 0 16px;
+	padding: 12px 14px;
+	border-radius: 10px;
+	border: 1px solid transparent;
+	font-size: 14px;
+	line-height: 1.55;
+}
+
+.iflynepal-connect__notice--success {
+	color: #1c6b35;
+	background: #e7f5ec;
+	border-color: #9fd0b1;
+}
+
+.iflynepal-connect__notice--error {
+	color: #8a2020;
+	background: #fdecec;
+	border-color: #e9a7a7;
+}
+
+/* ---------------------------------------------------------------- the form */
+
+.iflynepal-connect__field {
+	margin: 0 0 14px;
+}
+
+.iflynepal-connect__field label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--ifn-con-ink);
+}
+
+.iflynepal-connect__req {
+	color: #c0392b;
+}
+
+.iflynepal-connect__field input,
+.iflynepal-connect__field select,
+.iflynepal-connect__field textarea {
+	display: block;
+	width: 100%;
+	padding: 11px 13px;
+	border: 1px solid var(--ifn-con-line);
+	border-radius: 10px;
+	background: var(--ifn-con-paper);
+	color: var(--ifn-con-ink);
+
+	/*
+	 * `font: inherit` rather than a size of its own, with one floor: iOS Safari
+	 * zooms the whole page when a control it is focusing computes under 16px,
+	 * and the page never zooms back out.
+	 */
+	font: inherit;
+	font-size: max(16px, 1em);
+	line-height: 1.5;
+}
+
+.iflynepal-connect__field textarea {
+	resize: vertical;
+	min-height: 96px;
+}
+
+.iflynepal-connect__field input:focus,
+.iflynepal-connect__field select:focus,
+.iflynepal-connect__field textarea:focus {
+	outline: none;
+	border-color: var(--ifn-con-navy);
+	box-shadow: 0 0 0 3px rgba(5, 69, 167, 0.12);
+}
+
+.iflynepal-connect__help {
+	display: block;
+	margin-top: 5px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--ifn-con-muted);
+}
+
+/*
+ * The honeypot. Out of sight, out of the tab order and out of the accessibility
+ * tree, so nobody filling the form ever meets it. `position: absolute` with a
+ * clip rather than `display: none`, which some bots skip for exactly this
+ * reason.
+ */
+.iflynepal-connect__hp {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.iflynepal-connect__actions {
+	margin: 20px 0 0;
+}
+
+.iflynepal-connect__submit {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 22px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--ifn-con-navy);
+	color: #fff;
+	font: inherit;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color 0.22s var(--ifn-con-ease);
+}
+
+.iflynepal-connect__submit:hover {
+	background: var(--ifn-con-navy-deep);
+}
+
+/*
+ * The arrow is the theme's own component, character for character, so the
+ * theme's existing hover rule nudges it 4px rather than this sheet carrying a
+ * second copy of that behaviour. The size is set here because the button is not
+ * one of the theme's.
+ */
+.iflynepal-connect__submit .iflynepal-ico {
+	width: 18px;
+	height: 18px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.7;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.iflynepal-connect__alt,
+.iflynepal-connect__small {
+	margin: 14px 0 0;
+	font-size: 12.5px;
+	line-height: 1.6;
+	color: var(--ifn-con-muted);
+}
+
+.iflynepal-connect__alt a {
+	color: var(--ifn-con-navy);
+	font-weight: 600;
+}
+
+/* --------------------------------------------------------- reduced motion */
+
+/*
+ * Every transition here is decoration: the drawer still opens, the tab still
+ * expands, the label still appears. Only the travel between the two states
+ * stops.
+ */
+@media (prefers-reduced-motion: reduce) {
+	.iflynepal-connect__tab,
+	.iflynepal-connect__tab-label,
+	.iflynepal-connect__tab-text,
+	.iflynepal-connect-js .iflynepal-connect__panel,
+	.iflynepal-connect__backdrop,
+	.iflynepal-connect__submit,
+	.iflynepal-connect__close {
+		transition: none;
+	}
+}
