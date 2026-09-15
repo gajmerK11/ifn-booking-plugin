@@ -543,6 +543,28 @@
 	}
 }
 
+/*
+ * The drop above assumes the filter row's own height as the clearance
+ * between the head and the cards it lands in front of, true of every
+ * top-level type archive, which always has at least one child category and
+ * so always renders the row. A leaf category with no children of its own
+ * (e.g. /trekking-nepal/remote-restricted/, which holds packages but no
+ * sub-categories) renders no filter row at all, so the note's 80px drop
+ * landed straight on top of the first row of cards instead of the
+ * whitespace above them.
+ *
+ * Restores the same clearance directly, and only when the filter row is the
+ * thing actually missing: the adjacent-sibling selector matches "cards
+ * right after the head" and nothing else, so a page that does have the row
+ * (and was already pixel-checked against the design) is untouched.
+ */
+@media (min-width: 1001px) {
+
+	.iflynepal-listing__head + .iflynepal-cards {
+		margin-top: 82px;
+	}
+}
+
 @media (max-width: 1000px) {
 
 	.iflynepal-listing__head {

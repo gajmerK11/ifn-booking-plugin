@@ -316,12 +316,21 @@ while ( have_posts() ) :
 				 */
 				iflynepal_booking_get_part( 'parts/package/packing-map', array( 'id' => $iflynepal_id ) );
 				iflynepal_booking_get_part( 'parts/package/faqs', array( 'id' => $iflynepal_id ) );
-				iflynepal_booking_get_part( 'parts/package/similar', array( 'id' => $iflynepal_id ) );
 				?>
 			</div>
 		</div>
 
 		<?php
+		/*
+		 * The similar-packages grid sits outside the two-column body, not
+		 * inside it: it borrows the archive's own card grid and heading
+		 * classes, which run the page's full measure, not the narrower
+		 * column the itinerary and dates text sit in. Its anchor still works
+		 * from the side nav: the scroll tracker in package.js finds each
+		 * section by its id, not by where it lives in the markup.
+		 */
+		iflynepal_booking_get_part( 'parts/package/similar', array( 'id' => $iflynepal_id ) );
+
 		iflynepal_booking_get_part(
 			'parts/package/lightbox',
 			array(

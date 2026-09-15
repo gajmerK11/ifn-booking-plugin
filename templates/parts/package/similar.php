@@ -1,11 +1,17 @@
 <?php
 /**
- * The similar-packages rail.
+ * The similar-packages section.
  *
- * A query, not fields: the other packages filed under this one's own type. The
- * card is the design's trip card, built from the same Package Card fields the
- * catalogue grid uses, so a package written once looks right everywhere it
- * appears.
+ * A query, not fields: the other packages filed under this one's own category,
+ * its primary term, deepest first, the same one iflynepal_package_related() and
+ * the eyebrow above the title already read (see iflynepal_package_primary_type()).
+ *
+ * The card is the exact card the catalogue uses (parts/card-package), not a
+ * bespoke one, so a package written once looks identical wherever it appears:
+ * this page, the type archive and the category archive. It runs in the same
+ * .iflynepal-cards grid too, which is why this section is a top-level band
+ * rather than nested in the narrower content column: the grid is meant to run
+ * the page's full measure, the way it does on an archive.
  *
  * @package IFly_Nepal
  * @since   1.0.0
@@ -26,102 +32,63 @@ $iflynepal_related = iflynepal_package_related( $iflynepal_id );
 if ( empty( $iflynepal_related ) ) {
 	return;
 }
+
+/*
+ * The same category the related query itself used. Read again here rather
+ * than passed back from it, because the "View all" button needs the term
+ * object (its name and its own archive link), not just the packages filed
+ * under it.
+ */
+$iflynepal_term      = iflynepal_package_primary_type( $iflynepal_id );
+$iflynepal_term_link = $iflynepal_term instanceof WP_Term ? get_term_link( $iflynepal_term ) : '';
+
+if ( is_wp_error( $iflynepal_term_link ) ) {
+	$iflynepal_term_link = '';
+}
 ?>
 
-<section class="iflynepal-pkg-band iflynepal-pkg-band--mist" id="ifnpkg-similar" aria-labelledby="ifnpkg-similar-h">
-	<div>
-		<div class="iflynepal-pkg-rail-head" data-iflynepal-anim>
-			<div>
-				<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Keep exploring', 'iflynepal' ); ?></span>
-				<?php
-				/*
-				 * The design draws its hand underline beneath one word of this
-				 * heading. There is no field behind it — this is the only
-				 * heading on the page the template writes rather than an editor
-				 * — so the mark travels inside the translatable string, whole
-				 * sentence and all. A translator moves the span to whichever
-				 * word carries the sense in their language, which is exactly
-				 * what splitting it into a printf would take away from them.
-				 */
-				?>
-				<h2 id="ifnpkg-similar-h">
-					<?php
-					echo wp_kses( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses escapes.
-						__( 'Similar <span class="iflynepal-ink-mark">packages</span> you may like.', 'iflynepal' ),
-						array( 'span' => array( 'class' => array() ) )
-					);
-					?>
-				</h2>
-			</div>
-
+<section class="iflynepal-pkg-band iflynepal-pkg-band--mist iflynepal-pkg-container" id="ifnpkg-similar" aria-labelledby="ifnpkg-similar-h">
+	<div data-iflynepal-anim>
+		<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Keep exploring', 'iflynepal' ); ?></span>
+		<h2 id="ifnpkg-similar-h" class="iflynepal-pkg-band-h">
 			<?php
 			/*
-			 * Rendered disabled, as the departures rail is: the rail scrolls by
-			 * touch, wheel and keyboard on its own, so the buttons are an
-			 * enhancement the script switches on.
+			 * Two rows by request, so the break is written into the string
+			 * rather than left to the viewport to decide. Whole sentence,
+			 * break included, travels to translators together: the same
+			 * choice the ink-marked headings elsewhere on this page make.
 			 */
+			echo wp_kses( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses escapes.
+				__( 'Similar <span class="iflynepal-ink-mark">packages</span><br>you may like.', 'iflynepal' ),
+				array(
+					'span' => array( 'class' => array() ),
+					'br'   => array(),
+				)
+			);
 			?>
-			<div class="iflynepal-pkg-rail-arrows">
-				<button type="button" id="ifnpkg-rail-prev" disabled aria-label="<?php esc_attr_e( 'Previous packages', 'iflynepal' ); ?>"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-left"/></svg></button>
-				<button type="button" id="ifnpkg-rail-next" disabled aria-label="<?php esc_attr_e( 'Next packages', 'iflynepal' ); ?>"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-right"/></svg></button>
-			</div>
-		</div>
-
-		<div class="iflynepal-pkg-rail" id="ifnpkg-rail" tabindex="0" role="group" aria-label="<?php esc_attr_e( 'Similar packages', 'iflynepal' ); ?>">
-			<?php foreach ( $iflynepal_related as $iflynepal_package ) : ?>
-				<?php
-				$iflynepal_pid  = $iflynepal_package->ID;
-				$iflynepal_pill = iflynepal_package_field( $iflynepal_pid, 'pill' );
-				$iflynepal_peek = iflynepal_package_field( $iflynepal_pid, 'peek' );
-				$iflynepal_dur  = iflynepal_package_field( $iflynepal_pid, 'duration' );
-				$iflynepal_suit = iflynepal_package_field( $iflynepal_pid, 'suitability' );
-				$iflynepal_cost = iflynepal_package_field( $iflynepal_pid, 'price' );
-				?>
-				<article class="iflynepal-pkg-trip-card" data-iflynepal-anim>
-					<div class="iflynepal-pkg-trip-img">
-						<?php
-						if ( has_post_thumbnail( $iflynepal_pid ) ) {
-							// Core-escaped markup.
-							echo get_the_post_thumbnail( $iflynepal_pid, 'medium_large', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						}
-						?>
-
-						<?php if ( '' !== $iflynepal_pill ) : ?>
-							<span class="iflynepal-pkg-pill"><?php echo esc_html( $iflynepal_pill ); ?></span>
-						<?php endif; ?>
-
-						<?php if ( '' !== $iflynepal_peek ) : ?>
-							<div class="iflynepal-pkg-trip-peek"><p><?php echo esc_html( $iflynepal_peek ); ?></p></div>
-						<?php endif; ?>
-					</div>
-
-					<div class="iflynepal-pkg-trip-body">
-						<?php if ( '' !== $iflynepal_dur || '' !== $iflynepal_suit ) : ?>
-							<div class="iflynepal-pkg-trip-meta">
-								<?php if ( '' !== $iflynepal_dur ) : ?>
-									<span><?php echo esc_html( $iflynepal_dur ); ?></span>
-								<?php endif; ?>
-								<?php if ( '' !== $iflynepal_suit ) : ?>
-									<span><?php echo esc_html( $iflynepal_suit ); ?></span>
-								<?php endif; ?>
-							</div>
-						<?php endif; ?>
-
-						<h3><?php echo esc_html( get_the_title( $iflynepal_pid ) ); ?></h3>
-
-						<div class="iflynepal-pkg-trip-foot">
-							<?php if ( '' !== $iflynepal_cost ) : ?>
-								<strong><?php echo esc_html( $iflynepal_cost ); ?></strong>
-							<?php endif; ?>
-
-							<a href="<?php echo esc_url( get_permalink( $iflynepal_pid ) ); ?>">
-								<?php esc_html_e( 'View', 'iflynepal' ); ?>
-								<svg class="iflynepal-pkg-link-arrow" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
-							</a>
-						</div>
-					</div>
-				</article>
-			<?php endforeach; ?>
-		</div>
+		</h2>
 	</div>
+
+	<div class="iflynepal-cards">
+		<?php
+		foreach ( $iflynepal_related as $iflynepal_package ) {
+			iflynepal_booking_get_part( 'parts/card-package', array( 'package' => $iflynepal_package ) );
+		}
+		?>
+	</div>
+
+	<?php if ( $iflynepal_term instanceof WP_Term && '' !== $iflynepal_term_link ) : ?>
+		<div class="iflynepal-pkg-similar-foot">
+			<a class="iflynepal-button iflynepal-button--dark" href="<?php echo esc_url( $iflynepal_term_link ); ?>">
+				<?php
+				printf(
+					/* translators: %s: package category name. */
+					esc_html__( 'View all %s packages', 'iflynepal' ),
+					esc_html( $iflynepal_term->name )
+				);
+				?>
+				<?php echo iflynepal_booking_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, no input. ?>
+			</a>
+		</div>
+	<?php endif; ?>
 </section>

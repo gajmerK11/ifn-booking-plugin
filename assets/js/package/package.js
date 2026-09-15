@@ -3,8 +3,9 @@
  *
  * Behaviour for the design's interactive parts: the gallery lightbox, the sticky
  * section nav with its reading progress, the itinerary's view switch and
- * accordions, the calendar booker, the mobile booking bar and the
- * similar-packages rail.
+ * accordions, the calendar booker and the mobile booking bar. The
+ * similar-packages section is a static card grid, the same one the catalogue
+ * uses, and needs nothing here.
  *
  * Everything here is an enhancement over a page that is already complete. With
  * this file absent the photographs, the whole itinerary, the price, what is
@@ -753,50 +754,5 @@
 
 		draw();
 		total();
-	}() );
-
-	/* ---------------------------------------------------------------- rail */
-
-	( function rail() {
-		var track = id( 'rail' );
-		var prev = id( 'rail-prev' );
-		var next = id( 'rail-next' );
-
-		if ( ! track || ! prev || ! next ) {
-			return;
-		}
-
-		var cards = track.querySelectorAll( '.iflynepal-pkg-trip-card' );
-
-		if ( cards.length < 2 ) {
-			return;
-		}
-
-		function step() {
-			var first = cards[ 0 ].getBoundingClientRect();
-			var second = cards[ 1 ].getBoundingClientRect();
-
-			return Math.round( second.left - first.left ) || Math.round( first.width );
-		}
-
-		function sync() {
-			var max = track.scrollWidth - track.clientWidth;
-
-			// A pixel of tolerance: a scrolled-to-the-end rail can sit a fraction short.
-			prev.disabled = track.scrollLeft <= 1;
-			next.disabled = track.scrollLeft >= max - 1;
-		}
-
-		prev.addEventListener( 'click', function () {
-			track.scrollBy( { left: -step(), behavior: reduced ? 'auto' : 'smooth' } );
-		} );
-
-		next.addEventListener( 'click', function () {
-			track.scrollBy( { left: step(), behavior: reduced ? 'auto' : 'smooth' } );
-		} );
-
-		track.addEventListener( 'scroll', sync, { passive: true } );
-		window.addEventListener( 'resize', sync );
-		sync();
 	}() );
 }() );

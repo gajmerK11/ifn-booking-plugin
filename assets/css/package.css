@@ -1580,3 +1580,19 @@ one photo per view */
 @media (max-width:640px){
   .iflynepal-pkg-alt-card{padding:20px 20px 12px}
 }
+
+/*
+ * The similar-packages section, client-directed to be the catalogue's own
+ * card grid rather than a bespoke horizontal rail, see
+ * templates/parts/package/similar.php. .iflynepal-cards and .iflynepal-card
+ * are catalogue.css's, unchanged, and need nothing here; this only spaces the
+ * bare stack of heading / grid / button the way the design's old two-part
+ * rail (heading beside its arrows, track below) never had to.
+ */
+.iflynepal-pkg-band .iflynepal-cards{margin-top:36px}
+
+.iflynepal-pkg-similar-foot{
+  display:flex;
+  justify-content:center;
+  margin-top:40px;
+}
