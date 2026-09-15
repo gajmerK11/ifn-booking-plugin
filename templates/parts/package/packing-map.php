@@ -26,13 +26,6 @@ $iflynepal_embed = iflynepal_package_field( $iflynepal_id, 'map_embed' );
 if ( empty( $iflynepal_items ) && '' === $iflynepal_embed ) {
 	return;
 }
-
-/*
- * The design gives each packing line its own icon. There is no field for one —
- * asking an editor to pick an icon per line is a worse screen than a list — so
- * the icons cycle through the set the design uses, in order.
- */
-$iflynepal_icons = array( 'shirt', 'scarf', 'shoe', 'pill', 'bottle', 'glasses', 'id' );
 ?>
 
 <section class="iflynepal-pkg-band iflynepal-pkg-band--mist" id="ifnpkg-packing" aria-labelledby="ifnpkg-packing-h">
@@ -46,9 +39,9 @@ $iflynepal_icons = array( 'shirt', 'scarf', 'shoe', 'pill', 'bottle', 'glasses',
 				<?php endif; ?>
 
 				<ul class="iflynepal-pkg-pack-list">
-					<?php foreach ( $iflynepal_items as $iflynepal_index => $iflynepal_item ) : ?>
+					<?php foreach ( $iflynepal_items as $iflynepal_item ) : ?>
 						<li>
-							<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-<?php echo esc_attr( $iflynepal_icons[ $iflynepal_index % count( $iflynepal_icons ) ] ); ?>"/></svg>
+							<span class="iflynepal-pkg-mark"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-bag"/></svg></span>
 							<?php echo esc_html( $iflynepal_item ); ?>
 						</li>
 					<?php endforeach; ?>

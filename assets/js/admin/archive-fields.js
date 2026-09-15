@@ -527,4 +527,50 @@
 	document.querySelectorAll('[data-iflynepal-cards]').forEach(initCards);
 	document.querySelectorAll('[data-iflynepal-table]').forEach(initTable);
 	document.querySelectorAll('[data-iflynepal-timeline]').forEach(initTimeline);
+
+	/* ------------------------------------------------- expert button link */
+
+	/**
+	 * Keeps the expert button's link in step with its label, while the
+	 * label still reads as a phone number.
+	 *
+	 * The label field is documented as "usually the phone number" (see
+	 * expert_label in package-details-schema.php), so typing one there
+	 * writes the matching wa.me link into the Link field beneath it — but
+	 * only for as long as that field is still the one this wrote. The
+	 * moment an editor types into the Link field themselves, it is theirs:
+	 * this stops touching it, the same way it would if they had pasted in
+	 * an unrelated URL. Present on the Package Details "Booking aside"
+	 * panel only — a no-op wherever either field does not exist, which is
+	 * every other admin screen this file loads on.
+	 */
+	(function initExpertLink() {
+		var label = document.getElementById('iflynepal_package_page_expert_label');
+		var link = document.getElementById('iflynepal_package_page_expert_link');
+
+		if (!label || !link) {
+			return;
+		}
+
+		function waLink(value) {
+			var digits = value.replace(/\D/g, '');
+
+			return digits.length >= 7 ? 'https://wa.me/' + digits : '';
+		}
+
+		// Already in step on load (freshly created, or last saved from the
+		// label as it stands now) counts as auto — anything else is an
+		// editor's own link, left alone from the start.
+		var auto = '' === link.value || link.value === waLink(label.value);
+
+		link.addEventListener('input', function () {
+			auto = '' === link.value || link.value === waLink(label.value);
+		});
+
+		label.addEventListener('input', function () {
+			if (auto) {
+				link.value = waLink(label.value);
+			}
+		});
+	})();
 })();

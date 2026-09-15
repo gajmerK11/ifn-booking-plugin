@@ -41,6 +41,16 @@ defined( 'ABSPATH' ) || exit;
 const IFLYNEPAL_PACKAGE_ITINERARY_MAX = 30;
 
 /**
+ * The most itinerary weeks one package can hold.
+ *
+ * For a week-paced package (volunteering, homestays and the like) instead of
+ * a day-paced one — see itinerary_weeks below.
+ *
+ * @since 1.0.0
+ */
+const IFLYNEPAL_PACKAGE_ITINERARY_WEEKS_MAX = 12;
+
+/**
  * The most timeline stops one itinerary day can hold.
  *
  * @since 1.0.0
@@ -274,6 +284,38 @@ function iflynepal_package_details_fields() {
 			 * longer declares. Putting either back is one entry here plus its
 			 * block in templates/parts/package/itinerary.php.
 			 */
+		),
+	);
+
+	/*
+	 * A week-paced package uses this instead of Days above, never both: the
+	 * template shows whichever one has cards and leaves the other's section
+	 * off. There is no altitude chart or hour-by-hour timeline at this
+	 * cadence — a week's shape is its title and a couple of lines, not a
+	 * schedule of stops — which is the whole difference from a day card.
+	 */
+	$fields['itinerary_weeks'] = array(
+		'box'     => 'details',
+		'section' => 'itinerary',
+		/* translators: %d: the most weeks allowed. */
+		'label'   => sprintf( __( 'Weeks (max %d) — for week-paced packages instead of Days above', 'iflynepal' ), IFLYNEPAL_PACKAGE_ITINERARY_WEEKS_MAX ),
+		'type'    => 'cards',
+		'help'    => __( 'One card per week, numbered in the order listed. Use this instead of Days above for a package paced in weeks rather than days — fill in one or the other, not both.', 'iflynepal' ),
+		'item'    => __( 'Week', 'iflynepal' ),
+		'max'     => IFLYNEPAL_PACKAGE_ITINERARY_WEEKS_MAX,
+		'parts'   => array(
+			'title'   => array(
+				'label' => __( 'Week title', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'meta'    => array(
+				'label' => __( 'Summary line', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'summary' => array(
+				'label' => __( 'Short itinerary entry', 'iflynepal' ),
+				'type'  => 'textarea',
+			),
 		),
 	);
 

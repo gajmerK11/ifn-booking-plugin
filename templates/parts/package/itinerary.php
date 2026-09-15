@@ -21,11 +21,23 @@ if ( ! $iflynepal_id ) {
 	return;
 }
 
-$iflynepal_days = iflynepal_package_cards( $iflynepal_id, 'itinerary_days' );
+/*
+ * A package is paced in days or in weeks, never both — whichever of the two
+ * card fields has entries wins, Days first. A week card carries no Elevation
+ * and no Timeline (see itinerary_weeks in package-details-schema.php), so
+ * the altitude chart and the day-by-day stops below simply have nothing to
+ * draw for one and are left off, the same opt-in rule as everywhere else on
+ * this page.
+ */
+$iflynepal_days  = iflynepal_package_cards( $iflynepal_id, 'itinerary_days' );
+$iflynepal_weeks = empty( $iflynepal_days ) ? iflynepal_package_cards( $iflynepal_id, 'itinerary_weeks' ) : array();
+$iflynepal_items = empty( $iflynepal_days ) ? $iflynepal_weeks : $iflynepal_days;
 
-if ( empty( $iflynepal_days ) ) {
+if ( empty( $iflynepal_items ) ) {
 	return;
 }
+
+$iflynepal_unit = empty( $iflynepal_days ) ? __( 'Week', 'iflynepal' ) : __( 'Day', 'iflynepal' );
 
 $iflynepal_heading  = iflynepal_package_field( $iflynepal_id, 'itinerary_heading' );
 $iflynepal_altitude = iflynepal_package_altitude_profile( $iflynepal_id );
@@ -33,8 +45,8 @@ $iflynepal_alt_note = iflynepal_package_field( $iflynepal_id, 'altitude_note' );
 
 $iflynepal_has_short = false;
 
-foreach ( $iflynepal_days as $iflynepal_day ) {
-	if ( '' !== $iflynepal_day['summary'] ) {
+foreach ( $iflynepal_items as $iflynepal_item ) {
+	if ( '' !== $iflynepal_item['summary'] ) {
 		$iflynepal_has_short = true;
 
 		break;
@@ -147,8 +159,9 @@ foreach ( $iflynepal_days as $iflynepal_day ) {
 		?>
 		<?php if ( $iflynepal_has_short ) : ?>
 			<div class="iflynepal-pkg-seg" role="tablist" aria-label="<?php esc_attr_e( 'Itinerary view', 'iflynepal' ); ?>">
+				<span class="iflynepal-pkg-seg-fill" id="ifnpkg-seg-fill" aria-hidden="true"></span>
 				<button type="button" role="tab" id="ifnpkg-tab-short" aria-controls="ifnpkg-panel-short" aria-selected="true"><?php esc_html_e( 'Short itinerary', 'iflynepal' ); ?></button>
-				<button type="button" role="tab" id="ifnpkg-tab-full" aria-controls="ifnpkg-panel-full" aria-selected="false" tabindex="-1"><?php esc_html_e( 'Day by day', 'iflynepal' ); ?></button>
+				<button type="button" role="tab" id="ifnpkg-tab-full" aria-controls="ifnpkg-panel-full" aria-selected="false" tabindex="-1"><?php esc_html_e( 'Detailed Itinerary', 'iflynepal' ); ?></button>
 			</div>
 		<?php endif; ?>
 
@@ -167,18 +180,18 @@ foreach ( $iflynepal_days as $iflynepal_day ) {
 	<?php if ( $iflynepal_has_short ) : ?>
 		<div id="ifnpkg-panel-short" role="tabpanel" aria-labelledby="ifnpkg-tab-short" data-iflynepal-anim>
 			<div class="iflynepal-pkg-summary-days">
-				<?php foreach ( $iflynepal_days as $iflynepal_index => $iflynepal_day ) : ?>
-					<?php if ( '' === $iflynepal_day['summary'] ) : ?>
+				<?php foreach ( $iflynepal_items as $iflynepal_index => $iflynepal_item ) : ?>
+					<?php if ( '' === $iflynepal_item['summary'] ) : ?>
 						<?php continue; ?>
 					<?php endif; ?>
 					<div class="iflynepal-pkg-sum-day">
 						<span class="iflynepal-pkg-day-badge">
-							<small><?php esc_html_e( 'Day', 'iflynepal' ); ?></small>
+							<small><?php echo esc_html( $iflynepal_unit ); ?></small>
 							<b><?php echo esc_html( (string) ( $iflynepal_index + 1 ) ); ?></b>
 						</span>
 						<div>
-							<h3><?php echo esc_html( $iflynepal_day['title'] ); ?></h3>
-							<p><?php echo esc_html( $iflynepal_day['summary'] ); ?></p>
+							<h3><?php echo esc_html( $iflynepal_item['title'] ); ?></h3>
+							<p><?php echo esc_html( $iflynepal_item['summary'] ); ?></p>
 						</div>
 					</div>
 				<?php endforeach; ?>
@@ -187,21 +200,21 @@ foreach ( $iflynepal_days as $iflynepal_day ) {
 	<?php endif; ?>
 
 	<div id="ifnpkg-panel-full" role="tabpanel" aria-labelledby="ifnpkg-tab-full"<?php echo $iflynepal_has_short ? ' hidden' : ''; ?> data-iflynepal-anim>
-		<?php foreach ( $iflynepal_days as $iflynepal_index => $iflynepal_day ) : ?>
+		<?php foreach ( $iflynepal_items as $iflynepal_index => $iflynepal_item ) : ?>
 			<?php
 			$iflynepal_number   = $iflynepal_index + 1;
 			$iflynepal_open     = 0 === $iflynepal_index;
 			$iflynepal_panel_id = 'ifnpkg-day-' . $iflynepal_number;
-			$iflynepal_stops    = iflynepal_package_timeline( $iflynepal_day['timeline'] );
+			$iflynepal_stops    = isset( $iflynepal_item['timeline'] ) ? iflynepal_package_timeline( $iflynepal_item['timeline'] ) : array();
 			?>
 			<article class="iflynepal-pkg-day<?php echo $iflynepal_open ? ' iflynepal-pkg-is-open' : ''; ?>">
 				<h3 class="iflynepal-pkg-day-h">
 					<button class="iflynepal-pkg-day-toggle" type="button" aria-expanded="<?php echo $iflynepal_open ? 'true' : 'false'; ?>" aria-controls="<?php echo esc_attr( $iflynepal_panel_id ); ?>">
-						<span class="iflynepal-pkg-day-num"><?php esc_html_e( 'Day', 'iflynepal' ); ?><b><?php echo esc_html( (string) $iflynepal_number ); ?></b></span>
+						<span class="iflynepal-pkg-day-num"><?php echo esc_html( $iflynepal_unit ); ?><b><?php echo esc_html( (string) $iflynepal_number ); ?></b></span>
 						<span>
-							<span class="iflynepal-pkg-dt-title"><?php echo esc_html( $iflynepal_day['title'] ); ?></span>
-							<?php if ( '' !== $iflynepal_day['meta'] ) : ?>
-								<span class="iflynepal-pkg-dt-sub"><?php echo esc_html( $iflynepal_day['meta'] ); ?></span>
+							<span class="iflynepal-pkg-dt-title"><?php echo esc_html( $iflynepal_item['title'] ); ?></span>
+							<?php if ( '' !== $iflynepal_item['meta'] ) : ?>
+								<span class="iflynepal-pkg-dt-sub"><?php echo esc_html( $iflynepal_item['meta'] ); ?></span>
 							<?php endif; ?>
 						</span>
 						<span class="iflynepal-pkg-chev"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-down"/></svg></span>

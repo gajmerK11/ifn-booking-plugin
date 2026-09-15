@@ -232,13 +232,30 @@ share under the right-hand photos */
       align-items:center;
       margin-top:18px;
     }
-    .iflynepal-pkg-crumbs{display:flex;flex-wrap:nowrap;min-width:0;align-items:center;gap:8px;white-space:nowrap;color:var(--ifnpkg-muted);font-size:12.5px;font-weight:500}
+    /*
+     * A long package title used to ellipsis-truncate the current crumb to
+     * fit the row — the row scrolls instead now, so the full title is a
+     * swipe away rather than cut off with no way to read the rest of it.
+     * min-width:0 is gone from both the row and the current crumb for the
+     * same reason: that was what let the current crumb shrink and clip in
+     * the first place, and a scrolling row has no need to shrink anything.
+     */
+    /*
+     * A visible sliver of scrollbar rather than none at all — the row's own
+     * only hint that the current crumb keeps going past the edge, since
+     * there is no arrow or fade to say so otherwise.
+     */
+    .iflynepal-pkg-crumbs{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:rgba(11,88,213,.25) transparent;white-space:nowrap;color:var(--ifnpkg-muted);font-size:12.5px;font-weight:500}
+    .iflynepal-pkg-crumbs::-webkit-scrollbar{height:3px}
+    .iflynepal-pkg-crumbs::-webkit-scrollbar-track{background:transparent}
+    .iflynepal-pkg-crumbs::-webkit-scrollbar-thumb{background:rgba(11,88,213,.25);border-radius:99px}
     .iflynepal-pkg-crumbs a{color:var(--ifnpkg-navy);font-weight:600;border-bottom:1px solid transparent;transition:border-color .25s var(--ifnpkg-ease)}
     .iflynepal-pkg-crumbs a:hover{border-bottom-color:currentColor}
     .iflynepal-pkg-crumbs .iflynepal-pkg-sep{width:12px;height:12px;opacity:.55}
-    .iflynepal-pkg-crumbs [aria-current]{min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--ifnpkg-ink)}
+    .iflynepal-pkg-crumbs [aria-current]{color:var(--ifnpkg-ink)}
     .iflynepal-pkg-crumbs a,
-.iflynepal-pkg-crumbs .iflynepal-pkg-sep{flex:none}
+.iflynepal-pkg-crumbs .iflynepal-pkg-sep,
+.iflynepal-pkg-crumbs [aria-current]{flex:none}
     .iflynepal-pkg-share{display:flex;align-items:center;justify-content:flex-start;gap:7px}
     .iflynepal-pkg-share-label{white-space:nowrap;margin-right:4px;color:var(--ifnpkg-muted);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
     .iflynepal-pkg-share-btn{
@@ -409,7 +426,10 @@ so the nav
 
     .iflynepal-pkg-check-list{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;margin:0;padding:0;list-style:none}
     .iflynepal-pkg-check-list li{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;line-height:1.55}
-    .iflynepal-pkg-check-list .iflynepal-pkg-tick{
+    /* Unscoped — also the packing list's marker (see .iflynepal-pkg-pack-list
+       below), so both read the same "ticked off" way rather than one having
+       a circle and the other a bullet. */
+    .iflynepal-pkg-tick{
       display:grid;
       place-items:center;
       width:24px;height:24px;
@@ -419,13 +439,32 @@ so the nav
       background:var(--ifnpkg-mist);
       color:var(--ifnpkg-navy);
     }
-    .iflynepal-pkg-check-list .iflynepal-pkg-tick .iflynepal-pkg-ico{width:13px;height:13px;stroke-width:2.4}
+    .iflynepal-pkg-tick .iflynepal-pkg-ico{width:13px;height:13px;stroke-width:2.4}
     .iflynepal-pkg-check-list--x .iflynepal-pkg-tick{background:#F5F6F8;color:#8A929B}
 
     /* itinerary */
     .iflynepal-pkg-itin-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
-    .iflynepal-pkg-seg{display:inline-flex;padding:4px;border-radius:999px;background:var(--ifnpkg-mist)}
+    .iflynepal-pkg-seg{position:relative;display:inline-flex;padding:4px;border-radius:999px;background:var(--ifnpkg-mist)}
+    /* The pill that carries the "water flow" — one shared surface that glides
+       and reshapes from one button's rect to the other's (package.js measures
+       and sets its transform/width), rather than each button fading its own
+       background in and out independently. */
+    .iflynepal-pkg-seg-fill{
+      position:absolute;
+      top:4px;
+      left:0;
+      bottom:4px;
+      width:0;
+      border-radius:999px;
+      background:#fff;
+      box-shadow:0 4px 14px rgba(4,26,64,.1);
+      transform:translateX(0);
+      transition:transform .5s var(--ifnpkg-ease-card),width .5s var(--ifnpkg-ease-card);
+      will-change:transform,width;
+    }
     .iflynepal-pkg-seg button{
+      position:relative;
+      z-index:1;
       min-height:38px;
       padding:0 18px;
       border:0;
@@ -434,9 +473,9 @@ so the nav
       color:var(--ifnpkg-muted);
       font-size:13px;
       font-weight:700;
-      transition:background .3s var(--ifnpkg-ease),color .25s ease,box-shadow .3s var(--ifnpkg-ease);
+      transition:color .3s var(--ifnpkg-ease-card);
     }
-    .iflynepal-pkg-seg button[aria-selected="true"]{background:#fff;color:var(--ifnpkg-navy);box-shadow:0 4px 14px rgba(4,26,64,.1)}
+    .iflynepal-pkg-seg button[aria-selected="true"]{color:var(--ifnpkg-navy)}
     .iflynepal-pkg-text-btn{
       display:inline-flex;
       align-items:center;
@@ -619,14 +658,24 @@ so the nav
 
     .iflynepal-pkg-book-sum{display:flex;flex-direction:column;padding:26px;background:var(--ifnpkg-mist);border-top:1px solid var(--ifnpkg-line)}
     .iflynepal-pkg-book-sum h3{margin-bottom:16px;font-size:17px}
-    .iflynepal-pkg-sum-dates{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:14px;border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-sm);background:#fff}
+    /* Starts/Ends and the traveller stepper as one row, not two stacked
+       cards — the row wraps at narrow widths since each card keeps its own
+       min-width. */
+    .iflynepal-pkg-sum-row{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+    .iflynepal-pkg-sum-row .iflynepal-pkg-sum-dates{flex:1 1 220px}
+    .iflynepal-pkg-sum-row .iflynepal-pkg-pax{flex:1 1 200px;margin-top:0}
+    .iflynepal-pkg-sum-dates{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;padding:14px 18px;border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-sm);background:#fff}
+    /* Starts sits at the card's left edge, Ends at its right, so the arrow
+       between them lands in the middle instead of huddling near Starts with
+       Ends trailing off unbalanced to its right. */
+    .iflynepal-pkg-sum-dates > div:last-child{text-align:right}
     .iflynepal-pkg-sum-dates small{display:block;color:var(--ifnpkg-muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
     .iflynepal-pkg-sum-dates b{display:block;margin-top:2px;font-size:13.5px;font-weight:700;line-height:1.3}
     .iflynepal-pkg-sum-dates b.iflynepal-pkg-is-empty{color:#A2A9B1;font-weight:500}
     .iflynepal-pkg-sum-dates .iflynepal-pkg-ico{width:18px;height:18px;color:var(--ifnpkg-navy)}
     .iflynepal-pkg-sum-dur{margin-top:10px;color:var(--ifnpkg-muted);font-size:12.5px}
     .iflynepal-pkg-sum-dur b{color:var(--ifnpkg-ink)}
-    .iflynepal-pkg-pax{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding:12px 14px;border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-sm);background:#fff}
+    .iflynepal-pkg-pax{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;padding:12px 14px;border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-sm);background:#fff}
     .iflynepal-pkg-pax span{font-size:13.5px;font-weight:700}
     .iflynepal-pkg-pax span small{display:block;color:var(--ifnpkg-muted);font-size:11.5px;font-weight:500}
     .iflynepal-pkg-stepper{display:flex;align-items:center;gap:12px}
@@ -677,8 +726,23 @@ so the nav
     .iflynepal-pkg-price-col .iflynepal-pkg-check-list{grid-template-columns:1fr;gap:12px}
     .iflynepal-pkg-price-col .iflynepal-pkg-check-list li{font-size:14px}
 
-    /* booking aside */
-    .iflynepal-pkg-trip-aside{position:sticky;top:calc(var(--ifnpkg-hdr) + var(--ifnpkg-tabs) + 32px);margin:64px 0;display:grid;gap:18px}
+    /*
+     * booking aside
+     *
+     * transform is a no-op visually (translateZ(0) moves nothing) but it is
+     * also, per spec, what makes this the containing block for any
+     * position:fixed descendant instead of the viewport — which a static
+     * or even !important position:static on this element's OWN box (see
+     * the ≤1000px block below) cannot do, because a fixed-positioned
+     * descendant ignores its ancestors' position entirely and escapes to
+     * the viewport unless one of them establishes containment like this.
+     * That is exactly what the PayPal button becomes once a date unlocks
+     * it: Easy PayPal & Stripe's real, interactive button is the PayPal
+     * SDK's own iframe, styled and positioned by PayPal's script, not this
+     * plugin's markup — this traps whatever it does inside the card
+     * instead of it floating loose over the page.
+     */
+    .iflynepal-pkg-trip-aside{position:sticky;top:calc(var(--ifnpkg-hdr) + var(--ifnpkg-tabs) + 32px);margin:64px 0;display:grid;gap:18px;transform:translateZ(0)}
     /* short screens: the card sheds its list so the whole aside still fits */
     @media (min-width:1001px) and (max-height:860px){.iflynepal-pkg-price-card .iflynepal-pkg-check-list{display:none}.iflynepal-pkg-price-card .iflynepal-pkg-price-actions{margin-top:22px}}
     .iflynepal-pkg-price-card{
@@ -691,7 +755,7 @@ so the nav
       overflow:hidden;
     }
     .iflynepal-pkg-price-card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--ifnpkg-navy),var(--ifnpkg-navy-2) 60%,var(--ifnpkg-gold))}
-    .iflynepal-pkg-price-card .iflynepal-pkg-eyebrow{margin-bottom:10px}
+    .iflynepal-pkg-price-card .iflynepal-pkg-eyebrow{display:block!important;width:100%!important;text-align:center!important;margin-bottom:28px}
     .iflynepal-pkg-price-from{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
     .iflynepal-pkg-price-from small{color:var(--ifnpkg-muted);font-size:13px;font-weight:600}
     .iflynepal-pkg-price-from strong{font-size:40px;font-weight:700;letter-spacing:-.035em;line-height:1}
@@ -739,7 +803,20 @@ so the nav
     .iflynepal-pkg-pack-map{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:start}
     .iflynepal-pkg-pack-list{margin:0;padding:0;list-style:none;border-top:1px solid var(--ifnpkg-line)}
     .iflynepal-pkg-pack-list li{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid var(--ifnpkg-line);font-size:14.5px;font-weight:500}
-    .iflynepal-pkg-pack-list .iflynepal-pkg-ico{width:20px;height:20px;color:var(--ifnpkg-navy)}
+    /* A rounded square in the gold accent, one consistent "pack this" glyph
+       per row — a different shape and colour from the Highlights list's
+       navy circular tick, so the two markers read as two different things
+       rather than the same badge reused. */
+    .iflynepal-pkg-mark{
+      display:grid;
+      place-items:center;
+      width:30px;height:30px;
+      flex:none;
+      border-radius:9px;
+      background:rgba(242,200,121,.22);
+      color:var(--ifnpkg-navy);
+    }
+    .iflynepal-pkg-mark .iflynepal-pkg-ico{width:15px;height:15px}
     .iflynepal-pkg-map-card{border-radius:var(--ifnpkg-r-lg);overflow:hidden;background:#fff;border:1px solid var(--ifnpkg-line);box-shadow:0 18px 50px rgba(4,26,64,.08)}
     .iflynepal-pkg-map-card iframe{display:block;width:100%;height:380px;border:0;filter:saturate(.85)}
     .iflynepal-pkg-map-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px}
@@ -893,8 +970,15 @@ so the nav
       .iflynepal-pkg-share{gap:5px}
       .iflynepal-pkg-share-btn{width:32px;height:32px}
     }
-    /* below this the nav folds into a sticky strip across the top */
-    @media (max-width:1100px){
+    /*
+     * Below this the nav folds into a sticky strip across the top — moved
+     * down from 1100px so 1024px (a real laptop width, not a rare one)
+     * still gets the desktop layout: the vertical sidebar nav and the
+     * two-column trip-layout below both read from this same number now,
+     * so neither can end up structurally desktop while the other has
+     * already folded to its narrow-screen shape.
+     */
+    @media (max-width:1023px){
       :root{--ifnpkg-tabs:54px}
       .iflynepal-pkg-page-body{grid-template-columns:minmax(0,1fr);row-gap:0}
       .iflynepal-pkg-side-nav{
@@ -942,10 +1026,45 @@ so the nav
       .iflynepal-pkg-nav-links.iflynepal-pkg-open{display:flex}
       .iflynepal-pkg-menu-btn{display:grid;place-items:center}
     }
-    @media (max-width:1000px){
+    /* Same threshold as the nav strip above — see its comment. */
+    @media (max-width:1023px){
       .iflynepal-pkg-trip-title h1{white-space:normal;font-size:clamp(30px,5vw,44px)}
       .iflynepal-pkg-trip-layout{grid-template-columns:minmax(0,1fr);gap:0}
-      .iflynepal-pkg-trip-aside{position:static;margin:0 0 56px;grid-template-columns:1fr 1fr;align-items:start}
+      /*
+       * !important here, not the usual plain override: this card is meant
+       * to scroll past the header exactly like any other section below
+       * ~1000px, with nothing of its own sticky or fixed — and something
+       * (a script setting an inline style is the one thing an ordinary
+       * cascade rule cannot out-specificity) is still pinning it in place
+       * against the header on some screens. A stylesheet !important is the
+       * one thing that beats even an inline style not itself marked
+       * !important, which is what makes this the one place on the page
+       * that carries one.
+       */
+      .iflynepal-pkg-trip-aside,
+      .iflynepal-pkg-price-card,
+      .iflynepal-pkg-price-actions,
+      .iflynepal-pkg-pay{position:static!important;top:auto!important;z-index:auto!important}
+      .iflynepal-pkg-trip-aside{margin:0 0 56px;grid-template-columns:1fr 1fr;align-items:start}
+      .iflynepal-pkg-price-card::before{content:none}
+      /*
+       * The card itself runs the full width now (previous fix), but its
+       * contents — price, checklist, payment buttons — were built for the
+       * ~360px column it used to sit in and just stretch edge to edge
+       * inside the wider box otherwise: long empty rows to the right of
+       * short list text, "ALL INCLUSIVE PRICE" reading as pinned to the
+       * middle of a much wider line than the price and checklist under it
+       * ever use. Capping the content to that same comfortable width and
+       * centering the cap within the now-wide card keeps the requested
+       * full-width card while everything inside it still reads as one
+       * deliberate, centered column instead of stretched.
+       */
+      .iflynepal-pkg-price-card>*{max-width:360px;margin-left:auto;margin-right:auto}
+      .iflynepal-pkg-price-actions .iflynepal-pkg-button,
+      .iflynepal-pkg-price-actions .iflynepal-pkg-pay{width:100%}
+      /* A nudge off the left edge, not full centering — "From" dead-center
+         above a left-aligned checklist would read as adrift from it. */
+      .iflynepal-pkg-price-from{margin-left:32px}
       .iflynepal-pkg-pack-map,
 .iflynepal-pkg-faq-layout{grid-template-columns:1fr;gap:40px}
       .iflynepal-pkg-rail{grid-auto-columns:calc((100% - 20px) / 2)}
@@ -967,6 +1086,20 @@ so it docks to the bottom edge */
         transition:transform .45s var(--ifnpkg-ease);
       }
       .iflynepal-pkg-book-bar.iflynepal-pkg-is-on{transform:none}
+      /*
+       * The theme's own back-to-top button (footer-core.php) docks at a
+       * fixed 32px from the bottom edge everywhere on the site — fine on
+       * every other page, but this bar sits in that same 32px on a package
+       * page and, at z-index:55 against the button's 30, wins and covers
+       * most of it. Only pushed up while the bar is actually on screen
+       * (.iflynepal-pkg-is-on), so it sits exactly where the theme put it
+       * everywhere else, including this same page once scrolled to where
+       * the bar itself hides again.
+       */
+      #iflynepal-back-to-top{transition:bottom .3s var(--ifnpkg-ease)}
+      body:has(.iflynepal-pkg-book-bar.iflynepal-pkg-is-on) #iflynepal-back-to-top{
+        bottom:calc(70px + env(safe-area-inset-bottom) + 16px);
+      }
       .iflynepal-pkg-book-bar small{display:block;color:var(--ifnpkg-muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
       .iflynepal-pkg-book-bar strong{font-size:18px}
       .iflynepal-pkg-book-bar strong span{color:var(--ifnpkg-muted);font-size:12px;font-weight:500}
@@ -979,36 +1112,62 @@ so it docks to the bottom edge */
       .iflynepal-pkg-section{padding:72px 0}
       .iflynepal-pkg-gallery{padding-top:16px}
       .iflynepal-pkg-gallery-frame{position:relative}
-      /* the collage becomes a swipeable strip,
-one photo per view */
+      /*
+       * The lead photo stays put, full width, so swiping never loses it —
+       * the four thumbnails get their own row underneath instead, always
+       * on screen rather than four extra slides a visitor has to think to
+       * swipe to and might never find.
+       */
       .iflynepal-pkg-gallery-grid{
         position:static;
-        display:grid;
-        grid-template-columns:none;
-        grid-template-rows:none;
-        grid-auto-flow:column;
-        grid-auto-columns:100%;
-        height:clamp(240px,62vw,380px);
-        overflow-x:auto;
-        scroll-snap-type:x mandatory;
-        scrollbar-width:none;
-        border-radius:var(--ifnpkg-r-md);
-        gap:0;
+        display:flex;
+        flex-direction:column;
+        height:auto;
+        gap:10px;
       }
-      .iflynepal-pkg-gallery-grid::-webkit-scrollbar{display:none}
-      .iflynepal-pkg-g-lead-wrap,
-.iflynepal-pkg-g-thumbs{display:contents}
-      .iflynepal-pkg-g-tile,
-.iflynepal-pkg-g-tile--lead{border-radius:0;scroll-snap-align:start}
+      .iflynepal-pkg-g-lead-wrap{height:clamp(220px,58vw,340px);border-radius:var(--ifnpkg-r-md);overflow:hidden}
+      .iflynepal-pkg-g-tile--lead{border-radius:0}
+      /* A horizontal strip rather than the desktop 2x2 — scrollable as a
+         fallback on the narrowest phones, but four ~76px tiles plus gaps
+         already fit inside 320px without needing to. */
+      .iflynepal-pkg-g-thumbs{
+        display:flex;
+        justify-content:center;
+        gap:10px;
+        overflow-x:auto;
+        scroll-snap-type:x proximity;
+        scrollbar-width:none;
+      }
+      .iflynepal-pkg-g-thumbs::-webkit-scrollbar{display:none}
+      .iflynepal-pkg-g-thumbs .iflynepal-pkg-g-tile{
+        flex:0 0 76px;
+        width:76px;
+        height:76px;
+        border-radius:12px;
+        scroll-snap-align:start;
+      }
       .iflynepal-pkg-trip-title h1{white-space:normal}
-      .iflynepal-pkg-glance{grid-template-columns:repeat(2,1fr)}
-      .iflynepal-pkg-glance-item:nth-child(4n){border-right:1px solid var(--ifnpkg-line)}
-      .iflynepal-pkg-glance-item:nth-child(2n){border-right:0}
+      /*
+       * One column, one fact per row. The filler cells (aria-hidden,
+       * padded to a multiple of 4 for the 4-column desktop grid — see
+       * their comment in the package template) have nothing to fill a
+       * single column with, so they are dropped here rather than showing
+       * up as blank rows.
+       */
+      .iflynepal-pkg-glance{grid-template-columns:1fr}
+      .iflynepal-pkg-glance-item{border-right:0;border-bottom:1px solid var(--ifnpkg-line)}
+      /*
+       * Same specificity as the desktop :nth-last-child(-n+4) rule above,
+       * which drops the bottom border off whatever ends up as the 4-col
+       * grid's last row — at one column that is now the last four items
+       * individually, each still a full row of its own that needs the
+       * divider back.
+       */
       .iflynepal-pkg-glance-item:nth-last-child(-n+4){border-bottom:1px solid var(--ifnpkg-line)}
-      .iflynepal-pkg-glance-item:nth-last-child(-n+2){border-bottom:0}
+      .iflynepal-pkg-glance-item--filler{display:none}
       .iflynepal-pkg-band{padding:64px 0}
       .iflynepal-pkg-g-all{right:12px;bottom:12px;min-height:38px;padding:0 14px;font-size:12px}
-      .iflynepal-pkg-gallery-meta{grid-template-columns:1fr;gap:14px}
+      .iflynepal-pkg-gallery-meta{grid-template-columns:minmax(0,1fr);gap:14px}
       .iflynepal-pkg-share{justify-content:flex-start}
       .iflynepal-pkg-trip-title{padding:30px 0 36px}
       .iflynepal-pkg-t-section{padding:48px 0}
@@ -1309,13 +1468,17 @@ one photo per view */
 }
 
 /*
- * Below 760px the grid stops being two columns and becomes a swipeable strip
- * of whole photographs, which is the design's own arrangement and has no
- * thumbnail column to widen. The meta row stacks there too.
+ * Below 760px the grid stops being two columns — the lead photo and the
+ * thumbnail strip both run the section's full width instead (see the
+ * flex-column rewrite of .iflynepal-pkg-gallery-grid in the main mobile
+ * block above), so there is no second column's width to set here any more.
+ * The meta row still stacks, and minmax(0,…) keeps its width capped to the
+ * section rather than growing to fit the breadcrumb's full, now-scrollable
+ * content.
  */
 @media (max-width:760px){
   .iflynepal-pkg-gallery-grid{grid-template-columns:none}
-  .iflynepal-pkg-gallery-meta{grid-template-columns:1fr}
+  .iflynepal-pkg-gallery-meta{grid-template-columns:minmax(0,1fr)}
 }
 
 /*

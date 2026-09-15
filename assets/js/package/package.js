@@ -36,6 +36,36 @@
 		return document.getElementById( 'ifnpkg-' + name );
 	}
 
+	/* --------------------------------------------------------- header height */
+
+	/*
+	 * --ifnpkg-hdr (package.css) is a constant tuned to the theme header's
+	 * usual height, and everything that clears the header — the page's own
+	 * top padding, the sticky side nav and price card, the section-nav
+	 * click scroll — is calc()'d from it. A real header even a little
+	 * taller or shorter than that guess (signed in with the admin bar
+	 * present, a font swap, anything) leaves either a gap or, as here, page
+	 * content riding up under the header instead of clearing it. The
+	 * header's own real height, read off the page itself and kept in sync
+	 * on resize, replaces the guess everywhere at once because every one
+	 * of those rules reads the same custom property.
+	 */
+	( function syncHeaderHeight() {
+		var header = document.getElementById( 'iflynepal-header' );
+
+		if ( ! header ) {
+			return;
+		}
+
+		function sync() {
+			document.documentElement.style.setProperty( '--ifnpkg-hdr', header.getBoundingClientRect().height + 'px' );
+		}
+
+		sync();
+		window.addEventListener( 'resize', sync );
+		window.addEventListener( 'load', sync );
+	}() );
+
 	/* -------------------------------------------------------- featured video */
 
 	( function featuredVideo() {
@@ -303,6 +333,69 @@
 			return document.querySelector( link.getAttribute( 'href' ) );
 		} ).filter( Boolean );
 
+		/*
+		 * A nav link scrolls to a precisely measured spot rather than
+		 * trusting html's scroll-padding-top (package.css) to have the
+		 * right numbers for the moment it is clicked: --ifnpkg-hdr and
+		 * --ifnpkg-tabs are constants tuned to the header's and the docked
+		 * nav strip's usual heights, and either one a little taller or
+		 * shorter than its guess — a font that hasn't finished loading, a
+		 * border or padding the constant did not account for, a browser
+		 * zoom level — is exactly enough to leave a sliver of the section
+		 * above peeking out. This reads both elements' real, current
+		 * height off the page itself instead, so it is right regardless of
+		 * why either constant might not be.
+		 *
+		 * --ifnpkg-tabs is still what says WHETHER the nav is currently the
+		 * docked strip (nonzero, below ~1100px — see .iflynepal-pkg-side-nav
+		 * in package.css) or the desktop sidebar (zero): the sidebar's own
+		 * height is the whole column's, not a strip to clear, so it must
+		 * never be added in even though `nav` is the same element and
+		 * `position:sticky` either way.
+		 */
+		var header = document.getElementById( 'iflynepal-header' );
+
+		function scrollOffset() {
+			var docked = parseFloat( getComputedStyle( document.documentElement ).getPropertyValue( '--ifnpkg-tabs' ) ) > 0;
+			var hdr = header ? header.getBoundingClientRect().height : 0;
+			var tabs = docked && nav ? nav.getBoundingClientRect().height : 0;
+
+			/*
+			 * Landing a few pixels PAST flush — tucking the target's own
+			 * top edge behind the bar rather than trying to stop exactly at
+			 * it. Every section but the first carries a 1px border-top
+			 * divider (.iflynepal-pkg-t-section) right at that edge, and
+			 * "exactly at it" is razor-thin: the least measurement error in
+			 * either direction either leaves that hairline showing in open
+			 * space or a sliver of the section above it. Landing short is
+			 * safe on this side, because it disappears under the bar's own
+			 * solid background instead of being visible either way — and
+			 * there is 64px of the section's own top padding before its
+			 * heading to spend on that margin before hiding anything a
+			 * visitor would actually read.
+			 */
+			return hdr + tabs - 10;
+		}
+
+		links.forEach( function ( link ) {
+			link.addEventListener( 'click', function ( event ) {
+				var target = document.querySelector( link.getAttribute( 'href' ) );
+
+				if ( ! target ) {
+					return;
+				}
+
+				// Handled here in full: the global anchor-scroll.js glide is not also needed.
+				event.preventDefault();
+				event.stopPropagation();
+
+				window.scrollTo( {
+					top: target.getBoundingClientRect().top + window.scrollY - scrollOffset(),
+					behavior: reduced ? 'auto' : 'smooth'
+				} );
+			} );
+		} );
+
 		function onScroll() {
 			if ( sections.length ) {
 				/*
@@ -416,6 +509,33 @@
 			return;
 		}
 
+		var segFill = id( 'seg-fill' );
+
+		/*
+		 * The fill is one surface that glides from one button's rect to the
+		 * other's rather than each button fading its own background in and
+		 * out — the "water flow" the switch is meant to read as. skipTransition
+		 * is for the very first paint, so the pill appears already in place
+		 * instead of growing in from nothing.
+		 */
+		function moveFill( button, skipTransition ) {
+			if ( ! segFill ) {
+				return;
+			}
+
+			if ( skipTransition ) {
+				segFill.style.transition = 'none';
+			}
+
+			segFill.style.width = button.offsetWidth + 'px';
+			segFill.style.transform = 'translateX(' + button.offsetLeft + 'px)';
+
+			if ( skipTransition ) {
+				segFill.offsetHeight; // eslint-disable-line no-unused-expressions -- forces the reflow that makes the transition:none above actually apply before it is cleared.
+				segFill.style.transition = '';
+			}
+		}
+
 		function select( wantFull ) {
 			tabFull.setAttribute( 'aria-selected', wantFull ? 'true' : 'false' );
 			tabShort.setAttribute( 'aria-selected', wantFull ? 'false' : 'true' );
@@ -423,11 +543,17 @@
 			tabShort.tabIndex = wantFull ? -1 : 0;
 			full.hidden = ! wantFull;
 			short.hidden = wantFull;
+			moveFill( wantFull ? tabFull : tabShort );
 
 			if ( expand ) {
 				expand.hidden = ! wantFull;
 			}
 		}
+
+		moveFill( tabShort, true );
+		window.addEventListener( 'resize', function () {
+			moveFill( 'true' === tabFull.getAttribute( 'aria-selected' ) ? tabFull : tabShort, true );
+		} );
 
 		tabFull.addEventListener( 'click', function () {
 			select( true );

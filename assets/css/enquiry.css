@@ -343,6 +343,7 @@
 	.iflynepal-enquiry-js .iflynepal-enquiry__panel,
 	.iflynepal-enquiry__submit,
 	.iflynepal-enquiry__submit .iflynepal-ico-arr,
+	.iflynepal-enquiry__whatsapp,
 	.iflynepal-enquiry__close {
 		transition: none;
 	}
@@ -392,12 +393,42 @@
 	font-size: 14px;
 }
 
-.iflynepal-enquiry__alt a,
 .iflynepal-enquiry-card__chat {
 	color: var(--iflynepal-navy, #0545a7);
 	font-weight: 600;
 	text-decoration: underline;
 	text-underline-offset: 3px;
+}
+
+/* WhatsApp's own brand green — matches the booking aside's expert button
+   (package.css, .iflynepal-pkg-expert .iflynepal-pkg-button) so the two
+   WhatsApp entry points on a package page read as the same control. */
+.iflynepal-enquiry__whatsapp {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 10px;
+	padding: 13px 24px;
+	border: 1px solid #25d366;
+	border-radius: 999px;
+	background: #25d366;
+	color: #06301a;
+	font-size: 15px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: box-shadow 0.2s var(--ifn-enq-ease), transform 0.2s var(--ifn-enq-ease);
+}
+
+.iflynepal-enquiry__whatsapp:hover {
+	box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+	transform: translateY(-1px);
+}
+
+.iflynepal-enquiry__whatsapp-ico {
+	width: 19px;
+	height: 19px;
+	fill: currentColor;
 }
 
 .iflynepal-enquiry-card__chat {

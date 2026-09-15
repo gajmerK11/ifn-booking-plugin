@@ -40,7 +40,8 @@ function iflynepal_package_page_sections( $post_id ) {
 		'itinerary' => array(
 			'label'  => __( 'Itinerary', 'iflynepal' ),
 			'icon'   => 'route',
-			'filled' => array() !== iflynepal_package_cards( $post_id, 'itinerary_days' ),
+			'filled' => array() !== iflynepal_package_cards( $post_id, 'itinerary_days' )
+				|| array() !== iflynepal_package_cards( $post_id, 'itinerary_weeks' ),
 		),
 		'dates'     => array(
 			'label'  => __( 'Dates & prices', 'iflynepal' ),
@@ -209,11 +210,32 @@ function iflynepal_package_the_share( $post_id ) {
 			<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8a9.1 9.1 0 0 0-7.9 13.7L2.8 21.2l4.8-1.3A9.1 9.1 0 1 0 12 2.8zm0 16.6c-1.4 0-2.8-.4-4-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A7.5 7.5 0 1 1 12 19.4zm4.1-5.6c-.2-.1-1.3-.7-1.6-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.2-.1-1-.4-1.8-1.1-.7-.6-1.1-1.3-1.3-1.5-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5 2 .8 2.4.6 2.8.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1l-.5-.3z"/></svg>
 		</a>
 
-		<a class="iflynepal-pkg-share-btn" data-share="email"
-			href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( $title ) . '&body=' . rawurlencode( $url ) ); ?>"
-			aria-label="<?php esc_attr_e( 'Share by email', 'iflynepal' ); ?>">
-			<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-mail"/></svg>
-		</a>
+		<?php
+		/*
+		 * Instagram and TikTok have no share-intent URL the way Facebook, X
+		 * and WhatsApp do — neither platform accepts an external link to
+		 * pre-fill into a post. These two point at the company's own
+		 * profile instead, sharing the same Customizer-configured URLs (and
+		 * icon glyphs) as the footer's follow row — see
+		 * iflynepal_footer_social_networks() and iflynepal_footer_socials()
+		 * — so a network with no URL set there quietly has no button here
+		 * either, the same as it has no button in the footer.
+		 */
+		$iflynepal_share_socials = array_filter(
+			iflynepal_footer_socials(),
+			static function ( $iflynepal_social ) {
+				return in_array( $iflynepal_social['slug'], array( 'instagram', 'tiktok' ), true );
+			}
+		);
+
+		foreach ( $iflynepal_share_socials as $iflynepal_social ) :
+			?>
+			<a class="iflynepal-pkg-share-btn" data-share="<?php echo esc_attr( $iflynepal_social['slug'] ); ?>" target="_blank" rel="noopener"
+				href="<?php echo esc_url( $iflynepal_social['url'] ); ?>"
+				aria-label="<?php echo esc_attr( sprintf( /* translators: %s: social network name. */ __( 'Visit us on %s', 'iflynepal' ), $iflynepal_social['label'] ) ); ?>">
+				<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="<?php echo esc_attr( $iflynepal_social['path'] ); ?>"/></svg>
+			</a>
+		<?php endforeach; ?>
 
 		<button class="iflynepal-pkg-share-btn" data-share="copy" type="button" aria-label="<?php esc_attr_e( 'Copy link', 'iflynepal' ); ?>">
 			<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-link"/></svg>

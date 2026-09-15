@@ -114,15 +114,36 @@ $iflynepal_excluded = iflynepal_package_field_lines( $iflynepal_id, 'excluded' )
 			<div class="iflynepal-pkg-book-sum">
 				<h3><?php esc_html_e( 'Your trip', 'iflynepal' ); ?></h3>
 
-				<div class="iflynepal-pkg-sum-dates">
-					<div>
-						<small><?php esc_html_e( 'Starts', 'iflynepal' ); ?></small>
-						<b id="ifnpkg-sum-start" class="iflynepal-pkg-is-empty"><?php esc_html_e( 'Pick a date', 'iflynepal' ); ?></b>
+				<div class="iflynepal-pkg-sum-row">
+					<div class="iflynepal-pkg-sum-dates">
+						<div>
+							<small><?php esc_html_e( 'Starts', 'iflynepal' ); ?></small>
+							<b id="ifnpkg-sum-start" class="iflynepal-pkg-is-empty"><?php esc_html_e( 'Pick a date', 'iflynepal' ); ?></b>
+						</div>
+						<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
+						<div>
+							<small><?php esc_html_e( 'Ends', 'iflynepal' ); ?></small>
+							<b id="ifnpkg-sum-end" class="iflynepal-pkg-is-empty">&mdash;</b>
+						</div>
 					</div>
-					<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
-					<div>
-						<small><?php esc_html_e( 'Ends', 'iflynepal' ); ?></small>
-						<b id="ifnpkg-sum-end" class="iflynepal-pkg-is-empty">&mdash;</b>
+
+					<div class="iflynepal-pkg-pax">
+						<span>
+							<?php esc_html_e( 'Travellers', 'iflynepal' ); ?>
+							<?php
+
+							$iflynepal_group = iflynepal_package_field( $iflynepal_id, 'glance_group' );
+
+							if ( '' !== $iflynepal_group ) :
+								?>
+								<small><?php echo esc_html( $iflynepal_group ); ?></small>
+							<?php endif; ?>
+						</span>
+						<div class="iflynepal-pkg-stepper">
+							<button type="button" id="ifnpkg-pax-minus" aria-label="<?php esc_attr_e( 'Remove a traveller', 'iflynepal' ); ?>" disabled>&minus;</button>
+							<output id="ifnpkg-pax-out" aria-live="polite">0</output>
+							<button type="button" id="ifnpkg-pax-plus" aria-label="<?php esc_attr_e( 'Add a traveller', 'iflynepal' ); ?>">+</button>
+						</div>
 					</div>
 				</div>
 
@@ -142,24 +163,6 @@ $iflynepal_excluded = iflynepal_package_field_lines( $iflynepal_id, 'excluded' )
 				}
 				?>
 				<p class="iflynepal-pkg-sum-dur"><?php esc_html_e( 'Trip duration:', 'iflynepal' ); ?> <b><?php echo esc_html( $iflynepal_duration ); ?></b></p>
-
-				<div class="iflynepal-pkg-pax">
-					<span>
-						<?php esc_html_e( 'Travellers', 'iflynepal' ); ?>
-						<?php
-						$iflynepal_group = iflynepal_package_field( $iflynepal_id, 'glance_group' );
-
-						if ( '' !== $iflynepal_group ) :
-							?>
-							<small><?php echo esc_html( $iflynepal_group ); ?></small>
-						<?php endif; ?>
-					</span>
-					<div class="iflynepal-pkg-stepper">
-						<button type="button" id="ifnpkg-pax-minus" aria-label="<?php esc_attr_e( 'Remove a traveller', 'iflynepal' ); ?>" disabled>&minus;</button>
-						<output id="ifnpkg-pax-out" aria-live="polite">0</output>
-						<button type="button" id="ifnpkg-pax-plus" aria-label="<?php esc_attr_e( 'Add a traveller', 'iflynepal' ); ?>">+</button>
-					</div>
-				</div>
 
 				<ul class="iflynepal-pkg-sum-lines">
 					<li><span><?php esc_html_e( 'Per person', 'iflynepal' ); ?></span><span id="ifnpkg-sum-each"></span></li>
