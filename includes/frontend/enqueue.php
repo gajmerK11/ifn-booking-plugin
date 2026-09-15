@@ -313,10 +313,16 @@ add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_anim_gate' );
  * themes, so at the default priority this would ask whether GSAP is on the page
  * before the theme has had the chance to put it there.
  *
- * Flip is the one vendor file the plugin ships. It is what lets the card grid
- * reflow when a filter is pressed instead of the survivors jumping between
- * slots, and the theme does not carry it. Same version as the theme's GSAP —
- * a plugin built against a different one is a bug waiting for an upgrade.
+ * 🔴 Flip was the one vendor file the plugin shipped, letting the card grid
+ * reflow when a filter changed instead of the survivors jumping between slots.
+ * Removed at the client's request after it kept producing exactly the motion
+ * it was meant to smooth over — cards visibly lifting into place, the grid
+ * itself dipping and recovering on a filter pair that changes no cards at all
+ * — both genuine side effects of Flip's `absolute: true`, which pulls every
+ * tracked card out of flow for the length of its own animation whether or not
+ * that card moves. filters.js now does a plain, instant class toggle with
+ * nothing GSAP involved, so `iflynepal-package-filters` no longer has a Flip
+ * dependency to declare, and the vendor file itself is gone from the plugin.
  *
  * @since 1.0.0
  *
@@ -328,22 +334,6 @@ function iflynepal_booking_enqueue_archive_scripts() {
 	}
 
 	$gsap = iflynepal_booking_gsap_handles();
-	$flip = array();
-
-	if ( $gsap ) {
-		wp_enqueue_script(
-			'iflynepal-gsap-flip',
-			IFLYNEPAL_BOOKING_URL . 'assets/js/vendor/Flip.min.js',
-			array( 'iflynepal-gsap' ),
-			'3.15.0',
-			array(
-				'strategy'  => 'defer',
-				'in_footer' => true,
-			)
-		);
-
-		$flip = array( 'iflynepal-gsap-flip' );
-	}
 
 	wp_enqueue_script(
 		'iflynepal-archive-reveal',
@@ -359,7 +349,7 @@ function iflynepal_booking_enqueue_archive_scripts() {
 	wp_enqueue_script(
 		'iflynepal-package-filters',
 		IFLYNEPAL_BOOKING_URL . 'assets/js/archive/filters.js',
-		$flip,
+		array(),
 		iflynepal_booking_asset_version( 'assets/js/archive/filters.js' ),
 		array(
 			'strategy'  => 'defer',
