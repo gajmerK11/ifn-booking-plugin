@@ -344,6 +344,13 @@ share under the right-hand photos */
       align-items:start;
       border-top:1px solid var(--ifnpkg-line);
     }
+    /* No side nav is printed for a package with one qualifying section
+       (see iflynepal_package_page_sections()) — the grid still needs to
+       give its only child the full width rather than the nav's narrow
+       track, or the whole page body squeezes into ~navw wide. */
+    .iflynepal-pkg-page-body:not(:has(.iflynepal-pkg-side-nav)){
+      grid-template-columns:minmax(0,1fr);
+    }
     .iflynepal-pkg-trip-layout{
       display:grid;
       grid-template-columns:minmax(0,1fr) var(--ifnpkg-aside);
