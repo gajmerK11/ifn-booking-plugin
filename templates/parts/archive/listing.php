@@ -38,51 +38,7 @@ $iflynepal_children = iflynepal_archive_filter_terms( $iflynepal_id, $iflynepal_
 <section class="iflynepal-section iflynepal-listing" id="iflynepal-packages">
 	<div class="iflynepal-container">
 		<div class="iflynepal-listing__head">
-			<?php
-			iflynepal_archive_the_head( $iflynepal_id, 'listing' );
-
-			/*
-			 * The hand-drawn note. Both halves are separate spans because only
-			 * the tail re-types: the fixed part is set once and never touched,
-			 * so nothing to the left of the tail can shift while a word grows.
-			 * The words travel to the script as a data attribute rather than as
-			 * text, so the markup carries no half-typed state.
-			 */
-			$iflynepal_note_static = iflynepal_archive_field( $iflynepal_id, 'listing_annotation_static' );
-			$iflynepal_note_words  = iflynepal_archive_field_lines( $iflynepal_id, 'listing_annotation_words' );
-
-			if ( '' !== $iflynepal_note_static || ! empty( $iflynepal_note_words ) ) :
-				?>
-				<span class="iflynepal-annot" aria-hidden="true" data-words="<?php echo esc_attr( wp_json_encode( $iflynepal_note_words ) ); ?>">
-					<?php
-					/*
-					 * Drawn vertically in its own box and mirrored in CSS, so the
-					 * curve sweeps back toward the heading it points away from.
-					 */
-					?>
-					<svg class="iflynepal-annot__arrow" viewBox="0 0 46 126" fill="none" aria-hidden="true" focusable="false">
-						<g transform="translate(46 0) rotate(90)">
-							<path class="iflynepal-annot__dash" d="M2 34c14 6 29 9 45 8 20-1 38-8 58-19" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7" stroke-linecap="round"/>
-							<path class="iflynepal-annot__head" d="M91 15.5 107.5 22.5 99.5 37" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-						</g>
-					</svg>
-					<b>
-						<?php
-						/*
-						 * The gap before the ending is a non-breaking space
-						 * rather than a margin or a plain space: this span is an
-						 * inline-block, so an ordinary trailing space would be
-						 * trimmed off the end of its line box and the fixed part
-						 * would butt straight into the ending. The script picks
-						 * this text up as it stands, nbsp included, so the two
-						 * cannot drift apart.
-						 */
-						?>
-						<span class="iflynepal-annot__static"><?php echo esc_html( $iflynepal_note_static ); ?>&#160;</span>
-						<span class="iflynepal-annot__word"><?php echo esc_html( isset( $iflynepal_note_words[0] ) ? $iflynepal_note_words[0] : '' ); ?></span>
-					</b>
-				</span>
-			<?php endif; ?>
+			<?php iflynepal_archive_the_head( $iflynepal_id, 'listing' ); ?>
 		</div>
 
 		<?php
@@ -103,6 +59,58 @@ $iflynepal_children = iflynepal_archive_filter_terms( $iflynepal_id, $iflynepal_
 					</button>
 				<?php endforeach; ?>
 			</div>
+		<?php endif; ?>
+
+		<?php
+		/*
+		 * The hand-drawn note. Both halves are separate spans because only
+		 * the tail re-types: the fixed part is set once and never touched,
+		 * so nothing to the left of the tail can shift while a word grows.
+		 * The words travel to the script as a data attribute rather than as
+		 * text, so the markup carries no half-typed state.
+		 *
+		 * Sits here, between the filter row and the grid, on every viewport —
+		 * it used to live beside the heading and get pulled down onto this
+		 * spot with a hand-tuned `position: relative; top` offset, which only
+		 * matched the filter row's real height by coincidence and broke the
+		 * moment a category-less archive skipped that row. Printing it where
+		 * it visually belongs removes the offset (and the coincidence) rather
+		 * than tuning it.
+		 */
+		$iflynepal_note_static = iflynepal_archive_field( $iflynepal_id, 'listing_annotation_static' );
+		$iflynepal_note_words  = iflynepal_archive_field_lines( $iflynepal_id, 'listing_annotation_words' );
+
+		if ( '' !== $iflynepal_note_static || ! empty( $iflynepal_note_words ) ) :
+			?>
+			<span class="iflynepal-annot" aria-hidden="true" data-words="<?php echo esc_attr( wp_json_encode( $iflynepal_note_words ) ); ?>">
+				<?php
+				/*
+				 * Drawn vertically in its own box and mirrored in CSS, so the
+				 * curve sweeps back toward the heading it points away from.
+				 */
+				?>
+				<svg class="iflynepal-annot__arrow" viewBox="0 0 46 126" fill="none" aria-hidden="true" focusable="false">
+					<g transform="translate(46 0) rotate(90)">
+						<path class="iflynepal-annot__dash" d="M2 34c14 6 29 9 45 8 20-1 38-8 58-19" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7" stroke-linecap="round"/>
+						<path class="iflynepal-annot__head" d="M91 15.5 107.5 22.5 99.5 37" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+					</g>
+				</svg>
+				<b>
+					<?php
+					/*
+					 * The gap before the ending is a non-breaking space
+					 * rather than a margin or a plain space: this span is an
+					 * inline-block, so an ordinary trailing space would be
+					 * trimmed off the end of its line box and the fixed part
+					 * would butt straight into the ending. The script picks
+					 * this text up as it stands, nbsp included, so the two
+					 * cannot drift apart.
+					 */
+					?>
+					<span class="iflynepal-annot__static"><?php echo esc_html( $iflynepal_note_static ); ?>&#160;</span>
+					<span class="iflynepal-annot__word"><?php echo esc_html( isset( $iflynepal_note_words[0] ) ? $iflynepal_note_words[0] : '' ); ?></span>
+				</b>
+			</span>
 		<?php endif; ?>
 
 		<div class="iflynepal-cards">

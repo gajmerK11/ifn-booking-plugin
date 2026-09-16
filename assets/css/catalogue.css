@@ -397,10 +397,6 @@
 /* ------------------------------------------------------- listing head + note */
 
 .iflynepal-listing__head {
-	display: flex;
-	align-items: flex-end;
-	justify-content: space-between;
-	gap: 48px;
 	margin-bottom: 20px;
 }
 
@@ -533,52 +529,23 @@
 	}
 }
 
-/* Dropped down to sit just above the cards it points at. Relative, so the row
-   keeps its layout height and nothing below it moves. */
-@media (min-width: 1025px) {
-
-	.iflynepal-annot {
-		position: relative;
-		top: 80px;
-	}
-}
-
 /*
- * The drop above assumes the filter row's own height as the clearance
- * between the head and the cards it lands in front of, true of every
- * top-level type archive, which always has at least one child category and
- * so always renders the row. A leaf category with no children of its own
- * (e.g. /trekking-nepal/remote-restricted/, which holds packages but no
- * sub-categories) renders no filter row at all, so the note's 80px drop
- * landed straight on top of the first row of cards instead of the
- * whitespace above them.
- *
- * Restores the same clearance directly, and only when the filter row is the
- * thing actually missing: the adjacent-sibling selector matches "cards
- * right after the head" and nothing else, so a page that does have the row
- * (and was already pixel-checked against the design) is untouched.
+ * Prints between the filter row and the grid in the markup now (see
+ * listing.php), on every viewport, rather than living beside the heading and
+ * getting pulled down onto this spot with a hand-tuned position offset. It is
+ * a block-level flex container with an intrinsic (max-content) width, so
+ * pushing it to the right edge of the section is just margin-left: auto —
+ * true at any width, with no offset to keep in sync with the filter row's
+ * height.
  */
-@media (min-width: 1025px) {
-
-	.iflynepal-listing__head + .iflynepal-cards {
-		margin-top: 82px;
-	}
+.iflynepal-annot {
+	margin: 0 0 24px auto;
 }
 
 @media (max-width: 1024px) {
 
-	.iflynepal-listing__head {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 26px;
-	}
-
 	.iflynepal-listing__head .iflynepal-section-head {
 		max-width: none;
-	}
-
-	.iflynepal-annot {
-		align-self: flex-end;
 	}
 
 	/* The ink inset scales down with the smaller box, so the desktop pull-in is
@@ -648,6 +615,30 @@
 	border-color: var(--ifn-navy);
 	background: var(--ifn-navy);
 	color: #fff;
+}
+
+/*
+ * Below 360px a pill sized to its own label (the default flex-wrap behaviour)
+ * puts one filter per row once a label is longer than a couple of words —
+ * "Ayurvedic Retreats" alone is wider than the screen has to spare. Forced
+ * into three equal grid columns instead, so the row always holds three, and a
+ * long label wraps onto a second line inside its own pill rather than pushing
+ * the others down to their own rows.
+ */
+@media (max-width: 360px) {
+
+	.iflynepal-filter-row {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.iflynepal-filter-btn {
+		padding: 8px 6px;
+		font-size: 11px;
+		line-height: 1.25;
+		white-space: normal;
+		text-align: center;
+	}
 }
 
 /* ------------------------------------------------------------------ cards */
