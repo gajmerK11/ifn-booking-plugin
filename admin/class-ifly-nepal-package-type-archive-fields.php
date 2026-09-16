@@ -299,7 +299,7 @@ class IFly_Nepal_Package_Type_Archive_Fields {
 
 			case 'url':
 				printf(
-					'<input type="url" id="%1$s" name="%2$s" value="%3$s" class="large-text" inputmode="url">',
+					'<input type="text" id="%1$s" name="%2$s" value="%3$s" class="large-text" inputmode="url">',
 					esc_attr( $id ),
 					esc_attr( $name ),
 					esc_url( $value )

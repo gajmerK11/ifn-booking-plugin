@@ -535,7 +535,7 @@
 
 /* Dropped down to sit just above the cards it points at. Relative, so the row
    keeps its layout height and nothing below it moves. */
-@media (min-width: 1001px) {
+@media (min-width: 1025px) {
 
 	.iflynepal-annot {
 		position: relative;
@@ -558,14 +558,14 @@
  * right after the head" and nothing else, so a page that does have the row
  * (and was already pixel-checked against the design) is untouched.
  */
-@media (min-width: 1001px) {
+@media (min-width: 1025px) {
 
 	.iflynepal-listing__head + .iflynepal-cards {
 		margin-top: 82px;
 	}
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1024px) {
 
 	.iflynepal-listing__head {
 		flex-direction: column;
@@ -578,7 +578,7 @@
 	}
 
 	.iflynepal-annot {
-		order: -1;
+		align-self: flex-end;
 	}
 
 	/* The ink inset scales down with the smaller box, so the desktop pull-in is
@@ -591,6 +591,25 @@
 
 	.iflynepal-annot b {
 		font-size: 23px;
+	}
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+
+	.iflynepal-listing__head .iflynepal-section-head h2 {
+		font-size: clamp(42px, 6vw, 52px);
+	}
+}
+
+@media (min-width: 901px) and (max-width: 1024px) {
+
+	.iflynepal-listing__head .iflynepal-section-head h2 {
+		font-size: clamp(52px, 5.5vw, 58px);
+	}
+
+	.iflynepal-listing__head .iflynepal-lead {
+		max-width: none;
+		white-space: nowrap;
 	}
 }
 
