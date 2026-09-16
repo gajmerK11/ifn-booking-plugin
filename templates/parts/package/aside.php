@@ -20,6 +20,14 @@ $iflynepal_price  = iflynepal_package_field( $iflynepal_id, 'price_amount' );
 $iflynepal_expert = iflynepal_package_field( $iflynepal_id, 'expert_name' );
 
 /*
+ * Group-size pricing, when the package has any. A package with tiers prices
+ * itself from them and the flat price_amount is not shown at all: two numbers
+ * on one card, one of which is not what anybody would be charged, is worse than
+ * either on its own. The card therefore renders when *either* is filled in.
+ */
+$iflynepal_tiers = iflynepal_package_price_tiers( $iflynepal_id );
+
+/*
  * The aside used to return early when a package carried neither a price nor an
  * expert. It no longer can: Inquire now lives in it, and an enquiry is the one
  * thing every package has to offer whether or not anybody has typed a price yet
@@ -43,34 +51,100 @@ $iflynepal_eyebrow  = iflynepal_package_field( $iflynepal_id, 'price_eyebrow' );
  * shortcode's rendered output is printed twice on the page.
  */
 $iflynepal_pay = iflynepal_package_payment_markup( $iflynepal_id );
+
+/*
+ * The price is split so the design can set the currency small and raised and
+ * the pence small beside the figure. Split here rather than asking an editor to
+ * type three fields: they type one number, and the presentation is the
+ * template's problem. It is a closure because the card prints a figure once
+ * with a flat price and once per rung with a ladder, and one of the two would
+ * otherwise be a copy of the other's typography.
+ */
+$iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use ( $iflynepal_currency ) {
+	$iflynepal_parts = explode( '.', number_format( (float) $iflynepal_amount, 2, '.', ',' ) );
+	?>
+	<strong>
+		<?php if ( '' !== $iflynepal_currency ) : ?>
+			<sup><?php echo esc_html( $iflynepal_currency ); ?></sup>
+		<?php endif; ?>
+		<?php echo esc_html( $iflynepal_parts[0] ); ?>
+	</strong>
+	<span>.<?php echo esc_html( $iflynepal_parts[1] ); ?> / <?php echo esc_html( $iflynepal_unit ); ?></span>
+	<?php
+};
 ?>
 
 <aside class="iflynepal-pkg-trip-aside" aria-label="<?php esc_attr_e( 'Price and booking', 'iflynepal' ); ?>">
-	<?php if ( '' !== $iflynepal_price ) : ?>
+	<?php if ( '' !== $iflynepal_price || $iflynepal_tiers ) : ?>
 		<div class="iflynepal-pkg-price-card" id="ifnpkg-price-card">
 			<?php if ( '' !== $iflynepal_eyebrow ) : ?>
 				<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( $iflynepal_eyebrow ); ?></span>
 			<?php endif; ?>
 
-			<?php
-			/*
-			 * The price is split so the design can set the currency small and
-			 * raised and the pence small beside the figure. Split here rather
-			 * than asking an editor to type three fields: they type one number,
-			 * and the presentation is the template's problem.
-			 */
-			$iflynepal_parts = explode( '.', number_format( (float) $iflynepal_price, 2, '.', ',' ) );
-			?>
-			<div class="iflynepal-pkg-price-from">
-				<small><?php esc_html_e( 'From', 'iflynepal' ); ?></small>
-				<strong>
-					<?php if ( '' !== $iflynepal_currency ) : ?>
-						<sup><?php echo esc_html( $iflynepal_currency ); ?></sup>
+			<?php if ( $iflynepal_tiers ) : ?>
+				<?php
+				/*
+				 * The ladder, client-directed as plain lines rather than boxed rungs:
+				 * a normal price, then a price per group size, set in the card's own
+				 * type. Every rung is on the page from the first frame, because the
+				 * discount for bringing more people is the thing being sold and a
+				 * visitor who never touches the stepper below should still see it —
+				 * the rung matching the current traveller count is only the one set
+				 * large.
+				 *
+				 * The bounds and the price are on each line as data attributes:
+				 * package.js re-reads them when the stepper changes rather than being
+				 * handed a second copy of the same ladder, so the card and the
+				 * calculator cannot drift apart. With JavaScript off the first rung
+				 * stays large and every rung is still legible, which is the whole
+				 * ladder either way.
+				 */
+
+				/*
+				 * What the trip costs before any group discount, stated once at the
+				 * top rather than struck through beside every rung. The flat price
+				 * field is it where one is typed — that is exactly what that field
+				 * has always meant — and the highest "before" price on the ladder
+				 * stands in where it is not, so a package priced only by tiers still
+				 * says what the discount is a discount from.
+				 */
+				$iflynepal_normal = (float) $iflynepal_price;
+
+				foreach ( $iflynepal_tiers as $iflynepal_tier ) {
+					$iflynepal_normal = max( $iflynepal_normal, $iflynepal_tier['was'] );
+				}
+				?>
+				<div class="iflynepal-pkg-price-tiers" id="ifnpkg-price-tiers">
+					<?php if ( $iflynepal_normal > 0 ) : ?>
+						<p class="iflynepal-pkg-price-normal">
+							<span><?php esc_html_e( 'Normal price:', 'iflynepal' ); ?></span>
+							<s><?php echo esc_html( ( '' !== $iflynepal_currency ? $iflynepal_currency . ' ' : '' ) . number_format( $iflynepal_normal, 2, '.', ',' ) ); ?></s>
+						</p>
 					<?php endif; ?>
-					<?php echo esc_html( $iflynepal_parts[0] ); ?>
-				</strong>
-				<span>.<?php echo esc_html( $iflynepal_parts[1] ); ?> / <?php esc_html_e( 'person', 'iflynepal' ); ?></span>
-			</div>
+
+					<?php foreach ( $iflynepal_tiers as $iflynepal_index => $iflynepal_tier ) : ?>
+						<div class="iflynepal-pkg-price-tier<?php echo 0 === $iflynepal_index ? ' iflynepal-pkg-is-active' : ''; ?>"
+							data-from="<?php echo esc_attr( (string) $iflynepal_tier['from'] ); ?>"
+							data-to="<?php echo esc_attr( (string) $iflynepal_tier['to'] ); ?>"
+							data-price="<?php echo esc_attr( (string) $iflynepal_tier['price'] ); ?>">
+							<span class="iflynepal-pkg-price-tier__pax">
+								<?php
+								/* translators: %s: a group size, e.g. "1–12 pax". */
+								printf( esc_html__( '%s price:', 'iflynepal' ), esc_html( $iflynepal_tier['label'] ) );
+								?>
+							</span>
+							<span class="iflynepal-pkg-price-from">
+								<?php $iflynepal_figure( $iflynepal_tier['price'], __( 'pax', 'iflynepal' ) ); ?>
+							</span>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php else : ?>
+				<div class="iflynepal-pkg-price-from">
+					<small><?php esc_html_e( 'From', 'iflynepal' ); ?></small>
+					<?php $iflynepal_figure( $iflynepal_price, __( 'person', 'iflynepal' ) ); ?>
+				</div>
+			<?php endif; ?>
 
 			<?php if ( ! empty( $iflynepal_points ) ) : ?>
 				<ul class="iflynepal-pkg-check-list">

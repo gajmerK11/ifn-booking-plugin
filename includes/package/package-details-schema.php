@@ -58,6 +58,18 @@ const IFLYNEPAL_PACKAGE_ITINERARY_WEEKS_MAX = 12;
 const IFLYNEPAL_PACKAGE_TIMELINE_MAX = 20;
 
 /**
+ * The most group-size price tiers one package can hold.
+ *
+ * A tier is a discount for travelling in a group — "1–12 pax, was 540, now
+ * 502 each". Six is well past what any package the client sells uses, and the
+ * cap exists for the same reason every other repeater has one: a repeater with
+ * no ceiling is a page nobody has laid out.
+ *
+ * @since 1.0.0
+ */
+const IFLYNEPAL_PACKAGE_PRICE_TIERS_MAX = 6;
+
+/**
  * The most FAQ entries one package can hold.
  *
  * @since 1.0.0
@@ -397,6 +409,52 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Price card eyebrow', 'iflynepal' ),
 		'type'    => 'text',
 		'help'    => __( 'The small line above the price, e.g. "All inclusive price".', 'iflynepal' ),
+	);
+
+	/*
+	 * Group-size pricing: "1–12 pax, from 540, now 502 each". A repeater rather
+	 * than a pair of fields because the discount is a ladder — the price per
+	 * head falls as the group grows, and how many rungs that ladder has is the
+	 * package's business, not the schema's.
+	 *
+	 * It sits beside price_amount rather than replacing it. price_amount is
+	 * still the package's price with nothing else said, and a package with no
+	 * tiers at all is exactly the page it was before this field existed. Where
+	 * tiers are filled in they take over both the price card and the
+	 * calculator's arithmetic, so the two can never quote different numbers at
+	 * the same traveller count.
+	 *
+	 * Every part is plain text and nothing is enforced, per the note at the top
+	 * of this file: what is typed is read as a number where a number is needed
+	 * (iflynepal_package_price_tiers()) and shown as typed everywhere else.
+	 */
+	$fields['price_tiers'] = array(
+		'box'     => 'details',
+		'section' => 'booking',
+		/* translators: %d: the most tiers allowed. */
+		'label'   => sprintf( __( 'Group-size prices (max %d)', 'iflynepal' ), IFLYNEPAL_PACKAGE_PRICE_TIERS_MAX ),
+		'type'    => 'cards',
+		'help'    => __( 'One row per group size, smallest group first. The price card shows the row matching how many travellers are picked, and the total is worked out from it. Leave this empty to price the package at one rate for everybody.', 'iflynepal' ),
+		'item'    => __( 'Tier', 'iflynepal' ),
+		'max'     => IFLYNEPAL_PACKAGE_PRICE_TIERS_MAX,
+		'parts'   => array(
+			'pax_from' => array(
+				'label' => __( 'From how many travellers', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'pax_to'   => array(
+				'label' => __( 'Up to how many travellers (leave empty for no upper limit)', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'was'      => array(
+				'label' => __( 'Price before the discount (optional, shown struck through)', 'iflynepal' ),
+				'type'  => 'text',
+			),
+			'price'    => array(
+				'label' => __( 'Price per person at this group size', 'iflynepal' ),
+				'type'  => 'text',
+			),
+		),
 	);
 
 	$fields['price_points'] = array(

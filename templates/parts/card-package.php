@@ -12,7 +12,8 @@
  * @package IFly_Nepal
  * @since   1.0.0
  *
- * @var array $args Passed by iflynepal_booking_get_part(). Holds 'package'.
+ * @var array $args Passed by iflynepal_booking_get_part(). Holds 'package' and,
+ *                   on an archive with a Budget filter, 'budget_buckets'.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,6 +23,30 @@ $iflynepal_package = isset( $args['package'] ) ? $args['package'] : null;
 if ( ! $iflynepal_package instanceof WP_Post ) {
 	return;
 }
+
+/*
+ * Duration and budget filter keys, for the archive's filter row to match
+ * against. Both are empty when the package has nothing usable to bucket, which
+ * quietly drops the card from that facet without hiding it from "All" or
+ * from the other two.
+ *
+ * 🔴 Duration is a space-separated LIST, not a single key, because a package's
+ * length is a span — "7 to 24 days" is the norm here — and it belongs under
+ * every bucket that span reaches. The card carries them all and filters.js
+ * matches this attribute by inclusion, the same way it already matches
+ * data-categories. It is read off the Duration field on the Package Card, which
+ * is where an editor actually types it.
+ *
+ * Duration reads the same site-wide length buckets everywhere, so it needs
+ * nothing passed in. Budget is worked out per archive from the packages
+ * actually on that page, so its buckets have to arrive as an argument — a card
+ * rendered outside a listing (the whole-catalogue archive, the related rail)
+ * simply gets none and the attribute comes out empty, same as a package with no
+ * price at all.
+ */
+$iflynepal_budget_buckets = isset( $args['budget_buckets'] ) && is_array( $args['budget_buckets'] ) ? $args['budget_buckets'] : array();
+$iflynepal_duration_key   = implode( ' ', iflynepal_archive_duration_keys( $iflynepal_package->ID ) );
+$iflynepal_budget_key     = empty( $iflynepal_budget_buckets ) ? '' : iflynepal_archive_budget_key( $iflynepal_package->ID, $iflynepal_budget_buckets );
 
 $iflynepal_post_id = $iflynepal_package->ID;
 $iflynepal_pill    = iflynepal_package_field( $iflynepal_post_id, 'pill' );
@@ -55,7 +80,7 @@ $iflynepal_facts = array_filter(
 $iflynepal_slugs = iflynepal_package_filter_slugs( $iflynepal_post_id );
 ?>
 
-<article class="iflynepal-card" data-categories="<?php echo esc_attr( implode( ' ', $iflynepal_slugs ) ); ?>" data-iflynepal-anim>
+<article class="iflynepal-card" data-categories="<?php echo esc_attr( implode( ' ', $iflynepal_slugs ) ); ?>" data-duration="<?php echo esc_attr( $iflynepal_duration_key ); ?>" data-budget="<?php echo esc_attr( $iflynepal_budget_key ); ?>" data-iflynepal-anim>
 	<div class="iflynepal-card__media">
 		<?php
 		if ( has_post_thumbnail( $iflynepal_post_id ) ) {

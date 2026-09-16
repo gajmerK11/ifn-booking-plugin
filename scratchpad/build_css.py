@@ -710,6 +710,84 @@ EXTRAS = u"""
   justify-content:center;
   margin-top:40px;
 }
+/*
+ * Group-size pricing on the price card. Client-directed as plain lines — no
+ * box, no border, no ground — set in the card's own type: a normal price, then
+ * one line per group size.
+ *
+ * Every line is on the page at once; the one the current traveller count falls
+ * on is the one set large (package.js moves .iflynepal-pkg-is-active as the
+ * stepper changes). The figure on a line is the card's own
+ * .iflynepal-pkg-price-from, re-sized rather than re-styled, so a discounted
+ * price is typeset exactly like an undiscounted one.
+ */
+.iflynepal-pkg-price-tiers{display:grid;gap:4px;justify-items:center}
+
+/*
+ * The normal price is a different statement from the rates under it — what the
+ * trip costs before any group discount — so it is set off from the ladder
+ * rather than reading as its first line. The gap is on this line alone; the
+ * rungs stay tight to each other, because they are one list.
+ */
+.iflynepal-pkg-price-normal{display:flex;align-items:baseline;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 12px;font-size:13.5px}
+.iflynepal-pkg-price-normal span{color:var(--ifnpkg-muted);font-weight:600}
+/*
+ * The struck figure is set in the page's own ink rather than the muted grey a
+ * cancelled number usually takes: it is the anchor the discount is read
+ * against, so it has to be legible at a glance. The rule through it is what
+ * says it is not the price being charged — that job does not also need the
+ * number greyed to the edge of readable.
+ */
+.iflynepal-pkg-price-normal s{color:var(--ifnpkg-ink);font-size:17px;font-weight:700;text-decoration-thickness:1px;text-decoration-color:rgba(109,117,126,.85)}
+
+/*
+ * The row gap is the space between a rung's label and its figure on the widths
+ * where the two do not fit on one line — which is most of them, since the
+ * active rung's figure is the card's headline. It is the taller of the two gaps
+ * on purpose: the label belongs to the figure under it, and 2px read as the two
+ * being crammed rather than paired.
+ */
+.iflynepal-pkg-price-tier{display:flex;align-items:baseline;flex-wrap:wrap;justify-content:center;gap:8px}
+.iflynepal-pkg-price-tier__pax{color:var(--ifnpkg-ink-deep);font-size:13.5px;font-weight:800;letter-spacing:.01em}
+.iflynepal-pkg-price-tier .iflynepal-pkg-price-from strong{font-size:20px;transition:font-size .25s ease}
+/*
+ * The card's own currency mark is raised 1.3em, which clears the "From" line it
+ * was drawn against. On a ladder line the label sits on the same baseline as
+ * the figure, so that lift puts the currency above the line it belongs to; it
+ * is brought back down beside the figure instead.
+ */
+.iflynepal-pkg-price-tier .iflynepal-pkg-price-from strong sup{font-size:.45em;vertical-align:.5em}
+
+/* the rate the current group qualifies for, and the card's headline with it */
+.iflynepal-pkg-price-tier.iflynepal-pkg-is-active .iflynepal-pkg-price-from strong{font-size:34px}
+
+/*
+ * The card's lone "From" line carries a 32px nudge on narrow screens so it does
+ * not read as adrift from a left-aligned checklist. A ladder is centred at
+ * every width, so that nudge would push it off centre.
+ */
+@media (max-width:1000px){
+  .iflynepal-pkg-price-tier .iflynepal-pkg-price-from{margin-left:0}
+}
+
+/*
+ * The ladder is the last thing above the booking buttons, and client-directed
+ * to sit closer to them than the 22px the checklist leaves behind it — that
+ * margin is spacing after a list of ticks, not after a price. The gateway's own
+ * button carries about 20px of inset above it that this plugin does not style,
+ * so the space left here is deliberately small.
+ */
+.iflynepal-pkg-price-tiers + .iflynepal-pkg-price-actions{margin-top:4px}
+/*
+ * On a short screen the card sheds its checklist and the buttons inherit the
+ * 22px that was spacing them from it. The list is not there to be spaced from,
+ * so the ladder would sit in a gap left by something invisible. The selector
+ * has to name the margin rather than lean on a sibling combinator: the empty
+ * <ul> is still in the DOM between the two, display:none and all.
+ */
+@media (min-width:1001px) and (max-height:860px){
+  .iflynepal-pkg-price-card .iflynepal-pkg-price-actions{margin-top:4px}
+}
 """
 
 header = """/**

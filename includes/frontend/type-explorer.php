@@ -161,6 +161,41 @@ function iflynepal_explore_selected_duration() {
 }
 
 /**
+ * The price bracket a visitor asked for, if any.
+ *
+ * Same shape and same forgiveness as iflynepal_explore_selected_duration(): a
+ * `budget` value that matches none of iflynepal_trip_finder_budgets()' keys is
+ * read as "no preference" rather than rejected.
+ *
+ * ⚠ That forgiveness does real work here, more than it does for duration.
+ * Budget brackets are derived from the catalogue's own price spread, so
+ * publishing one expensive package re-cuts every bracket and changes every key.
+ * A link somebody shared last month can name a bracket that no longer exists,
+ * and the right answer to that is the unfiltered page, not an error.
+ *
+ * @since 1.0.0
+ *
+ * @return array{key: string, label: string, min: float, max: float|null}|null
+ */
+function iflynepal_explore_selected_budget() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display filter, changes nothing server-side.
+	if ( ! isset( $_GET['budget'] ) ) {
+		return null;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Same as above.
+	$key = sanitize_title( wp_unslash( $_GET['budget'] ) );
+
+	foreach ( iflynepal_trip_finder_budgets() as $bracket ) {
+		if ( $bracket['key'] === $key ) {
+			return $bracket;
+		}
+	}
+
+	return null;
+}
+
+/**
  * The packages filed under a term, optionally narrowed to a trip-length
  * bucket.
  *
@@ -169,48 +204,99 @@ function iflynepal_explore_selected_duration() {
  * no length filter and should not gain one silently as a side effect of this
  * page's own needs.
  *
+ * 🔴 The length filter is applied in PHP, not in the query, and it has to be.
+ * A package's length is the free-text Duration on its Package Card — "3 Weeks",
+ * "7 to 24 days" — which is the field an editor actually fills in (16 of 18
+ * packages here carry it; 4 carry the numeric one). Nothing in SQL can read
+ * "3 Weeks" as twenty-one days, so the comparison cannot be a meta_query.
+ *
+ * This replaced a meta_query against the numeric Trip duration (days). That
+ * query was correct SQL over the wrong column: it matched the quarter of the
+ * catalogue carrying that number and silently dropped the rest, so the same
+ * question got one answer here and a different one on the archive's own
+ * Duration facet. One source now, and it is the one with the content in it.
+ *
+ * ⚠ Because the filter runs after the fetch, a filtered call reads every
+ * package in the branch rather than the handful it will print. That is one
+ * unbounded query per selected type, at most five of them, and it shares the
+ * catalogue-size ceiling already recorded against iflynepal_archive_packages()'s
+ * own limit of 24 — when that is addressed, this wants addressing with it.
+ *
  * @since 1.0.0
  *
  * @param int        $term_id  Package type term.
- * @param int        $limit    Posts to fetch.
+ * @param int        $limit    Posts to return.
  * @param array|null $duration Bucket from iflynepal_explore_selected_duration(),
  *                              or null for no length filter.
+ * @param array|null $budget   Bracket from iflynepal_explore_selected_budget(),
+ *                              or null for no price filter.
  * @return WP_Post[] Packages.
  */
-function iflynepal_explore_packages_for_term( $term_id, $limit, $duration = null ) {
-	$args = array(
-		'post_type'        => IFLYNEPAL_PACKAGE_POST_TYPE,
-		'post_status'      => 'publish',
-		'numberposts'      => (int) $limit,
-		'suppress_filters' => false,
-		'tax_query'        => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-			array(
-				'taxonomy'         => IFLYNEPAL_PACKAGE_TAXONOMY,
-				'field'            => 'term_id',
-				'terms'            => (int) $term_id,
-				'include_children' => true,
+function iflynepal_explore_packages_for_term( $term_id, $limit, $duration = null, $budget = null ) {
+	$filtering = is_array( $duration ) || is_array( $budget );
+
+	$packages = get_posts(
+		array(
+			'post_type'        => IFLYNEPAL_PACKAGE_POST_TYPE,
+			'post_status'      => 'publish',
+			'numberposts'      => $filtering ? -1 : (int) $limit,
+			'suppress_filters' => false,
+			'tax_query'        => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				array(
+					'taxonomy'         => IFLYNEPAL_PACKAGE_TAXONOMY,
+					'field'            => 'term_id',
+					'terms'            => (int) $term_id,
+					'include_children' => true,
+				),
 			),
-		),
+		)
 	);
 
-	if ( is_array( $duration ) ) {
-		/*
-		 * 'type' => 'NUMERIC' matters: Trip duration (days) is stored as
-		 * plain post meta (a string, as all post meta is), and without it
-		 * BETWEEN and >= would compare "10" against "9" as text and put it
-		 * before "9", not after.
-		 */
-		$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-			array(
-				'key'     => iflynepal_package_meta_key( 'duration_days' ),
-				'type'    => 'NUMERIC',
-				'value'   => null === $duration['max'] ? (int) $duration['min'] : array( (int) $duration['min'], (int) $duration['max'] ),
-				'compare' => null === $duration['max'] ? '>=' : 'BETWEEN',
-			),
-		);
+	if ( ! $filtering ) {
+		return $packages;
 	}
 
-	return get_posts( $args );
+	$matching = array();
+
+	foreach ( $packages as $package ) {
+		if ( is_array( $duration ) ) {
+			$range = iflynepal_package_duration_range( $package->ID );
+
+			/*
+			 * Overlap, not containment, and the same rule the archive's facet
+			 * uses: a trek advertised "7 to 24 days" can be walked in ten, so
+			 * a visitor who said they have ten to fourteen days should be
+			 * shown it. A package that says nothing usable about its length is
+			 * not offered against a length nobody wrote down.
+			 */
+			if ( null === $range || ! iflynepal_duration_range_overlaps( $range, $duration ) ) {
+				continue;
+			}
+		}
+
+		if ( is_array( $budget ) ) {
+			$price = iflynepal_archive_package_price( $package->ID );
+
+			/*
+			 * A price is one number, not a span — the card's "From $800" is a
+			 * floor, and the floor is what a visitor with a budget is choosing
+			 * against — so this is containment where duration is overlap. Same
+			 * asymmetry the archive's two facets already have, for the same
+			 * reason: data-budget is one key and data-duration is a list.
+			 */
+			if ( null === $price || $price < $budget['min'] ) {
+				continue;
+			}
+
+			if ( null !== $budget['max'] && $price > $budget['max'] ) {
+				continue;
+			}
+		}
+
+		$matching[] = $package;
+	}
+
+	return array_slice( $matching, 0, (int) $limit );
 }
 
 /**
@@ -311,9 +397,10 @@ function iflynepal_explore_the_type_section( $term, $packages, $index = 0 ) {
  * @param WP_Term[]  $explicit_types Types the visitor actually ticked. Empty
  *                                   when the page is running on duration alone.
  * @param array|null $duration       Bucket from iflynepal_explore_selected_duration().
+ * @param array|null $budget         Bracket from iflynepal_explore_selected_budget().
  * @return string Escaped HTML, ready to echo.
  */
-function iflynepal_explore_selection_summary( $explicit_types, $duration ) {
+function iflynepal_explore_selection_summary( $explicit_types, $duration, $budget = null ) {
 	if ( $explicit_types ) {
 		$type_list = wp_sprintf_l( '%l', wp_list_pluck( $explicit_types, 'name' ) );
 		$bits      = array(
@@ -329,6 +416,10 @@ function iflynepal_explore_selection_summary( $explicit_types, $duration ) {
 
 	if ( $duration ) {
 		$bits[] = '<span class="iflynepal-ink-mark">' . esc_html( $duration['label'] ) . '</span>';
+	}
+
+	if ( $budget ) {
+		$bits[] = '<span class="iflynepal-ink-mark">' . esc_html( $budget['label'] ) . '</span>';
 	}
 
 	return implode( ', ', $bits );
@@ -348,9 +439,27 @@ function iflynepal_explore_selection_summary( $explicit_types, $duration ) {
  * @param array|null $duration Bucket from iflynepal_explore_selected_duration(),
  *                              so the message can name it when that is why
  *                              nothing matched.
+ * @param array|null $budget   Bracket from iflynepal_explore_selected_budget(),
+ *                              named alongside it for the same reason.
  * @return void
  */
-function iflynepal_explore_the_empty_notice( $duration ) {
+function iflynepal_explore_the_empty_notice( $duration, $budget = null ) {
+	/*
+	 * Both narrowings are named when both were asked for, because "no trip at
+	 * 10-14 days" and "no trip at 10-14 days under $1,000" are different pieces
+	 * of news and only the second one is true.
+	 */
+	$asked = array();
+
+	if ( $duration ) {
+		$asked[] = $duration['label'];
+	}
+
+	if ( $budget ) {
+		$asked[] = $budget['label'];
+	}
+
+	$asked_for   = $asked ? wp_sprintf_l( '%l', $asked ) : '';
 	$archive_url = get_post_type_archive_link( IFLYNEPAL_PACKAGE_POST_TYPE );
 	?>
 	<?php
@@ -367,13 +476,13 @@ function iflynepal_explore_the_empty_notice( $duration ) {
 		<div class="iflynepal-container">
 			<div class="iflynepal-section-head iflynepal-section-head--center">
 				<h2><?php esc_html_e( 'Nothing matches, yet', 'iflynepal' ); ?></h2>
-				<?php if ( $duration ) : ?>
+				<?php if ( '' !== $asked_for ) : ?>
 					<p class="iflynepal-lead">
 						<?php
 						printf(
-							/* translators: %s: the duration bucket's label, e.g. "10-14 days". */
+							/* translators: %s: an "and"-joined list of what was asked for, e.g. "10-14 days and USD 0-1,000". */
 							esc_html__( 'We do not have a trip matching %s just yet. Our team adds new departures often, so it is worth checking back, or get in touch and we will help you find one.', 'iflynepal' ),
-							esc_html( $duration['label'] )
+							esc_html( $asked_for )
 						);
 						?>
 					</p>
@@ -430,10 +539,16 @@ function iflynepal_explore_the_empty_notice( $duration ) {
 function iflynepal_booking_render_type_explorer() {
 	$explicit_types = iflynepal_explore_selected_types();
 	$duration       = iflynepal_explore_selected_duration();
+	$budget         = iflynepal_explore_selected_budget();
 	$types          = $explicit_types;
 
 	if ( empty( $types ) ) {
-		if ( null === $duration ) {
+		/*
+		 * A price on its own is as valid a search as a length on its own —
+		 * "whatever kind of trip, under a thousand" — so it falls back to every
+		 * type the same way. Ticking nothing at all still renders nothing.
+		 */
+		if ( null === $duration && null === $budget ) {
 			return '';
 		}
 
@@ -454,7 +569,7 @@ function iflynepal_booking_render_type_explorer() {
 	$sections = array();
 
 	foreach ( $types as $term ) {
-		$packages = iflynepal_explore_packages_for_term( $term->term_id, IFLYNEPAL_EXPLORE_CARDS_PER_TYPE, $duration );
+		$packages = iflynepal_explore_packages_for_term( $term->term_id, IFLYNEPAL_EXPLORE_CARDS_PER_TYPE, $duration, $budget );
 
 		if ( $packages ) {
 			$sections[] = array(
@@ -481,7 +596,7 @@ function iflynepal_booking_render_type_explorer() {
 					 * so this remains the only heading on the page either way.
 					 */
 					?>
-					<h2><?php echo iflynepal_explore_selection_summary( $explicit_types, $duration ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped internally, see the function. ?></h2>
+					<h2><?php echo iflynepal_explore_selection_summary( $explicit_types, $duration, $budget ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped internally, see the function. ?></h2>
 				</div>
 			</div>
 		</section>
@@ -493,7 +608,7 @@ function iflynepal_booking_render_type_explorer() {
 			}
 			?>
 		<?php else : ?>
-			<?php iflynepal_explore_the_empty_notice( $duration ); ?>
+			<?php iflynepal_explore_the_empty_notice( $duration, $budget ); ?>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -567,7 +682,13 @@ add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_type_explorer_style
  * @return void
  */
 function iflynepal_booking_enqueue_type_explorer_scripts() {
-	if ( ! iflynepal_booking_has_type_explorer() ) {
+	/*
+	 * The whole-catalogue archive draws the same bands through the same
+	 * renderer, so it emits the same [data-iflynepal-fade] and needs the same
+	 * script. Without it those sections stay at the opacity their own CSS
+	 * starts them at and the page renders blank below the title.
+	 */
+	if ( ! iflynepal_booking_has_type_explorer() && ! is_post_type_archive( IFLYNEPAL_PACKAGE_POST_TYPE ) ) {
 		return;
 	}
 

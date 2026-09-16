@@ -671,3 +671,121 @@ function iflynepal_package_gallery( $post_id ) {
 
 	return $live;
 }
+
+/**
+ * A package's group-size price tiers, ready to render or to price with.
+ *
+ * Stored rows are free text, because nothing on a package is enforced on save.
+ * Everything a tier is *used* for is arithmetic, so the reading happens here,
+ * once: a row without a usable price or a usable starting group size is not a
+ * tier at all and is dropped rather than rendered as a blank line or priced at
+ * zero. Rows come back sorted by group size however they were typed, so the
+ * ladder on the page always climbs.
+ *
+ * `to` is 0 for an open-ended top tier ("13 or more"), which is the ordinary
+ * shape of the last rung rather than a missing value.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Package.
+ * @return array[] Tiers, each with 'from', 'to', 'price', 'was' and 'label'.
+ */
+function iflynepal_package_price_tiers( $post_id ) {
+	$tiers = array();
+
+	foreach ( iflynepal_package_cards( $post_id, 'price_tiers' ) as $row ) {
+		$from  = max( 1, (int) preg_replace( '/[^0-9]/', '', (string) $row['pax_from'] ) );
+		$to    = (int) preg_replace( '/[^0-9]/', '', (string) $row['pax_to'] );
+		$price = (float) preg_replace( '/[^0-9.]/', '', (string) $row['price'] );
+		$was   = (float) preg_replace( '/[^0-9.]/', '', (string) $row['was'] );
+
+		if ( $price <= 0 ) {
+			continue;
+		}
+
+		/*
+		 * A top limit below the bottom one is a typo, and the two readings of
+		 * it — an empty band, or the numbers swapped — are both guesses. The
+		 * tier is left open-ended instead, which is the one reading that
+		 * cannot price anybody out of a group they are actually in.
+		 */
+		if ( $to > 0 && $to < $from ) {
+			$to = 0;
+		}
+
+		$tiers[] = array(
+			'from'  => $from,
+			'to'    => $to,
+			'price' => $price,
+			/* A "was" at or below the price is not a discount, so it is not shown as one. */
+			'was'   => $was > $price ? $was : 0.0,
+			'label' => iflynepal_package_price_tier_label( $from, $to ),
+		);
+	}
+
+	usort(
+		$tiers,
+		static function ( $a, $b ) {
+			return $a['from'] <=> $b['from'];
+		}
+	);
+
+	return $tiers;
+}
+
+/**
+ * How one tier's group size reads on the page.
+ *
+ * @since 1.0.0
+ *
+ * @param int $from Smallest group in the tier.
+ * @param int $to   Largest, or 0 for no upper limit.
+ * @return string Label, e.g. "1–12 pax".
+ */
+function iflynepal_package_price_tier_label( $from, $to ) {
+	if ( $to > 0 && $to !== $from ) {
+		/* translators: 1: smallest group size, 2: largest group size. */
+		return sprintf( __( '%1$d–%2$d pax', 'iflynepal' ), $from, $to );
+	}
+
+	if ( $to > 0 ) {
+		/* translators: %d: group size. */
+		return sprintf( __( '%d pax', 'iflynepal' ), $from );
+	}
+
+	/* translators: %d: smallest group size in an open-ended tier. */
+	return sprintf( __( '%d+ pax', 'iflynepal' ), $from );
+}
+
+/**
+ * The tier a given number of travellers falls in.
+ *
+ * A count outside every tier still gets one, because the page has to quote
+ * *some* price: below the first tier's floor — including the zero the
+ * calculator starts at by design — the first tier stands, and above the last
+ * tier's ceiling the last one does. Falling back to the first in both
+ * directions would quote a group of thirty the small-group rate, which is the
+ * one answer a ladder exists to rule out.
+ *
+ * @since 1.0.0
+ *
+ * @param array[] $tiers Tiers from iflynepal_package_price_tiers().
+ * @param int     $pax   How many are travelling.
+ * @return array|null The matching tier, or null when there are no tiers.
+ */
+function iflynepal_package_price_tier_for_pax( $tiers, $pax ) {
+	if ( empty( $tiers ) ) {
+		return null;
+	}
+
+	$pax  = (int) $pax;
+	$last = $tiers[ count( $tiers ) - 1 ];
+
+	foreach ( $tiers as $tier ) {
+		if ( $pax >= $tier['from'] && ( 0 === $tier['to'] || $pax <= $tier['to'] ) ) {
+			return $tier;
+		}
+	}
+
+	return $pax > $last['to'] && $last['to'] > 0 ? $last : $tiers[0];
+}

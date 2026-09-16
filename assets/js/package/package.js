@@ -603,6 +603,27 @@
 		 * rather than a run of none.
 		 */
 		var days = Math.max( 1, parseInt( wrap.dataset.days, 10 ) || 1 );
+		/*
+		 * The group-size price ladder, read from the same list the price card
+		 * was rendered from rather than scraped back out of it: the card is a
+		 * view of this, not the source of it. Empty on a package priced at one
+		 * rate for everybody, in which case priceFor() below always answers the
+		 * flat price and nothing about the summary changes.
+		 *
+		 * Parsed defensively — a malformed attribute costs the ladder, not the
+		 * whole booker, and a booker that throws here would stop the calendar
+		 * drawing at all.
+		 */
+		var tiers = ( function () {
+			try {
+				var parsed = JSON.parse( wrap.dataset.tiers || '[]' );
+
+				return Array.isArray( parsed ) ? parsed : [];
+			} catch ( e ) {
+				return [];
+			}
+		}() );
+		var tierRows = [].slice.call( document.querySelectorAll( '#ifnpkg-price-tiers .iflynepal-pkg-price-tier' ) );
 		var today = new Date();
 		var view = new Date( today.getFullYear(), today.getMonth(), 1 );
 		var chosen = null;
@@ -753,6 +774,48 @@
 				view.getFullYear() === today.getFullYear() && view.getMonth() === today.getMonth();
 		}
 
+		/*
+		 * Which rung a traveller count falls on, and what a head costs there.
+		 * A count outside every rung still gets one: below the first rung's
+		 * floor — including the zero everybody starts at — the first rung
+		 * stands, and above the last rung's ceiling the last one does. The same
+		 * rule as iflynepal_package_price_tier_for_pax() in PHP, because both
+		 * answer the same question about the same ladder.
+		 */
+		function tierFor( count ) {
+			var i;
+			var last;
+
+			if ( ! tiers.length ) {
+				return null;
+			}
+
+			for ( i = 0; i < tiers.length; i++ ) {
+				if ( count >= tiers[ i ].from && ( 0 === tiers[ i ].to || count <= tiers[ i ].to ) ) {
+					return i;
+				}
+			}
+
+			last = tiers[ tiers.length - 1 ];
+
+			return last.to > 0 && count > last.to ? tiers.length - 1 : 0;
+		}
+
+		function priceFor( count ) {
+			var i = tierFor( count );
+
+			return null === i ? price : parseFloat( tiers[ i ].price ) || price;
+		}
+
+		/* Moves the large figure on the price card onto the rung now being quoted. */
+		function markTier( count ) {
+			var active = tierFor( count );
+
+			tierRows.forEach( function ( row, i ) {
+				row.classList.toggle( 'iflynepal-pkg-is-active', i === active );
+			} );
+		}
+
 		function total() {
 			var start = id( 'sum-start' );
 			var end = id( 'sum-end' );
@@ -772,9 +835,18 @@
 			 */
 			var ready = Boolean( chosen ) && pax > 0;
 
-			each.textContent = money( price );
+			/*
+			 * The rate is the one the group qualifies for, not the package's
+			 * headline: with a ladder filled in, per person and the total both
+			 * move as travellers are added, and the card above moves with them.
+			 */
+			var rate = priceFor( pax );
+
+			markTier( pax );
+
+			each.textContent = money( rate );
 			paxOut.textContent = '× ' + pax;
-			sum.textContent = money( price * pax );
+			sum.textContent = money( rate * pax );
 
 			if ( paxMinus ) {
 				paxMinus.disabled = pax <= 0;

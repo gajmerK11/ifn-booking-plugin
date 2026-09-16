@@ -82,6 +82,15 @@
 	--ifn-lift: var(--iflynepal-card-lift, 0.44s);
 	--ifn-fall: var(--iflynepal-card-fall, 0.62s);
 
+	/*
+	 * The theme's header at its docked height — what it is by the time the
+	 * catalogue's own sections are on screen, since the hero above them has
+	 * scrolled past. The sticky filter rail clears it by this much. It is the
+	 * same pair of numbers the single-package page carries as --ifnpkg-hdr,
+	 * and if the theme's nav height ever changes both have to move together.
+	 */
+	--ifn-hdr: 70px;
+
 	--ifn-radius-lg: 30px;
 	--ifn-radius-md: 20px;
 	--ifn-radius-sm: 14px;
@@ -130,6 +139,7 @@
  * the body's size and weight, so a plugin template that does not set these gets
  * h2s the size of a paragraph.
  */
+.iflynepal-archive h1,
 .iflynepal-archive h2,
 .iflynepal-archive h3 {
 	margin: 0;
@@ -139,8 +149,30 @@
 	line-height: 1.06;
 }
 
+/*
+ * h1 shares h2's size rather than being given one of its own. The only page
+ * with an h1 in it is the whole-catalogue archive, where the heading sits in
+ * the same centred title band the explore page heads with an h2 — the two
+ * should look identical, and the tag differs only because one page is a real
+ * archive and the other is a Page whose title the theme never prints.
+ *
+ * 🔴 h1 was absent from this rule, so it took the browser's default: an
+ * unstyled serif at the UA's own size, in the middle of a page set in Poppins.
+ * The explore page hit this and was changed to an h2 to avoid it; that was the
+ * wrong way round, and this is the fix.
+ */
+.iflynepal-archive h1,
 .iflynepal-archive h2 {
 	font-size: clamp(36px, 4.4vw, 60px);
+}
+
+/*
+ * No hero on this one, and the theme's header is fixed — so the page has to
+ * clear it itself or the title band starts underneath it. The docked height,
+ * because iflynepal_booking_dock_header() docks it before the first paint.
+ */
+.iflynepal-archive--all {
+	padding-top: var(--ifn-hdr);
 }
 
 .iflynepal-archive h3 {
@@ -530,62 +562,29 @@
 }
 
 /*
- * Prints after the filter row and before the grid on every viewport now (see
- * listing.php), right-aligned by its own intrinsic (max-content) width rather
- * than by any offset — true at any breakpoint, including the mobile one this
- * was built for, with nothing to keep in sync with the filter row's height.
+ * The head, on its own. The note used to share this row — first by being
+ * dragged back up over the filter row with a negative margin tuned per
+ * breakpoint, then as a plain flex sibling once the facets moved out of the
+ * way. It is neither now: it prints down with the cards instead
+ * (.iflynepal-listing__controls, below), because that is what it points at.
  */
-.iflynepal-annot {
-	margin: 0 0 24px auto;
+.iflynepal-listing__top {
+	margin-bottom: 26px;
 }
 
-/*
- * On a page with the filter row, the note used to be a flex sibling of the
- * heading, so that row's height was its own — the arrow's 118px, not the
- * heading's — and the filter row started only after it, plus the margin
- * above. Printing the note lower down drops that reserved height along with
- * it, so without this the filter row would rise to sit right under a short
- * heading instead of where it was pixel-checked against the design.
- *
- * Only where the filter row actually renders: a leaf category with no
- * children of its own (e.g. /trekking-nepal/remote-restricted/, which holds
- * packages but no sub-categories) has no row to keep in place, and reserving
- * height for one anyway would just be blank space above the note.
- */
 @media (min-width: 1025px) {
 
-	.iflynepal-listing:not(.iflynepal-listing--no-filters) .iflynepal-listing__head {
-		min-height: 118px;
-	}
-
 	/*
-	 * A category with no children has no filter row, so the design gives the
-	 * head the room a filter row would otherwise take (44px, matching
+	 * A category with no controls of any kind — no pill row, no rail — has
+	 * nothing below the head but the cards, so the design gives it the room a
+	 * filter row would have taken (44px, matching
 	 * retreats-nepal-category-archive-design.html's #packages override)
-	 * instead of the type archive's plain 20px.
+	 * instead of the type archive's plain 26px. A category that still has the
+	 * pill row keeps the 26px, because the row is what the gap was sized
+	 * against.
 	 */
-	.iflynepal-listing--no-filters .iflynepal-listing__head {
+	.iflynepal-listing--no-filters .iflynepal-listing__top {
 		margin-bottom: 44px;
-	}
-
-	/*
-	 * On a type archive the note's own 118px + 24px margin sit fully below the
-	 * filter row on purpose (the head's min-height above already carved out
-	 * its old space). A no-filters category never had that filter row to
-	 * clear, so the same note printed here just stacks its full height under
-	 * the 44px above — a ~186px gap where the design has one 44px gap and the
-	 * note sitting beside the heading instead of under it.
-	 *
-	 * The note is still printed after the head in markup (kept exactly as
-	 * §5.3k left it — right-aligned, no DOM change), but pulled back up by
-	 * its own height plus its 24px margin so the two margins collapse to the
-	 * head's 44px alone. It lands right-aligned in the empty space beside the
-	 * heading (the head is capped at 820px, the container is wider), the same
-	 * place the design's flex row put it — just reached by a collapsed
-	 * margin instead of a flex sibling.
-	 */
-	.iflynepal-listing--no-filters .iflynepal-annot {
-		margin-top: -142px;
 	}
 }
 
@@ -617,11 +616,6 @@
 
 @media (min-width: 901px) and (max-width: 1024px) {
 
-	/* Same fix as the 1025px+ block above, against this tier's own 88px arrow (not 118px). */
-	.iflynepal-listing--no-filters .iflynepal-annot {
-		margin-top: -112px;
-	}
-
 	.iflynepal-listing__head .iflynepal-section-head h2 {
 		font-size: clamp(52px, 5.5vw, 58px);
 	}
@@ -630,30 +624,369 @@
 		max-width: none;
 		white-space: nowrap;
 	}
-
-	/* Laptop tier gets the same no-filter-row head gap as desktop (§ above). */
-	.iflynepal-listing--no-filters .iflynepal-listing__head {
-		margin-bottom: 44px;
-	}
 }
 
-/* ----------------------------------------------------------------- filter */
+/* -------------------------------------------------------- listing layout */
 
-.iflynepal-filter-row {
+/*
+ * Rail beside grid. 260px is the width at which the longest real facet label
+ * on the site ("Short & near Kathmandu", "Remote & restricted") sits on one
+ * line beside its count — a rail whose options wrap is a rail whose options
+ * are hard to compare, which is the one thing a column of them is for.
+ *
+ * 36px of gutter, not the grid's own 20px: the rail is a different kind of
+ * thing from a card, and a gap the same size as the one between two cards
+ * reads as a fourth column that happens to look wrong.
+ */
+.iflynepal-listing__layout {
+	display: grid;
+	align-items: start;
+	gap: 36px;
+	grid-template-columns: 260px minmax(0, 1fr);
+}
+
+/*
+ * min-width: 0 on the grid column, or a card holding a long unbroken word (a
+ * place name with no space in it, a URL in a hover summary) sets the column's
+ * min-content width above its share and pushes the rail off the page. A grid
+ * track is min-content by default, which is the one default that reliably
+ * breaks a two-column layout months after it was built.
+ */
+.iflynepal-listing__main {
+	min-width: 0;
+}
+
+.iflynepal-listing--no-rail .iflynepal-listing__layout {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+/*
+ * The band between the head and the cards: the Activity pill row on the left,
+ * the hand-drawn note on the right, both inside the grid's own column so the
+ * row starts on the same left edge as the cards it filters and the note ends
+ * on the same right edge as the last card it points at.
+ *
+ * align-items: flex-start, not flex-end. The note is more than twice the pill
+ * row's height, so bottom-aligning them would drop the pills ~80px below the
+ * lead paragraph and open a hole nothing fills. Top-aligned, the pills stay
+ * exactly where they were and it is the note's own tail — the arrow — that
+ * reaches down to the cards, which is the part that is supposed to.
+ */
+.iflynepal-listing__controls {
+	position: relative;
 	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 24px;
 	margin-bottom: 26px;
 }
 
-.iflynepal-filter-btn {
-	padding: 9px 14px;
+/*
+ * margin-left: auto rather than leaning on the band's space-between, because
+ * on a category archive the note is the band's ONLY child — there is no pill
+ * row there — and space-between puts a lone child at the start. It was sitting
+ * at the left edge of the grid on every category page.
+ */
+.iflynepal-annot {
+	margin: 0 0 0 auto;
+	/* Never squeezed by a long pill row; it is set at its own intrinsic width. */
+	flex: none;
+}
+
+/*
+ * 🔴 Taken out of the flow so it stops setting the band's height.
+ *
+ * The note is 118px tall and the pill row is about 65px, so as a flex sibling
+ * it made the band 118px and left ~55px of empty page under the pills before
+ * the cards — the gap this was asked to close. Bottom-aligning the pills
+ * instead would only move the same hole above them, under the lead paragraph.
+ *
+ * Positioned instead: the band is as tall as the pill row, and the note hangs
+ * in the empty column to the right of it, bottom-aligned so it still finishes
+ * the same 26px above the cards it points at. It grows UPWARD into the space
+ * beside the heading, which is empty by construction — the head is capped at
+ * 820px and the container is 1240px — rather than downward into the grid.
+ *
+ * ⚠ 1200px, not the 1025px the rest of this file folds on, and the number is
+ * arithmetic rather than taste. The note can only be placed over the space to
+ * the right of the heading while that space is wider than the note. The
+ * container is min(100% - 40px, 1240px) and the head is capped at 820px, so
+ * the clear column is (viewport - 40 - 820). The longest note on this site
+ * measures 310px, and 30px of gutter keeps it off the text: 820 + 310 + 30 +
+ * 40 = 1200.
+ *
+ * Measured at 1025px before this was raised: the note sat across the heading
+ * and the lead paragraph on every category archive. Below the threshold it
+ * stays in normal flow, stacked under the pills and right-aligned — where it
+ * has always sat on a narrow screen. That costs the closed-up gap at those
+ * widths, which is the right way round: a gap is untidy, type printed over
+ * type is broken.
+ *
+ * If the annotation copy ever grows past 310px, this number has to grow with
+ * it. Capping the note's width instead would wrap the handwriting, which is
+ * worse than either.
+ */
+@media (min-width: 1200px) {
+
+	.iflynepal-listing__controls .iflynepal-annot {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		margin: 0;
+	}
+}
+
+.iflynepal-listing__filters {
+	margin-bottom: 0;
+}
+
+/*
+ * Sticky, so the facets are still there after a scroll into the grid — which
+ * is most of the reason to have a rail rather than a row in the first place.
+ *
+ * The offset clears the theme's header at its docked height (70px, and 66px
+ * below 1080px — the same numbers the single-package page carries in
+ * --ifnpkg-hdr) plus a margin. On a catalogue archive the header is docked by
+ * the time any of this is on screen, because the hero above it has already
+ * scrolled past.
+ */
+.iflynepal-listing__rail {
+	position: sticky;
+	top: calc(var(--ifn-hdr) + 20px);
+}
+
+/*
+ * A rail taller than the window cannot be sticky and reachable at once without
+ * a scroller of its own: its last facet would be pinned off the foot of the
+ * screen with no way to get to it. overscroll-behavior stops a flick inside
+ * that scroller carrying on into the page once it bottoms out.
+ */
+.iflynepal-facets {
+	overflow-y: auto;
+	max-height: calc(100vh - var(--ifn-hdr) - 40px);
 	border: 1px solid var(--ifn-line);
-	border-radius: 999px;
+	border-radius: var(--ifn-radius-md);
+	background: var(--ifn-paper);
+	box-shadow: 0 2px 10px rgba(4, 26, 64, 0.045);
+	overscroll-behavior: contain;
+}
+
+/*
+ * The summary is the phone's "Filters" button and nothing at all on a desktop,
+ * where the panel it would open is already open and cannot be closed. Hidden
+ * with display rather than by unsetting list-item, so it leaves the tab order
+ * with it — a control that toggles nothing should not be a stop on the way to
+ * the facets themselves.
+ */
+.iflynepal-facets__toggle {
+	display: none;
+}
+
+.iflynepal-facets__body {
+	padding: 22px;
+}
+
+.iflynepal-facets__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 18px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--ifn-line);
+}
+
+.iflynepal-facets__title {
+	color: var(--ifn-ink);
+	font-family: 'Poppins', sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.iflynepal-facets__clear {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--ifn-navy);
+	cursor: pointer;
+	font: inherit;
+	font-size: 12px;
+	font-weight: 800;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	transition: opacity 0.3s ease;
+}
+
+.iflynepal-facets__clear:hover {
+	opacity: 0.7;
+}
+
+/* ----------------------------------------------------------------- facets */
+
+/*
+ * One facet per block, hairline-separated. The rule is a top border on every
+ * block after the first rather than a bottom border on every block but the
+ * last: which facets render depends on the content, so "the last one" is not a
+ * position a single selector can be written against once Budget drops out and
+ * Duration becomes the last. :first-child always means the same thing.
+ */
+.iflynepal-filter-panel {
+	display: flex;
+	flex-direction: column;
+}
+
+.iflynepal-filter-group + .iflynepal-filter-group {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--ifn-line);
+}
+
+.iflynepal-filter-group__label {
+	display: block;
+	margin-bottom: 10px;
+	color: var(--ifn-ink);
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	opacity: 0.55;
+}
+
+.iflynepal-filter-row {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+/*
+ * The label over a run of options in one unit — Duration's Days and Weeks.
+ *
+ * Set in the same type as the facet's own label above it (11px / 800 /
+ * uppercase at .55) rather than in something quieter. It was smaller and
+ * fainter first, on the reasoning that a sub-heading should not compete with
+ * the rows under it; that was wrong for what this one is. "Days" and "Weeks"
+ * are the names of the two things a visitor is choosing between, not a note
+ * about them, and at 10.5px / .45 they read as furniture and got skipped.
+ *
+ * What keeps the hierarchy legible is position, not weight: each block is
+ * indented to the options' own text edge and separated by a hairline, so the
+ * two sit plainly under DURATION instead of looking like two more facets.
+ */
+.iflynepal-filter-row__unit {
+	margin-top: 12px;
+	padding: 10px 12px 6px;
+	border-top: 1px solid var(--ifn-line);
+	color: var(--ifn-ink);
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	opacity: 0.55;
+}
+
+/*
+ * A full-width row rather than a pill, which is the whole difference between a
+ * row of filters and a rail of them: a pill is sized by its own label, so a
+ * column of pills has a ragged right edge and no two counts line up to be
+ * compared against each other. A row puts every label on one left edge and
+ * every count on one right edge, which is what makes the column readable in a
+ * single pass.
+ */
+.iflynepal-filter-btn {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	padding: 9px 12px;
+	border: 0;
+	border-radius: var(--ifn-radius-sm);
 	background: transparent;
 	color: var(--ifn-ink);
 	cursor: pointer;
 	font: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	gap: 10px;
+	text-align: left;
+	transition:
+		background 0.3s ease,
+		color 0.3s ease;
+}
+
+.iflynepal-filter-btn__count {
+	flex: none;
+	color: var(--ifn-muted);
+	font-size: 11.5px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+}
+
+/*
+ * List rows only. A pill's hover is its own, a few rules down — left unscoped
+ * this tinted a pill's ground as well, which is not what that control has ever
+ * done on hover.
+ */
+.iflynepal-filter-row:not(.iflynepal-filter-row--pills) .iflynepal-filter-btn:hover:not(:disabled) {
+	background: var(--ifn-mist);
+}
+
+/*
+ * Navy on mist, not the solid navy the pills carried. The same reasoning
+ * §5.3o applied to the single page's Highlights badge: a full-width solid navy
+ * bar in a column of six rows is the heaviest thing in the rail, and it
+ * outweighs the cards it exists to narrow. The tint plus the weight step is
+ * enough to read as chosen, and colour is not the only signal — the label goes
+ * to 800 and aria-pressed says so out loud.
+ */
+.iflynepal-filter-btn.is-active {
+	background: var(--ifn-mist);
+	color: var(--ifn-navy);
+	font-weight: 800;
+}
+
+.iflynepal-filter-btn.is-active .iflynepal-filter-btn__count {
+	color: var(--ifn-navy);
+}
+
+/*
+ * An option whose combination would empty the grid. Dimmed rather than
+ * removed: a facet whose options come and go as another facet is pressed is a
+ * rail that rearranges itself under the pointer, and the visitor loses the
+ * shape of what is on offer. Left in place and greyed, it still says "this
+ * exists, but not with what you have already chosen".
+ */
+.iflynepal-filter-btn.is-empty {
+	cursor: not-allowed;
+	opacity: 0.38;
+}
+
+/* ------------------------------------------------------------ pill variant */
+
+/*
+ * Activity, unchanged: a row of chips directly above the cards, which is where
+ * it was before the rail existed and where the client asked for it to stay.
+ * Every value is the one it carried then — a 999px outline, 12px/800, 9px/14px
+ * padding, the 2px hover lift and the solid navy active fill — so nothing
+ * about this control has moved at all.
+ *
+ * The one thing it does not carry is a count. A pill is sized by its own
+ * label, so a number inside lands at a different place on every pill and there
+ * is no column to read down, which is the whole use of a count. The number is
+ * still computed, and still decides whether the pill is offered.
+ */
+.iflynepal-filter-row--pills {
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.iflynepal-filter-row--pills .iflynepal-filter-btn {
+	width: auto;
+	justify-content: center;
+	padding: 9px 14px;
+	border: 1px solid var(--ifn-line);
+	border-radius: 999px;
+	background: transparent;
 	font-size: 12px;
 	font-weight: 800;
 	transition:
@@ -663,38 +996,316 @@
 		transform 0.3s var(--ifn-ease);
 }
 
-.iflynepal-filter-btn:hover {
-	border-color: var(--ifn-navy);
+/*
+ * The lift is on every pill, chosen or not: it is the affordance saying the
+ * thing under the pointer is pressable, not a state saying which one is on.
+ */
+.iflynepal-filter-row--pills .iflynepal-filter-btn:hover:not(:disabled) {
 	transform: translateY(-2px);
 }
 
-.iflynepal-filter-btn.is-active {
+/*
+ * 🔴 Only the unchosen pills take a hover ground, and the :not() is load-bearing.
+ * This selector is one class heavier than the .is-active rule below it, so
+ * without it the chosen pill's navy fill was overridden on hover while its
+ * white label was not — the pill went white-on-white and read as having
+ * vanished under the pointer. The chosen pill keeps its fill and only lifts.
+ */
+.iflynepal-filter-row--pills .iflynepal-filter-btn:hover:not(:disabled):not(.is-active) {
+	border-color: var(--ifn-navy);
+	background: transparent;
+}
+
+/*
+ * Solid navy here, unlike the list rows' navy-on-mist. The reason the rows are
+ * tinted rather than filled is that a full-width bar of navy in a column of
+ * six outweighs the cards it narrows; a chip is the size of its own label and
+ * carries no such weight, and the solid fill is what this control has always
+ * used to say which one is chosen.
+ */
+.iflynepal-filter-row--pills .iflynepal-filter-btn.is-active {
 	border-color: var(--ifn-navy);
 	background: var(--ifn-navy);
 	color: #fff;
 }
 
+/* ------------------------------------------------------------- no match */
+
+.iflynepal-listing__empty {
+	margin: 0;
+	padding: 48px 24px;
+	border: 1px dashed var(--ifn-line);
+	border-radius: var(--ifn-radius-md);
+	color: var(--ifn-muted);
+	font-size: 15px;
+	text-align: center;
+}
+
+.iflynepal-listing__empty .iflynepal-facets__clear {
+	margin-left: 6px;
+}
+
 /*
- * Below 360px a pill sized to its own label (the default flex-wrap behaviour)
- * puts one filter per row once a label is longer than a couple of words —
- * "Ayurvedic Retreats" alone is wider than the screen has to spare. Forced
- * into three equal grid columns instead, so the row always holds three, and a
- * long label wraps onto a second line inside its own pill rather than pushing
- * the others down to their own rows.
+ * 🔴 Anything in this file that the script hides with the `hidden` attribute
+ * AND that an author rule gives a `display` to needs saying here.
+ *
+ * `[hidden] { display: none }` is a UA rule at one class-worth of specificity,
+ * and an author rule beats a UA rule on a tie — so a single class setting
+ * `display` silently wins and the element stays on the page with its `hidden`
+ * property reading true. Caught on the live page: the rail's count badge
+ * rendered a chip saying "0" on every phone-width archive with no filter on,
+ * while every probe that asked `element.hidden` was told it was hidden.
+ *
+ * The `[hidden]` in these selectors is what buys the extra specificity; there
+ * is nothing clever about the declaration.
+ */
+.iflynepal-cards[hidden],
+.iflynepal-facets__badge[hidden],
+.iflynepal-listing__reveal[hidden] {
+	display: none;
+}
+
+/*
+ * A card that matches the filters but sits past the type archive's six-card
+ * cap. Its own class, not is-hidden: the two are undone at different moments
+ * — the reveal button brings these back and leaves the non-matching ones
+ * where they are — and a card can be both at once.
+ *
+ * display, so it leaves the accessibility tree with the layout. A capped card
+ * is not "there but small"; as far as the page is concerned it has not been
+ * offered yet.
+ */
+.iflynepal-card.is-capped {
+	display: none;
+}
+
+/*
+ * The reveal button wears the foot link's own appearance, because it is the
+ * same offer in the case where there is no page to link to. A <button> rather
+ * than an <a>, so it needs the borders and the background taken off it before
+ * it will sit beside one.
+ */
+.iflynepal-listing__reveal {
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 850;
+}
+
+/*
+ * 🔴 The links in this block start invisible and are brought back by
+ * .is-current, which is how two of them cross-fade in one grid cell. The
+ * reveal button shares their class for its appearance but never gets
+ * is-current — it is not one of the category links — so without this it
+ * renders, occupies the cell, and cannot be seen. Its own visibility follows
+ * the [hidden] attribute the script sets, and nothing else.
+ */
+.iflynepal-listing__reveal:not([hidden]) {
+	visibility: visible;
+	opacity: 1;
+	transform: none;
+}
+
+.iflynepal-listing__reveal:hover .iflynepal-ico-arr {
+	transform: translateX(4px);
+}
+
+/* --------------------------------------------------- rail, folded to a bar */
+
+@media (max-width: 1024px) {
+
+	.iflynepal-listing__layout {
+		display: block;
+	}
+
+	/*
+	 * The band stacks: pills first, note under them and right-aligned by its
+	 * own intrinsic width. Side by side it is pushed off the right-hand edge
+	 * instead — measured at 420px, where it put 51px of horizontal scroll on
+	 * the page — and this is where the note has sat on a narrow viewport since
+	 * before any of the rail work.
+	 */
+	.iflynepal-listing__controls {
+		display: block;
+	}
+
+	.iflynepal-annot {
+		margin: 24px 0 0 auto;
+	}
+
+	/*
+	 * Not sticky below this width. A panel a quarter of a phone screen tall
+	 * that follows the visitor down the page is in the way of the grid it
+	 * filters; collapsed behind its own button at the top of the list is the
+	 * shape a phone catalogue actually uses.
+	 */
+	.iflynepal-listing__rail {
+		position: static;
+		margin-bottom: 26px;
+	}
+
+	.iflynepal-facets {
+		overflow: visible;
+		max-height: none;
+	}
+
+	.iflynepal-facets__toggle {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 14px 18px;
+		color: var(--ifn-ink);
+		cursor: pointer;
+		font-size: 13px;
+		font-weight: 800;
+		gap: 12px;
+		/* The UA triangle; the badge and the panel itself carry the state. */
+		list-style: none;
+	}
+
+	/* Safari draws the marker from a pseudo-element the property above misses. */
+	.iflynepal-facets__toggle::-webkit-details-marker {
+		display: none;
+	}
+
+	.iflynepal-facets__toggle-label {
+		display: inline-flex;
+		align-items: center;
+		gap: 9px;
+	}
+
+	/*
+	 * The stroke and the missing fill come from the theme's own .iflynepal-ico,
+	 * as the arrow's already do — restated here because this mark has closed
+	 * shapes in it, and under a theme that does not carry that rule the two
+	 * circles would render as solid black dots rather than as outlines.
+	 */
+	.iflynepal-facets__toggle .iflynepal-ico {
+		width: 18px;
+		height: 18px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.6;
+	}
+
+	/*
+	 * How many facets are currently narrowed. Once the panel is shut this is
+	 * the only thing on screen saying the grid is not the whole set, which is
+	 * why it is a filled navy chip rather than plain text beside the word.
+	 */
+	.iflynepal-facets__badge {
+		display: inline-grid;
+		min-width: 20px;
+		height: 20px;
+		padding: 0 6px;
+		border-radius: 999px;
+		background: var(--ifn-navy);
+		color: #fff;
+		font-size: 11px;
+		font-weight: 800;
+		place-items: center;
+	}
+
+	.iflynepal-facets[open] .iflynepal-facets__toggle {
+		border-bottom: 1px solid var(--ifn-line);
+	}
+
+	.iflynepal-facets__body {
+		padding: 18px;
+	}
+
+	/*
+	 * The panel's own title and the toggle above it would say the same thing
+	 * twice, so only the reset is still worth its place and it takes the row.
+	 */
+	.iflynepal-facets__title {
+		display: none;
+	}
+
+	.iflynepal-facets__head {
+		justify-content: flex-end;
+		margin-bottom: 14px;
+		padding-bottom: 0;
+		border-bottom: 0;
+	}
+
+	/*
+	 * Facets sit side by side while there is width for them, so three of them
+	 * are not three screens of scrolling before the first card. They fall back
+	 * into one column on a phone, where 240px of label plus a count is already
+	 * the whole width.
+	 */
+	.iflynepal-facets__body .iflynepal-filter-panel {
+		display: grid;
+		gap: 20px;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	}
+
+	.iflynepal-filter-group + .iflynepal-filter-group {
+		margin-top: 0;
+		padding-top: 0;
+		border-top: 0;
+	}
+}
+
+/*
+ * Below 360px a pill sized to its own label puts one filter per row once a
+ * label is longer than a couple of words — "Ayurvedic Retreats" alone is wider
+ * than the screen has to spare. Forced into three equal grid columns instead,
+ * so a long label wraps inside its own pill rather than pushing the others
+ * down to rows of their own. Carried over unchanged from the filter row this
+ * rail replaced.
  */
 @media (max-width: 360px) {
 
-	.iflynepal-filter-row {
+	.iflynepal-filter-row--pills {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 	}
 
-	.iflynepal-filter-btn {
+	.iflynepal-filter-row--pills .iflynepal-filter-btn {
 		padding: 8px 6px;
 		font-size: 11px;
 		line-height: 1.25;
-		white-space: normal;
 		text-align: center;
+		white-space: normal;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.iflynepal-filter-btn {
+		transition: none;
+	}
+}
+
+/* The theme's docked header loses 4px here; the rail's offset has to follow. */
+@media (max-width: 1080px) {
+
+	.iflynepal-archive,
+	.iflynepal-package {
+		--ifn-hdr: 66px;
+	}
+}
+
+/*
+ * Two columns while the rail is beside the grid and the shell has not reached
+ * its full 1240px. Three cards in the ~690px the grid column has at 1025px is
+ * a 230px card — narrower than the card's own photograph is tall, which reads
+ * as a different component rather than a smaller one. The third column comes
+ * back at 1180px, where the card is back above 280px.
+ *
+ * Scoped away from an archive with no rail, which has nothing taking 296px off
+ * the row and so keeps its three columns all the way down to the breakpoint
+ * the design gives it.
+ */
+@media (min-width: 1025px) and (max-width: 1179px) {
+
+	.iflynepal-listing:not(.iflynepal-listing--no-rail) .iflynepal-cards {
+		grid-template-columns: repeat(2, 1fr);
 	}
 }
 

@@ -27,8 +27,22 @@ if ( ! $iflynepal_id ) {
 
 $iflynepal_price = iflynepal_package_field( $iflynepal_id, 'price_amount' );
 
-if ( '' === $iflynepal_price ) {
+/*
+ * Group-size pricing, where the package has it. The calculator works from the
+ * same ladder the price card shows (templates/parts/package/aside.php) so the
+ * two can never quote different numbers for the same traveller count, and a
+ * package priced only by tiers still gets a calculator: the flat price_amount
+ * is no longer the only way to say what a trip costs.
+ */
+$iflynepal_tiers = iflynepal_package_price_tiers( $iflynepal_id );
+
+if ( '' === $iflynepal_price && ! $iflynepal_tiers ) {
 	return;
+}
+
+if ( '' === $iflynepal_price ) {
+	/* The first rung is what the summary quotes before anybody has said how many are coming. */
+	$iflynepal_price = (string) $iflynepal_tiers[0]['price'];
 }
 
 $iflynepal_currency = iflynepal_package_field( $iflynepal_id, 'price_currency' );
@@ -97,7 +111,8 @@ $iflynepal_excluded = iflynepal_package_field_lines( $iflynepal_id, 'excluded' )
 			id="ifnpkg-booker"
 			data-price="<?php echo esc_attr( $iflynepal_price ); ?>"
 			data-currency="<?php echo esc_attr( '' !== $iflynepal_currency ? $iflynepal_currency : 'USD' ); ?>"
-			data-days="<?php echo esc_attr( (string) $iflynepal_days ); ?>">
+			data-days="<?php echo esc_attr( (string) $iflynepal_days ); ?>"
+			data-tiers="<?php echo esc_attr( wp_json_encode( $iflynepal_tiers ) ); ?>">
 
 			<div class="iflynepal-pkg-cal">
 				<div class="iflynepal-pkg-cal-head">

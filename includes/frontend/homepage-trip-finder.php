@@ -203,12 +203,73 @@ function iflynepal_trip_finder_duration_choices() {
 }
 
 /**
+ * The day count at or above which a bucket is worded in weeks rather than days.
+ *
+ * Two weeks. Below it a trip is a number of days and everybody counts it that
+ * way; at and above it nobody does — the client's own cards already say
+ * "2 TO 4 WEEKS" on the volunteering and homestay packages, and a filter that
+ * answers that card with "15+ days" is asking the visitor to do the division.
+ *
+ * Move it with the iflynepal_trip_finder_weeks_from filter rather than by
+ * editing this, and set it above every bucket to turn weeks off entirely.
+ *
+ * @since 1.0.0
+ */
+const IFLYNEPAL_TRIP_FINDER_WEEKS_FROM = 14;
+
+/**
+ * The day count from which a bucket reads in weeks.
+ *
+ * @since 1.0.0
+ *
+ * @return int Days. A bucket whose lowest day is at or above this reads in weeks.
+ */
+function iflynepal_trip_finder_weeks_from() {
+	/**
+	 * Filters the day count at which duration wording switches to weeks.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int $days Default two weeks.
+	 */
+	return max( 1, (int) apply_filters( 'iflynepal_trip_finder_weeks_from', IFLYNEPAL_TRIP_FINDER_WEEKS_FROM ) );
+}
+
+/**
+ * Which unit a bucket is spoken in.
+ *
+ * The same threshold the wording uses, exposed on its own so the archive's
+ * Duration facet can group its options by unit without re-deriving the rule and
+ * without parsing the label back out — a label is translated, and a translated
+ * label does not contain the word "week".
+ *
+ * @since 1.0.0
+ *
+ * @param int $min A bucket's lowest day count.
+ * @return string 'days' or 'weeks'.
+ */
+function iflynepal_trip_finder_duration_unit( $min ) {
+	return (int) $min >= iflynepal_trip_finder_weeks_from() ? 'weeks' : 'days';
+}
+
+/**
  * One bucket's wording.
  *
  * Generated from its numbers rather than typed, which is the whole point of the
  * control: a label somebody writes by hand is a label that can say "3–5 days"
  * over a bucket that matches six to nine, and nothing on the screen would ever
  * say so.
+ *
+ * Short buckets read in days and long ones in weeks, from one threshold — see
+ * iflynepal_trip_finder_weeks_from(). The unit is wording only: the stored
+ * numbers, the `key`, the `?days=` query string and everything that matches a
+ * package against a bucket stay in days throughout. So this changes no data,
+ * needs no migration, and cannot put two units into the same comparison.
+ *
+ * 🔴 The two are one facet on purpose. A package has exactly one length, so a
+ * separate Days control and Weeks control combined with AND — "10–14 days" and
+ * "3 weeks" at once — could only ever empty the grid. One list, worded in
+ * whichever unit each row calls for, is the same offer without the dead end.
  *
  * An en dash between the two numbers, not a hyphen — it is a range, and it is
  * what the design file uses.
@@ -220,12 +281,18 @@ function iflynepal_trip_finder_duration_choices() {
  * @return string
  */
 function iflynepal_trip_finder_duration_label( $min, $max ) {
+	$min = (int) $min;
+
+	if ( $min >= iflynepal_trip_finder_weeks_from() ) {
+		return iflynepal_trip_finder_duration_label_weeks( $min, $max );
+	}
+
 	if ( null === $max ) {
 		/* translators: %d: the lowest number of days in an open-ended bucket, e.g. "15+ days". */
 		return sprintf( __( '%d+ days', 'iflynepal' ), $min );
 	}
 
-	if ( $max === $min ) {
+	if ( (int) $max === $min ) {
 		/* translators: %d: a number of days. */
 		return sprintf( _n( '%d day', '%d days', $min, 'iflynepal' ), $min );
 	}
@@ -234,7 +301,50 @@ function iflynepal_trip_finder_duration_label( $min, $max ) {
 		/* translators: 1: lowest number of days, 2: highest. The separator is an en dash. */
 		__( '%1$d–%2$d days', 'iflynepal' ),
 		$min,
-		$max
+		(int) $max
+	);
+}
+
+/**
+ * A long bucket's wording, in weeks.
+ *
+ * 🔴 The rounding is not the same at both ends, and the difference is the
+ * difference between a true label and a false one.
+ *
+ * An open bucket floors: "15 days or more" is every trip of at least two whole
+ * weeks, so it reads "2+ weeks". Rounding up would give "3+ weeks" over a
+ * bucket that holds fifteen-day trips, which is simply untrue — and a filter
+ * label that overstates its own floor is worse than one that is a little loose.
+ *
+ * A closed bucket rounds both ends to the nearest week, because it has a real
+ * ceiling to be honest about and "2–4 weeks" over 15–28 days reads the way the
+ * client's own cards already do.
+ *
+ * @since 1.0.0
+ *
+ * @param int      $min Lowest day count, at or above the weeks threshold.
+ * @param int|null $max Highest, or null for open-ended.
+ * @return string
+ */
+function iflynepal_trip_finder_duration_label_weeks( $min, $max ) {
+	if ( null === $max ) {
+		/* translators: %d: the lowest whole number of weeks in an open-ended bucket, e.g. "2+ weeks". */
+		return sprintf( __( '%d+ weeks', 'iflynepal' ), (int) floor( $min / 7 ) );
+	}
+
+	$low  = (int) round( $min / 7 );
+	$high = (int) round( (int) $max / 7 );
+
+	if ( $high <= $low ) {
+		/* translators: %d: a number of weeks. */
+		return sprintf( _n( '%d week', '%d weeks', $low, 'iflynepal' ), $low );
+	}
+
+	return sprintf(
+		/* translators: 1: lowest number of weeks, 2: highest. The separator is an en dash. */
+		__( '%1$d–%2$d weeks', 'iflynepal' ),
+		$low,
+		$high
 	);
 }
 
@@ -282,6 +392,7 @@ function iflynepal_trip_finder_durations() {
 		$buckets[] = array(
 			'key'   => null === $max ? $min . '-plus' : $min . '-' . $max,
 			'label' => iflynepal_trip_finder_duration_label( $min, $max ),
+			'unit'  => iflynepal_trip_finder_duration_unit( $min ),
 			'min'   => $min,
 			'max'   => $max,
 		);
@@ -291,11 +402,63 @@ function iflynepal_trip_finder_durations() {
 }
 
 /**
+ * The price brackets the homepage picker offers, across the whole catalogue.
+ *
+ * A sibling of iflynepal_trip_finder_durations(), and deliberately built a
+ * different way. Trip lengths are editor-configured, because "a week" means the
+ * same thing whatever is in the catalogue. A price bracket does not: it only
+ * means something against the prices this business actually charges, so these
+ * are derived from every published package exactly as the archive's own Budget
+ * facet derives its brackets from the packages on one page.
+ *
+ * Same machinery, wider input: iflynepal_archive_budget_terms() over the whole
+ * catalogue rather than over one archive's grid. A site that publishes one
+ * package, or several all at one price, gets no brackets and the picker leaves
+ * the field out — a control offering a single choice is not a choice.
+ *
+ * ⚠ The keys are therefore NOT the keys any one archive uses. Both are built
+ * from a price spread, and the spread of the whole catalogue is not the spread
+ * of a category within it. That is why this only ever reaches /explore/, which
+ * validates against this same function, and why an archive's own ?budget=
+ * carry-over validates against the archive's own options and drops what it does
+ * not recognise.
+ *
+ * Cached for the request. The homepage prints the picker and the explore page
+ * reads it back on the same load, and the query behind it is every published
+ * package.
+ *
+ * @since 1.0.0
+ *
+ * @return array[] Brackets, each with 'key', 'label', 'min' and 'max'.
+ */
+function iflynepal_trip_finder_budgets() {
+	static $budgets = null;
+
+	if ( null !== $budgets ) {
+		return $budgets;
+	}
+
+	$budgets = iflynepal_archive_budget_terms(
+		get_posts(
+			array(
+				'post_type'              => IFLYNEPAL_PACKAGE_POST_TYPE,
+				'post_status'            => 'publish',
+				'numberposts'            => -1,
+				'update_post_term_cache' => false,
+			)
+		)
+	);
+
+	return $budgets;
+}
+
+/**
  * Answers the theme's "what does the trip-finder picker need" filter.
  *
  * @since 1.0.0
  *
- * @param array $payload Carries 'types', 'url' and 'durations', all empty by default.
+ * @param array $payload Carries 'types', 'url', 'durations' and 'budgets', all
+ *                        empty by default.
  * @return array Same shape, filled in.
  */
 function iflynepal_booking_homepage_trip_finder( $payload ) {
@@ -303,6 +466,7 @@ function iflynepal_booking_homepage_trip_finder( $payload ) {
 	$payload['types']     = iflynepal_trip_finder_types();
 	$payload['url']       = iflynepal_trip_finder_url();
 	$payload['durations'] = iflynepal_trip_finder_durations();
+	$payload['budgets']   = iflynepal_trip_finder_budgets();
 
 	return $payload;
 }

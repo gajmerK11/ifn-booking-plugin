@@ -138,7 +138,19 @@ add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_package_assets', 20
  * @return void
  */
 function iflynepal_booking_dock_header() {
-	if ( ! is_singular( IFLYNEPAL_PACKAGE_POST_TYPE ) ) {
+	/*
+	 * Two templates open directly under the header with no hero behind it: a
+	 * single package (a white photo gallery) and the whole-catalogue archive (a
+	 * pale title band). The theme's header is fixed and transparent until
+	 * something docks it, so on both of these its white type was rendering
+	 * white-on-white — measured on /packages/, where the header sat at
+	 * rgba(0,0,0,0) over a page whose own <main> began at y=0.
+	 *
+	 * A term archive is not in this list: those draw the theme's hero component
+	 * from the archive content model, and hero.js docks the header itself on
+	 * the first scroll.
+	 */
+	if ( ! is_singular( IFLYNEPAL_PACKAGE_POST_TYPE ) && ! is_post_type_archive( IFLYNEPAL_PACKAGE_POST_TYPE ) ) {
 		return;
 	}
 	?>
