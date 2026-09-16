@@ -47,25 +47,16 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 	<a class="iflynepal-connect__tab" href="#iflynepal-connect-panel" data-iflynepal-connect-open>
 		<?php
 		/*
-		 * A handshake, to match the reference site the client pointed at.
-		 *
-		 * Filled rather than stroked, which is a departure from every other icon
-		 * this plugin draws — and the reason is the size it is used at. A
-		 * handshake is two overlapping hands, and at 26px the strokes of an
-		 * outlined one collapse into each other and read as a scribble; it was
-		 * drawn both ways and looked at before this was settled. The seam
-		 * between the two hands is a *gap*, never a line painted in the
-		 * background colour, so the icon stays correct on whatever ground it is
-		 * ever put on.
+		 * A speech bubble, not the reference site's handshake: this tab now
+		 * opens on every page, not just the one the handshake was chosen to
+		 * match, so the icon reads as "message us" rather than as a callback
+		 * to a single hero. Filled rather than stroked, same reasoning as
+		 * before — at 26px a stroked bubble's tail and dots blur together.
 		 */
 		?>
 		<span class="iflynepal-connect__tab-icon" aria-hidden="true">
 			<svg viewBox="0 0 24 24" fill="currentColor" focusable="false">
-				<rect x="0.7" y="9.2" width="4.1" height="7.2" rx="1.3"/>
-				<rect x="19.2" y="7.8" width="4.1" height="7.2" rx="1.3"/>
-				<path d="M5.4 10h3.2a2.3 2.3 0 0 1 1.5.58l2.1 1.83-2 1.72a1.4 1.4 0 0 1-1.85 0L5.4 11.5z"/>
-				<path d="M18.6 8.6h-2.5a2.5 2.5 0 0 0-1.6.6l-5 4.25a1.6 1.6 0 0 0-.1 2.35l1.5 1.4a2.2 2.2 0 0 0 2.8.16l4.9-3.4z"/>
-				<path d="M9.9 17.1l1.35 1.25a1.35 1.35 0 0 0 1.85-1.95l-1.3-1.2z"/>
+				<path d="M4.5 4A2.5 2.5 0 0 0 2 6.5v8A2.5 2.5 0 0 0 4.5 17H7v3.3a.7.7 0 0 0 1.15.54L12.6 17h6.9A2.5 2.5 0 0 0 22 14.5v-8A2.5 2.5 0 0 0 19.5 4h-15z"/>
 			</svg>
 		</span>
 
@@ -256,10 +247,11 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 			<?php if ( '' !== $iflynepal_chat_url ) : ?>
 				<p class="iflynepal-connect__alt">
 					<?php esc_html_e( 'Prefer to chat?', 'iflynepal' ); ?>
-					<a href="<?php echo esc_url( $iflynepal_chat_url ); ?>" target="_blank" rel="noopener noreferrer">
-						<?php esc_html_e( 'Message us on WhatsApp', 'iflynepal' ); ?>
-					</a>
 				</p>
+				<a class="iflynepal-connect__whatsapp" href="<?php echo esc_url( $iflynepal_chat_url ); ?>" target="_blank" rel="noopener noreferrer">
+					<svg class="iflynepal-connect__whatsapp-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8a9.1 9.1 0 0 0-7.9 13.7L2.8 21.2l4.8-1.3A9.1 9.1 0 1 0 12 2.8zm0 16.6c-1.4 0-2.8-.4-4-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A7.5 7.5 0 1 1 12 19.4zm4.1-5.6c-.2-.1-1.3-.7-1.6-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.2-.1-1-.4-1.8-1.1-.7-.6-1.1-1.3-1.3-1.5-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5 2 .8 2.4.6 2.8.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1l-.5-.3z"/></svg>
+					<?php esc_html_e( 'Message us on WhatsApp', 'iflynepal' ); ?>
+				</a>
 			<?php endif; ?>
 
 			<p class="iflynepal-connect__small">

@@ -400,24 +400,6 @@
 	margin-bottom: 20px;
 }
 
-/*
- * The note used to be a flex sibling of the heading in this row, so on a
- * short heading the row's height was its own — the arrow's 118px, not the
- * heading's. The filter row started only after that height, plus the margin
- * above. Printing the note lower down (see listing.php) drops that reserved
- * height along with it, so the filter row rises to sit right under a short
- * heading instead of where it was pixel-checked against the design.
- *
- * Restoring the same minimum height keeps the filter row exactly where it
- * was without needing the note back in this row to do it.
- */
-@media (min-width: 1025px) {
-
-	.iflynepal-listing__head {
-		min-height: 118px;
-	}
-}
-
 .iflynepal-listing__head .iflynepal-section-head {
 	max-width: 820px;
 	margin-bottom: 0;
@@ -548,16 +530,63 @@
 }
 
 /*
- * Prints between the filter row and the grid in the markup now (see
- * listing.php), on every viewport, rather than living beside the heading and
- * getting pulled down onto this spot with a hand-tuned position offset. It is
- * a block-level flex container with an intrinsic (max-content) width, so
- * pushing it to the right edge of the section is just margin-left: auto —
- * true at any width, with no offset to keep in sync with the filter row's
- * height.
+ * Prints after the filter row and before the grid on every viewport now (see
+ * listing.php), right-aligned by its own intrinsic (max-content) width rather
+ * than by any offset — true at any breakpoint, including the mobile one this
+ * was built for, with nothing to keep in sync with the filter row's height.
  */
 .iflynepal-annot {
 	margin: 0 0 24px auto;
+}
+
+/*
+ * On a page with the filter row, the note used to be a flex sibling of the
+ * heading, so that row's height was its own — the arrow's 118px, not the
+ * heading's — and the filter row started only after it, plus the margin
+ * above. Printing the note lower down drops that reserved height along with
+ * it, so without this the filter row would rise to sit right under a short
+ * heading instead of where it was pixel-checked against the design.
+ *
+ * Only where the filter row actually renders: a leaf category with no
+ * children of its own (e.g. /trekking-nepal/remote-restricted/, which holds
+ * packages but no sub-categories) has no row to keep in place, and reserving
+ * height for one anyway would just be blank space above the note.
+ */
+@media (min-width: 1025px) {
+
+	.iflynepal-listing:not(.iflynepal-listing--no-filters) .iflynepal-listing__head {
+		min-height: 118px;
+	}
+
+	/*
+	 * A category with no children has no filter row, so the design gives the
+	 * head the room a filter row would otherwise take (44px, matching
+	 * retreats-nepal-category-archive-design.html's #packages override)
+	 * instead of the type archive's plain 20px.
+	 */
+	.iflynepal-listing--no-filters .iflynepal-listing__head {
+		margin-bottom: 44px;
+	}
+
+	/*
+	 * On a type archive the note's own 118px + 24px margin sit fully below the
+	 * filter row on purpose (the head's min-height above already carved out
+	 * its old space). A no-filters category never had that filter row to
+	 * clear, so the same note printed here just stacks its full height under
+	 * the 44px above — a ~186px gap where the design has one 44px gap and the
+	 * note sitting beside the heading instead of under it.
+	 *
+	 * The note is still printed after the head in markup (kept exactly as
+	 * §5.3k left it — right-aligned, no DOM change), but pulled back up by
+	 * its own height plus its 24px margin so the two margins collapse to the
+	 * head's 44px alone. It lands right-aligned in the empty space beside the
+	 * heading (the head is capped at 820px, the container is wider), the same
+	 * place the design's flex row put it — just reached by a collapsed
+	 * margin instead of a flex sibling.
+	 */
+	.iflynepal-listing--no-filters .iflynepal-annot {
+		margin-top: -142px;
+	}
 }
 
 @media (max-width: 1024px) {
@@ -588,6 +617,11 @@
 
 @media (min-width: 901px) and (max-width: 1024px) {
 
+	/* Same fix as the 1025px+ block above, against this tier's own 88px arrow (not 118px). */
+	.iflynepal-listing--no-filters .iflynepal-annot {
+		margin-top: -112px;
+	}
+
 	.iflynepal-listing__head .iflynepal-section-head h2 {
 		font-size: clamp(52px, 5.5vw, 58px);
 	}
@@ -595,6 +629,11 @@
 	.iflynepal-listing__head .iflynepal-lead {
 		max-width: none;
 		white-space: nowrap;
+	}
+
+	/* Laptop tier gets the same no-filter-row head gap as desktop (§ above). */
+	.iflynepal-listing--no-filters .iflynepal-listing__head {
+		margin-bottom: 44px;
 	}
 }
 

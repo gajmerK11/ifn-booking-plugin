@@ -35,11 +35,27 @@ if ( empty( $iflynepal_packages ) ) {
 $iflynepal_children = iflynepal_archive_filter_terms( $iflynepal_id, $iflynepal_packages );
 ?>
 
-<section class="iflynepal-section iflynepal-listing" id="iflynepal-packages">
+<section class="iflynepal-section iflynepal-listing<?php echo empty( $iflynepal_children ) ? ' iflynepal-listing--no-filters' : ''; ?>" id="iflynepal-packages">
 	<div class="iflynepal-container">
-		<div class="iflynepal-listing__head">
-			<?php iflynepal_archive_the_head( $iflynepal_id, 'listing' ); ?>
-		</div>
+		<?php
+		/*
+		 * A category with no listing_heading/lead of its own (the norm — the
+		 * content model gives copy fields to the type, not every category) must
+		 * not print this wrapper at all: iflynepal_archive_the_head() already
+		 * echoes nothing for it, but the empty div was still carrying the
+		 * head's margin-bottom, leaving a blank band above the cards with
+		 * nothing in it to justify the space.
+		 */
+		ob_start();
+		iflynepal_archive_the_head( $iflynepal_id, 'listing' );
+		$iflynepal_head_markup = ob_get_clean();
+
+		if ( '' !== trim( $iflynepal_head_markup ) ) :
+			?>
+			<div class="iflynepal-listing__head">
+				<?php echo $iflynepal_head_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by iflynepal_archive_the_head(), which escapes its own output. ?>
+			</div>
+		<?php endif; ?>
 
 		<?php
 		/*
@@ -69,13 +85,10 @@ $iflynepal_children = iflynepal_archive_filter_terms( $iflynepal_id, $iflynepal_
 		 * The words travel to the script as a data attribute rather than as
 		 * text, so the markup carries no half-typed state.
 		 *
-		 * Sits here, between the filter row and the grid, on every viewport —
-		 * it used to live beside the heading and get pulled down onto this
-		 * spot with a hand-tuned `position: relative; top` offset, which only
-		 * matched the filter row's real height by coincidence and broke the
-		 * moment a category-less archive skipped that row. Printing it where
-		 * it visually belongs removes the offset (and the coincidence) rather
-		 * than tuning it.
+		 * Prints here, after the filter row and before the grid, on every
+		 * viewport — see catalogue.css for how the head compensates so a page
+		 * that has the filter row still starts its cards at the same pixel it
+		 * always has.
 		 */
 		$iflynepal_note_static = iflynepal_archive_field( $iflynepal_id, 'listing_annotation_static' );
 		$iflynepal_note_words  = iflynepal_archive_field_lines( $iflynepal_id, 'listing_annotation_words' );

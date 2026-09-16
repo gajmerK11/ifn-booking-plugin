@@ -38,10 +38,11 @@ const IFLYNEPAL_CONNECT_ACTION = 'iflynepal_connect_submit';
 /**
  * Whether the connect tab is drawn on the current request.
  *
- * The landing page only, which is what was asked for. It is a filter rather
- * than a hardcoded condition because "site-wide, like the WhatsApp button"
- * is a plausible next request and should be one line rather than an edit to
- * this file — return true for whatever a site wants.
+ * Site-wide, like the WhatsApp button most travel sites end up with in the
+ * corner — the landing-page-only restriction this started with was the
+ * default before that was asked for. Still a filter rather than a hardcoded
+ * `true`, so a page type that should opt out is one line rather than an edit
+ * to this file.
  *
  * Never in the admin, never on a feed, and never on a REST or admin-post
  * request: wp_footer does not fire there, but the enqueue hooks this shares a
@@ -52,7 +53,7 @@ const IFLYNEPAL_CONNECT_ACTION = 'iflynepal_connect_submit';
  * @return bool
  */
 function iflynepal_connect_should_render() {
-	$render = is_front_page() && ! is_admin() && ! is_feed();
+	$render = ! is_admin() && ! is_feed();
 
 	/**
 	 * Filters whether the connect tab is drawn on this request.

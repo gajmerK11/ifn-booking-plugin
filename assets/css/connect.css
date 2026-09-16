@@ -156,9 +156,9 @@
  */
 .iflynepal-connect__tab-label {
 	display: inline-grid;
-	grid-template-columns: 1fr;
-	margin-left: 10px;
-	opacity: 1;
+	grid-template-columns: 0fr;
+	margin-left: 0;
+	opacity: 0;
 	transition:
 		grid-template-columns var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
 		margin-left var(--ifn-con-reveal) var(--ifn-con-reveal-ease),
@@ -171,28 +171,27 @@
 	white-space: nowrap;
 }
 
-@media (hover: hover) {
-	.iflynepal-connect__tab {
-		padding-left: 12px;
-	}
+/*
+ * Collapsed by default on every breakpoint, not just gated behind
+ * `@media (hover: hover)` — that query left the label permanently expanded
+ * on touch, which has no hover to give, so mobile and tablet always showed
+ * the pill open over the hero instead of a bare icon. `:hover` still costs
+ * nothing on a device that can't trigger it.
+ */
+.iflynepal-connect__tab {
+	padding-left: 12px;
+}
 
-	.iflynepal-connect__tab-label {
-		grid-template-columns: 0fr;
-		margin-left: 0;
-		opacity: 0;
-	}
+.iflynepal-connect__tab:hover,
+.iflynepal-connect__tab:focus-visible {
+	padding-left: 18px;
+}
 
-	.iflynepal-connect__tab:hover,
-	.iflynepal-connect__tab:focus-visible {
-		padding-left: 18px;
-	}
-
-	.iflynepal-connect__tab:hover .iflynepal-connect__tab-label,
-	.iflynepal-connect__tab:focus-visible .iflynepal-connect__tab-label {
-		grid-template-columns: 1fr;
-		margin-left: 10px;
-		opacity: 1;
-	}
+.iflynepal-connect__tab:hover .iflynepal-connect__tab-label,
+.iflynepal-connect__tab:focus-visible .iflynepal-connect__tab-label {
+	grid-template-columns: 1fr;
+	margin-left: 10px;
+	opacity: 1;
 }
 
 /* -------------------------------------------------------------- the panel */
@@ -498,9 +497,49 @@ body.iflynepal-connect-lock {
 	color: var(--ifn-con-muted);
 }
 
-.iflynepal-connect__alt a {
-	color: var(--ifn-con-navy);
+/* WhatsApp's own brand green — matches the enquiry form's button
+   (enquiry.css, .iflynepal-enquiry__whatsapp) so every WhatsApp entry point
+   on the site reads as the same control. */
+.iflynepal-connect__whatsapp {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 10px;
+	padding: 13px 24px;
+	border: 1px solid #25d366;
+	border-radius: 999px;
+	background: #25d366;
+	color: #06301a;
+	font-size: 15px;
 	font-weight: 600;
+	text-decoration: none;
+	transition: box-shadow 0.2s var(--ifn-con-ease), transform 0.2s var(--ifn-con-ease);
+}
+
+.iflynepal-connect__whatsapp:hover {
+	box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+	transform: translateY(-1px);
+}
+
+.iflynepal-connect__whatsapp-ico {
+	width: 19px;
+	height: 19px;
+	fill: currentColor;
+}
+
+@media (max-width: 360px) {
+	.iflynepal-connect__whatsapp {
+		gap: 6px;
+		padding: 12px 10px;
+		font-size: 13px;
+		white-space: nowrap;
+	}
+
+	.iflynepal-connect__whatsapp-ico {
+		width: 16px;
+		height: 16px;
+	}
 }
 
 /* --------------------------------------------------------- reduced motion */
