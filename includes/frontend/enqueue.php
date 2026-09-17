@@ -535,6 +535,7 @@ function iflynepal_booking_enqueue_connect_gate() {
 		'iflynepal-connect-gate',
 		'document.documentElement.classList.add("iflynepal-connect-js");'
 	);
+	
 }
 add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_connect_gate' );
 
