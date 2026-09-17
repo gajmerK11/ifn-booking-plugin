@@ -1343,14 +1343,16 @@
 /* ------------------------------------------------------------------ cards */
 
 /*
- * Three columns, as the design lays them out, dropping to two and then one at
- * the design's own breakpoints. Not an auto-fill track list: that adds a fourth
- * column on a wide screen, which is a different design rather than a wider one.
+ * Two columns, client-directed — three read as squeezed and left titles no
+ * room to breathe. Was repeat(3, 1fr) per the design; the two breakpoints
+ * below already dropped to two and then one at their own widths, so this
+ * only changes what the widest screens show. Still not an auto-fill track
+ * list: that adds a column on a wide screen instead of widening the two.
  */
 .iflynepal-cards {
 	display: grid;
 	gap: 20px;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(2, 1fr);
 	/*
 	 * The filter animates this element's height, and a grid with a height to
 	 * spare stretches its rows to fill it by default — the cards would drift
