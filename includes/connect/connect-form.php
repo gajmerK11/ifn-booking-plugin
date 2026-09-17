@@ -181,11 +181,9 @@ function iflynepal_connect_value_is_usable( $value, $type ) {
  * failed send loses nothing. The reply-to is the visitor, so answering the
  * notification answers them.
  *
- * Recipient resolution is shared with the enquiry's — the Contact page's office
- * address when the iFly Nepal theme is active, the site admin address otherwise
- * — through the same `iflynepal_enquiry_recipient` filter, so a site that
- * redirects one inbox redirects both rather than discovering the second one
- * later.
+ * Recipient resolution is shared with the enquiry's and the Contact page's,
+ * through iflynepal_notification_recipient(), so a site that redirects one
+ * inbox redirects all of them rather than discovering the others later.
  *
  * @since 1.0.0
  *
@@ -194,20 +192,9 @@ function iflynepal_connect_value_is_usable( $value, $type ) {
  * @return void
  */
 function iflynepal_connect_notify( $post_id, $values ) {
-	$recipient = '';
+	$recipient = iflynepal_notification_recipient( $post_id );
 
-	if ( function_exists( 'iflynepal_contact_plain' ) ) {
-		$recipient = sanitize_email( iflynepal_contact_plain( 'office_email' ) );
-	}
-
-	if ( ! is_email( $recipient ) ) {
-		$recipient = sanitize_email( get_option( 'admin_email' ) );
-	}
-
-	/** This filter is documented in includes/enquiry/enquiry-form.php */
-	$recipient = (string) apply_filters( 'iflynepal_enquiry_recipient', $recipient, $post_id );
-
-	if ( ! is_email( $recipient ) ) {
+	if ( '' === $recipient ) {
 		return;
 	}
 

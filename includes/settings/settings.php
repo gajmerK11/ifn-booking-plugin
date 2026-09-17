@@ -38,6 +38,12 @@ const IFLYNEPAL_BOOKING_OPTION = 'iflynepal_booking_settings';
  */
 function iflynepal_booking_settings_schema() {
 	$settings = array(
+		'notification_email'    => array(
+			'label'   => __( 'Send form submissions to', 'iflynepal' ),
+			'type'    => 'email',
+			'default' => '',
+			'help'    => __( 'The inbox that is told about every Connect With Us request, package enquiry and Contact page message. Left empty, they go to the office address on the Contact page, and failing that to the site administrator.', 'iflynepal' ),
+		),
 		'whatsapp_number'       => array(
 			'label'   => __( 'WhatsApp number', 'iflynepal' ),
 			'type'    => 'digits',
@@ -176,6 +182,16 @@ function iflynepal_booking_sanitize_setting( $value, $type ) {
 
 	if ( 'page' === $type ) {
 		return (string) absint( $value );
+	}
+
+	/*
+	 * An address that is not one is stored as empty rather than as typed.
+	 * sanitize_email() returns '' for anything it cannot make an address of,
+	 * and an empty recipient is one the resolver below can fall back from —
+	 * a half-typed one would be a notification sent nowhere, silently.
+	 */
+	if ( 'email' === $type ) {
+		return sanitize_email( $value );
 	}
 
 	if ( 'textarea' === $type ) {
@@ -356,4 +372,52 @@ function iflynepal_whatsapp_url( $post_id = 0 ) {
 	}
 
 	return $url;
+}
+
+/* ----------------------------------------------------------- notifications */
+
+/**
+ * Who is told about a form submission.
+ *
+ * One resolver for all three of the site's forms — the Connect With Us drawer,
+ * the package enquiry, and the theme's Contact page — because they are one
+ * inbox in practice, and three copies of this fallback chain is three places
+ * for the day it changes to be half-applied.
+ *
+ * The chain, in order:
+ *
+ *  1. The plugin setting, which is the field an editor can reach.
+ *  2. The office address on the theme's Contact page, which is what these used
+ *     to resolve to and is still the right answer when nothing is set here —
+ *     the address already published to visitors is the one the office reads.
+ *  3. The site administrator, so a submission is never silently dropped on a
+ *     site where neither has been filled in.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id The stored submission, or 0 when there is not one yet.
+ * @return string An email address, or '' when nothing usable is configured.
+ */
+function iflynepal_notification_recipient( $post_id = 0 ) {
+	$recipient = iflynepal_booking_setting( 'notification_email' );
+
+	if ( ! is_email( $recipient ) && function_exists( 'iflynepal_contact_plain' ) ) {
+		$recipient = sanitize_email( iflynepal_contact_plain( 'office_email' ) );
+	}
+
+	if ( ! is_email( $recipient ) ) {
+		$recipient = sanitize_email( get_option( 'admin_email' ) );
+	}
+
+	/**
+	 * Filters who is told about a new enquiry.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $recipient Email address.
+	 * @param int    $post_id   The stored submission, or 0.
+	 */
+	$recipient = (string) apply_filters( 'iflynepal_enquiry_recipient', $recipient, $post_id );
+
+	return is_email( $recipient ) ? $recipient : '';
 }

@@ -135,9 +135,9 @@ add_action( 'admin_post_nopriv_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_e
  * failed send loses nothing. The reply-to is the visitor, so answering the
  * notification answers them.
  *
- * The recipient is the Contact page's office address when the iFly Nepal theme
- * is active — one address for every enquiry the site takes, rather than a second
- * one to keep in step — and the site admin address otherwise.
+ * The recipient is whatever iflynepal_notification_recipient() resolves to —
+ * the plugin's own setting, the Contact page's office address, or the site
+ * administrator — so every form on the site reaches one inbox.
  *
  * @since 1.0.0
  *
@@ -147,27 +147,9 @@ add_action( 'admin_post_nopriv_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_e
  * @return void
  */
 function iflynepal_enquiry_notify( $post_id, $values, $package_id ) {
-	$recipient = '';
+	$recipient = iflynepal_notification_recipient( $post_id );
 
-	if ( function_exists( 'iflynepal_contact_plain' ) ) {
-		$recipient = sanitize_email( iflynepal_contact_plain( 'office_email' ) );
-	}
-
-	if ( ! is_email( $recipient ) ) {
-		$recipient = sanitize_email( get_option( 'admin_email' ) );
-	}
-
-	/**
-	 * Filters who is told about a new enquiry.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $recipient Email address.
-	 * @param int    $post_id   The stored enquiry.
-	 */
-	$recipient = (string) apply_filters( 'iflynepal_enquiry_recipient', $recipient, $post_id );
-
-	if ( ! is_email( $recipient ) ) {
+	if ( '' === $recipient ) {
 		return;
 	}
 

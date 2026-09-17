@@ -339,6 +339,7 @@ class IFly_Nepal_Booking_Settings {
 				.iflynepal-settings .cc-field { margin-bottom: 22px; max-width: 640px; }
 				.iflynepal-settings .cc-field > label { display: block; margin-bottom: 6px; font-weight: 600; color: #1d2327; }
 				.iflynepal-settings input[type="text"],
+				.iflynepal-settings input[type="email"],
 				.iflynepal-settings textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; }
 				.iflynepal-settings .cc-help { margin: 6px 0 0; color: #646970; }
 				.iflynepal-settings .cc-preview { margin-top: 6px; padding: 8px 12px; background: #f6f7f7; border-radius: 4px; word-break: break-all; }
@@ -405,6 +406,8 @@ class IFly_Nepal_Booking_Settings {
 							?>
 						<?php elseif ( 'durations' === $field['type'] ) : ?>
 							<?php $this->render_durations( $name, is_array( $value ) ? $value : array() ); ?>
+						<?php elseif ( 'email' === $field['type'] ) : ?>
+							<input type="email" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" autocomplete="email" spellcheck="false">
 						<?php else : ?>
 							<input type="text" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" inputmode="numeric">
 						<?php endif; ?>
@@ -412,6 +415,28 @@ class IFly_Nepal_Booking_Settings {
 						<p class="cc-help"><?php echo esc_html( $field['help'] ); ?></p>
 					</div>
 				<?php endforeach; ?>
+
+				<?php
+				/*
+				 * What the site will actually do with the address above, read
+				 * through the same resolver the forms use. With the field left
+				 * empty this is the only place the fallback is visible — and
+				 * "where did that enquiry go" is otherwise a question with no
+				 * answer on any screen.
+				 */
+				$inbox = iflynepal_notification_recipient();
+				?>
+				<div class="cc-field">
+					<label><?php esc_html_e( 'Form submissions are being sent to', 'iflynepal' ); ?></label>
+					<p class="cc-preview">
+						<?php if ( '' !== $inbox ) : ?>
+							<strong><?php echo esc_html( $inbox ); ?></strong>
+						<?php else : ?>
+							<strong><?php esc_html_e( 'Nowhere — no usable address is configured.', 'iflynepal' ); ?></strong>
+						<?php endif; ?>
+					</p>
+					<p class="cc-help"><?php esc_html_e( 'Saved submissions are kept under Enquiries whether the email arrives or not, so nothing is lost if this address is wrong.', 'iflynepal' ); ?></p>
+				</div>
 
 				<?php
 				/*
