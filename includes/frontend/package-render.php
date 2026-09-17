@@ -276,6 +276,120 @@ function iflynepal_package_paragraphs( $value ) {
 }
 
 /**
+ * Whether a rich-text field's raw value already carries markup a wp_editor()
+ * field would have saved — the one thing that tells this reader apart from a
+ * `textarea` field's plain-text past.
+ *
+ * Any tag counts, not only a block one: a one-line "Opening paragraph" with a
+ * bold word and a link in it is exactly the reduced toolbar's job and never
+ * gets a wrapping <p> from a single line with no Enter pressed, so gating on
+ * block tags alone left inline-only markup looking like legacy text and sent
+ * it through esc_html() — which is what printed the tags themselves on the
+ * page instead of applying them. A legacy value cannot produce a false
+ * positive here: sanitize_textarea_field() stripped every tag a `textarea`
+ * field ever saved, so a real `<` followed by a tag name is only possible on
+ * a value this field's own wp_kses_post() wrote.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value Raw field value.
+ * @return bool
+ */
+function iflynepal_package_is_rich_html( $value ) {
+	return (bool) preg_match( '/<[a-z][^>]*>/i', (string) $value );
+}
+
+/**
+ * A `wysiwyg` field's paragraphs, ready to print one `<p>` per item.
+ *
+ * Honours two shapes at once: a legacy plain block of text (the shape
+ * `sanitize_textarea_field()` left a `textarea` field in, one paragraph per
+ * blank line, no markup at all) and the HTML a wp_editor() field now saves.
+ * There is no migration script — opening a package and pressing Update is
+ * what moves it to the new shape, the same rule §5.3n's itinerary reader
+ * already uses, because the field's own past content has no tags to detect
+ * a false positive from.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value Raw field value.
+ * @return string[] Inner HTML of each paragraph, already safe to echo.
+ */
+function iflynepal_package_rich_paragraphs( $value ) {
+	$value = trim( (string) $value );
+
+	if ( '' === $value ) {
+		return array();
+	}
+
+	if ( ! iflynepal_package_is_rich_html( $value ) ) {
+		return array_map( 'esc_html', iflynepal_package_paragraphs( $value ) );
+	}
+
+	if ( preg_match_all( '#<p[^>]*>(.*?)</p>#is', $value, $matches ) && ! empty( $matches[1] ) ) {
+		return array_values(
+			array_filter(
+				array_map(
+					static function ( $inner ) {
+						return wp_kses_post( trim( $inner ) );
+					},
+					$matches[1]
+				),
+				'strlen'
+			)
+		);
+	}
+
+	// No <p> wrapper at all — a single line with no Enter pressed.
+	return array( wp_kses_post( $value ) );
+}
+
+/**
+ * A `wysiwyg` field's lines, ready to print one list item per row.
+ *
+ * Same dual-shape reasoning as iflynepal_package_rich_paragraphs(), plus a
+ * third shape of its own: the editor's Bulleted-list button produces `<li>`
+ * rather than `<p>`, and either is a valid way to type one highlight per
+ * row, so `<li>` is tried first.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value Raw field value.
+ * @return string[] Inner HTML of each line, already safe to echo.
+ */
+function iflynepal_package_rich_lines( $value ) {
+	$value = trim( (string) $value );
+
+	if ( '' === $value ) {
+		return array();
+	}
+
+	if ( ! iflynepal_package_is_rich_html( $value ) ) {
+		$lines = preg_split( '/\R/', $value );
+
+		return array_values( array_filter( array_map( 'esc_html', array_map( 'trim', (array) $lines ) ), 'strlen' ) );
+	}
+
+	foreach ( array( 'li', 'p' ) as $tag ) {
+		if ( preg_match_all( '#<' . $tag . '[^>]*>(.*?)</' . $tag . '>#is', $value, $matches ) && ! empty( $matches[1] ) ) {
+			return array_values(
+				array_filter(
+					array_map(
+						static function ( $inner ) {
+							return wp_kses_post( trim( $inner ) );
+						},
+						$matches[1]
+					),
+					'strlen'
+				)
+			);
+		}
+	}
+
+	return array( wp_kses_post( $value ) );
+}
+
+/**
  * Packages to show in the similar-packages rail.
  *
  * The other packages filed under the same primary type, newest first, this one

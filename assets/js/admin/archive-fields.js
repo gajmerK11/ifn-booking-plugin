@@ -528,27 +528,26 @@
 	document.querySelectorAll('[data-iflynepal-table]').forEach(initTable);
 	document.querySelectorAll('[data-iflynepal-timeline]').forEach(initTimeline);
 
-	/* ------------------------------------------------- expert button link */
+	/* --------------------------------------------- wa.me link auto-fill */
 
 	/**
-	 * Keeps the expert button's link in step with its label, while the
-	 * label still reads as a phone number.
+	 * Keeps a link field in step with a number-or-label field beside it,
+	 * writing a wa.me click-to-chat URL into the link for as long as the
+	 * link is still the one this wrote.
 	 *
-	 * The label field is documented as "usually the phone number" (see
-	 * expert_label in package-details-schema.php), so typing one there
-	 * writes the matching wa.me link into the Link field beneath it — but
-	 * only for as long as that field is still the one this wrote. The
-	 * moment an editor types into the Link field themselves, it is theirs:
-	 * this stops touching it, the same way it would if they had pasted in
-	 * an unrelated URL. Present on the Package Details "Booking aside"
-	 * panel only — a no-op wherever either field does not exist, which is
-	 * every other admin screen this file loads on.
+	 * The moment an editor types into the link field themselves, it is
+	 * theirs: this stops touching it, the same way it would if they had
+	 * pasted in an unrelated URL. A no-op wherever either field does not
+	 * exist, which is every admin screen this pairing was not built for.
+	 *
+	 * @param {string} sourceId Id of the field holding the phone number.
+	 * @param {string} linkId   Id of the field the wa.me URL is written into.
 	 */
-	(function initExpertLink() {
-		var label = document.getElementById('iflynepal_package_page_expert_label');
-		var link = document.getElementById('iflynepal_package_page_expert_link');
+	function initWaLinkPair(sourceId, linkId) {
+		var source = document.getElementById(sourceId);
+		var link = document.getElementById(linkId);
 
-		if (!label || !link) {
+		if (!source || !link) {
 			return;
 		}
 
@@ -559,18 +558,33 @@
 		}
 
 		// Already in step on load (freshly created, or last saved from the
-		// label as it stands now) counts as auto — anything else is an
+		// source as it stands now) counts as auto — anything else is an
 		// editor's own link, left alone from the start.
-		var auto = '' === link.value || link.value === waLink(label.value);
+		var auto = '' === link.value || link.value === waLink(source.value);
+
+		// A source field can start the page with a value already in it — the
+		// WhatsApp number's own default, e.g. — with nothing yet written to
+		// the link. Auto mode says that link is this pairing's to fill, so it
+		// is filled immediately rather than waiting for the source to be
+		// typed into.
+		if (auto && '' === link.value) {
+			link.value = waLink(source.value);
+		}
 
 		link.addEventListener('input', function () {
-			auto = '' === link.value || link.value === waLink(label.value);
+			auto = '' === link.value || link.value === waLink(source.value);
 		});
 
-		label.addEventListener('input', function () {
+		source.addEventListener('input', function () {
 			if (auto) {
-				link.value = waLink(label.value);
+				link.value = waLink(source.value);
 			}
 		});
-	})();
+	}
+
+	// The expert card's button (label "usually the phone number", per
+	// expert_label in package-details-schema.php) and the price card's
+	// Inquire link (fed from the package's own WhatsApp number field).
+	initWaLinkPair('iflynepal_package_page_expert_label', 'iflynepal_package_page_expert_link');
+	initWaLinkPair('iflynepal_package_page_whatsapp_number', 'iflynepal_package_page_inquire_link');
 })();

@@ -198,11 +198,24 @@ function iflynepal_package_details_fields() {
 		);
 	}
 
+	/*
+	 * Accommodation is a fixed either/or rather than free text: the design's
+	 * fact here answers "is accommodation part of the price", not what kind of
+	 * bed it is (that belongs in the Included/Not included lists below). A
+	 * dropdown makes the two possible answers the only two an editor can type.
+	 */
+	$fields['glance_stay']['type']    = 'select';
+	$fields['glance_stay']['options'] = array(
+		'Included'     => __( 'Included', 'iflynepal' ),
+		'Not included' => __( 'Not included', 'iflynepal' ),
+	);
+	$fields['glance_stay']['help']    = __( 'Whether accommodation is included in the package price.', 'iflynepal' );
+
 	$fields['overview_intro'] = array(
 		'box'     => 'details',
 		'section' => 'overview',
 		'label'   => __( 'Opening paragraph', 'iflynepal' ),
-		'type'    => 'textarea',
+		'type'    => 'wysiwyg',
 		'help'    => __( 'The larger paragraph directly under the at-a-glance table.', 'iflynepal' ),
 	);
 
@@ -210,8 +223,8 @@ function iflynepal_package_details_fields() {
 		'box'     => 'details',
 		'section' => 'overview',
 		'label'   => __( 'Body', 'iflynepal' ),
-		'type'    => 'textarea',
-		'help'    => __( 'Leave a blank line between paragraphs. Each block becomes its own paragraph.', 'iflynepal' ),
+		'type'    => 'wysiwyg',
+		'help'    => __( 'Press Enter between paragraphs. Each one becomes its own paragraph.', 'iflynepal' ),
 	);
 
 	/*
@@ -225,8 +238,8 @@ function iflynepal_package_details_fields() {
 		'box'     => 'details',
 		'section' => 'overview',
 		'label'   => __( 'Highlights', 'iflynepal' ),
-		'type'    => 'lines',
-		'help'    => __( 'One per line, shown as the ticked list under the overview.', 'iflynepal' ),
+		'type'    => 'wysiwyg',
+		'help'    => __( 'One per line (press Enter, or use the bulleted-list button), shown as the ticked list under the overview.', 'iflynepal' ),
 	);
 
 	$fields['itinerary_heading'] = array(
@@ -465,20 +478,21 @@ function iflynepal_package_details_fields() {
 		'help'    => __( 'One per line. A short version of what is included — the full list lives in the Dates and price panel.', 'iflynepal' ),
 	);
 
-	$fields['inquire_link'] = array(
-		'box'     => 'details',
-		'section' => 'booking',
-		'label'   => __( 'Inquire link', 'iflynepal' ),
-		'type'    => 'url',
-		'help'    => __( 'Where the second button goes — a WhatsApp click-to-chat link, or a page. Left empty, the button is left off.', 'iflynepal' ),
-	);
-
 	$fields['whatsapp_number'] = array(
 		'box'     => 'details',
 		'section' => 'booking',
 		'label'   => __( 'WhatsApp number for this package', 'iflynepal' ),
 		'type'    => 'text',
-		'help'    => __( 'Only if this package is answered on a different phone. Country code first, digits only. Left empty — which is the normal case — the site-wide number at Packages > Settings is used.', 'iflynepal' ),
+		'default' => '9841771010',
+		'help'    => __( 'Country code first, digits only. Pre-filled with the office number; change it only if this package is answered on a different phone.', 'iflynepal' ),
+	);
+
+	$fields['inquire_link'] = array(
+		'box'     => 'details',
+		'section' => 'booking',
+		'label'   => __( 'Inquire link', 'iflynepal' ),
+		'type'    => 'url',
+		'help'    => __( 'Where the second button goes. Filled in automatically as a WhatsApp click-to-chat link for the number above — edit it directly to point somewhere else instead, e.g. a page.', 'iflynepal' ),
 	);
 
 	$fields['price_foot'] = array(

@@ -284,6 +284,28 @@ function iflynepal_package_sanitize_value( $value, $type, $field = array() ) {
 			 */
 			return iflynepal_booking_kses_text( $value );
 
+		case 'wysiwyg':
+			/*
+			 * A wp_editor() field — the standard sanitizer for TinyMCE's own
+			 * output, the same one core uses for post content. What the reduced
+			 * toolbar can actually produce (bold, italic, underline, a link, a
+			 * list) is a small subset of what this allows, so nothing here
+			 * depends on the toolbar staying that small.
+			 */
+			return wp_kses_post( (string) $value );
+
+		case 'select':
+			/*
+			 * Only a value the field actually offers is stored — a forged or
+			 * stale option (the field's choices changed under it) is dropped
+			 * rather than trusted, the same rule the testimonial target list
+			 * saves by.
+			 */
+			$options = isset( $field['options'] ) ? array_keys( $field['options'] ) : array();
+			$value   = sanitize_text_field( (string) $value );
+
+			return in_array( $value, $options, true ) ? $value : '';
+
 		case 'textarea':
 		case 'lines':
 			return sanitize_textarea_field( (string) $value );

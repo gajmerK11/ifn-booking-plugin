@@ -1351,6 +1351,28 @@ so it docks to the bottom edge */
 .iflynepal-pkg-prose p + p{margin-top:20px}
 
 /*
+ * Links typed into the three wp_editor() fields on this page (Opening
+ * paragraph, Body, Highlights) — see iflynepal_package_rich_paragraphs()/
+ * _rich_lines() in package-render.php. The design's own prose has no links
+ * at all, so there is nothing to transcribe: the colour is the page's own
+ * navy, matching the breadcrumb and the sub-heading accent rather than
+ * inventing a second blue, with an underline so a link reads as one without
+ * relying on colour alone.
+ */
+.iflynepal-pkg-intro a,
+.iflynepal-pkg-prose a,
+.iflynepal-pkg-check-list a{
+  color:var(--ifnpkg-navy);
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.iflynepal-pkg-intro a:hover,
+.iflynepal-pkg-prose a:hover,
+.iflynepal-pkg-check-list a:hover{
+  color:var(--ifnpkg-navy-2);
+}
+
+/*
  * The Highlights heading, given something to be noticed by. Client-directed;
  * the design has no mark here at all, just a sub-heading like any other.
  *

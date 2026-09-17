@@ -99,6 +99,14 @@ class IFly_Nepal_Package_Details_Box {
 
 		wp_enqueue_media();
 
+		/*
+		 * The `wysiwyg` fields' editor. Core only calls this itself when the post
+		 * type supports 'editor' — which this one deliberately does not (§5.3l) —
+		 * so without this call wp_editor() below prints a plain, unstyled
+		 * textarea with no TinyMCE behind it.
+		 */
+		wp_enqueue_editor();
+
 		wp_enqueue_script(
 			'iflynepal-archive-fields',
 			IFLYNEPAL_BOOKING_URL . 'assets/js/admin/archive-fields.js',
@@ -232,7 +240,26 @@ class IFly_Nepal_Package_Details_Box {
 			return;
 		}
 
+		if ( 'wysiwyg' === $field['type'] ) {
+			$this->render_wysiwyg( $id, $name, iflynepal_package_field( $post_id, $key ), $field );
+
+			return;
+		}
+
+		if ( 'select' === $field['type'] ) {
+			$this->render_select( $id, $name, iflynepal_package_field( $post_id, $key ), $field );
+
+			return;
+		}
+
 		$value = iflynepal_package_field( $post_id, $key );
+
+		// A field with nothing saved yet may declare what to show instead —
+		// the WhatsApp number pre-filled with the office's own, e.g. — which
+		// stays exactly as editable as if an editor had typed it themselves.
+		if ( '' === $value && isset( $field['default'] ) ) {
+			$value = $field['default'];
+		}
 
 		if ( 'textarea' === $field['type'] || 'lines' === $field['type'] ) {
 			printf(
@@ -512,6 +539,64 @@ class IFly_Nepal_Package_Details_Box {
 	}
 
 	/**
+	 * A reduced-toolbar wp_editor(), for the fields that hold prose rather
+	 * than a single line — bold, italic, underline, a bulleted list and a
+	 * link, which is what the schema's own help text for these fields now
+	 * promises and nothing more. `teeny` is core's own name for this size of
+	 * toolbar; it is narrowed further here because teeny's own default still
+	 * carries alignment, block quotes and a fullscreen toggle this page has
+	 * no design for.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id    Input id.
+	 * @param string $name  Input name.
+	 * @param string $value Stored HTML, or a legacy plain-text value.
+	 * @param array  $field Field definition.
+	 * @return void
+	 */
+	private function render_wysiwyg( $id, $name, $value, $field ) {
+		wp_editor(
+			$value,
+			$id,
+			array(
+				'textarea_name' => $name,
+				'textarea_rows' => isset( $field['rows'] ) ? (int) $field['rows'] : 6,
+				'teeny'         => true,
+				'media_buttons' => false,
+				'quicktags'     => false,
+				'tinymce'       => array(
+					'toolbar1' => 'bold,italic,underline,bullist,link,unlink,undo,redo',
+					'toolbar2' => '',
+				),
+			)
+		);
+	}
+
+	/**
+	 * A field with a fixed set of answers.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id    Input id.
+	 * @param string $name  Input name.
+	 * @param string $value Stored value.
+	 * @param array  $field Field definition, carrying 'options' (value => label).
+	 * @return void
+	 */
+	private function render_select( $id, $name, $value, $field ) {
+		$options = isset( $field['options'] ) ? $field['options'] : array();
+		?>
+		<select id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>">
+			<option value=""><?php esc_html_e( '— Not set —', 'iflynepal' ); ?></option>
+			<?php foreach ( $options as $option_value => $option_label ) : ?>
+				<option value="<?php echo esc_attr( $option_value ); ?>" <?php selected( $value, $option_value ); ?>><?php echo esc_html( $option_label ); ?></option>
+			<?php endforeach; ?>
+		</select>
+		<?php
+	}
+
+	/**
 	 * The box's own presentation.
 	 *
 	 * Only what the panels add on top of the Package Card box's rules, which are
@@ -576,6 +661,7 @@ class IFly_Nepal_Package_Details_Box {
 			/* Prose, lists and the repeaters take the whole row. */
 			.iflynepal-package-fields--panels .iflynepal-package-field--textarea,
 			.iflynepal-package-fields--panels .iflynepal-package-field--lines,
+			.iflynepal-package-fields--panels .iflynepal-package-field--wysiwyg,
 			.iflynepal-package-fields--panels .iflynepal-package-field--cards,
 			.iflynepal-package-fields--panels .iflynepal-package-field--gallery {
 				grid-column: 1 / -1;
@@ -583,6 +669,7 @@ class IFly_Nepal_Package_Details_Box {
 
 			.iflynepal-package-fields--panels .form-table input[type="text"],
 			.iflynepal-package-fields--panels .form-table input[type="url"],
+			.iflynepal-package-fields--panels .form-table select,
 			.iflynepal-package-fields--panels .form-table textarea {
 				width: 100%;
 				padding: 10px 12px;
@@ -590,6 +677,15 @@ class IFly_Nepal_Package_Details_Box {
 				border-radius: 4px;
 				box-sizing: border-box;
 				line-height: 1.5;
+			}
+
+			.iflynepal-package-fields--panels .form-table select {
+				max-width: 320px;
+			}
+
+			/* wp_editor() prints its own chrome; only the outer width is ours to set. */
+			.iflynepal-package-fields--panels .wp-editor-wrap {
+				max-width: 100%;
 			}
 
 			/* ------------------------------------------------------ repeater */
