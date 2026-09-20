@@ -283,10 +283,29 @@ EXTRAS = u"""
 }
 
 .iflynepal-pkg-prose p + p{margin-top:20px}
+.iflynepal-pkg-intro p + p{margin-top:16px}
+
+/*
+ * Lists typed into the Opening paragraph / Body fields with the editor's
+ * Bulleted-list button. Tailwind's preflight strips every <ul>'s list-style
+ * globally, and .iflynepal-pkg-check-list (the Highlights field's own list)
+ * deliberately keeps that reset for its tick-icon layout — so a plain
+ * editorial list needs its bullet put back only here, scoped to prose.
+ */
+.iflynepal-pkg-intro ul,
+.iflynepal-pkg-prose ul{
+  list-style:disc;
+  margin:16px 0;
+  padding-left:22px;
+}
+.iflynepal-pkg-intro li,
+.iflynepal-pkg-prose li{
+  margin-bottom:6px;
+}
 
 /*
  * Links typed into the three wp_editor() fields on this page (Opening
- * paragraph, Body, Highlights) — see iflynepal_package_rich_paragraphs()/
+ * paragraph, Body, Highlights) — see iflynepal_package_rich_html()/
  * _rich_lines() in package-render.php. The design's own prose has no links
  * at all, so there is nothing to transcribe: the colour is the page's own
  * navy, matching the breadcrumb and the sub-heading accent rather than

@@ -16,35 +16,31 @@ if ( ! $iflynepal_id ) {
 	return;
 }
 
-$iflynepal_intro      = iflynepal_package_rich_paragraphs( iflynepal_package_field( $iflynepal_id, 'overview_intro' ) );
-$iflynepal_body       = iflynepal_package_rich_paragraphs( iflynepal_package_field( $iflynepal_id, 'overview_body' ) );
+$iflynepal_intro      = iflynepal_package_rich_html( iflynepal_package_field( $iflynepal_id, 'overview_intro' ) );
+$iflynepal_body       = iflynepal_package_rich_html( iflynepal_package_field( $iflynepal_id, 'overview_body' ) );
 $iflynepal_highlights = iflynepal_package_rich_lines( iflynepal_package_field( $iflynepal_id, 'highlights' ) );
 
-if ( empty( $iflynepal_intro ) && empty( $iflynepal_body ) && empty( $iflynepal_highlights ) ) {
+if ( '' === $iflynepal_intro && '' === $iflynepal_body && empty( $iflynepal_highlights ) ) {
 	return;
 }
 ?>
 
 <section class="iflynepal-pkg-t-section" id="ifnpkg-overview" aria-label="<?php esc_attr_e( 'Overview', 'iflynepal' ); ?>">
-	<?php if ( ! empty( $iflynepal_intro ) ) : ?>
-		<p class="iflynepal-pkg-intro" data-iflynepal-anim>
+	<?php if ( '' !== $iflynepal_intro ) : ?>
+		<div class="iflynepal-pkg-intro" data-iflynepal-anim>
 			<?php
-			// Each paragraph is already run through wp_kses_post()/esc_html() by iflynepal_package_rich_paragraphs().
-			echo implode( ' ', $iflynepal_intro ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			// Already run through wp_kses_post()/esc_html() by iflynepal_package_rich_html().
+			echo $iflynepal_intro; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
-		</p>
+		</div>
 	<?php endif; ?>
 
-	<?php if ( ! empty( $iflynepal_body ) ) : ?>
+	<?php if ( '' !== $iflynepal_body ) : ?>
 		<div class="iflynepal-pkg-prose iflynepal-pkg-prose--after" data-iflynepal-anim>
-			<?php foreach ( $iflynepal_body as $iflynepal_paragraph ) : ?>
-				<p>
-					<?php
-					// Already run through wp_kses_post()/esc_html() by iflynepal_package_rich_paragraphs().
-					echo $iflynepal_paragraph; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					?>
-				</p>
-			<?php endforeach; ?>
+			<?php
+			// Already run through wp_kses_post()/esc_html() by iflynepal_package_rich_html().
+			echo $iflynepal_body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
 		</div>
 	<?php endif; ?>
 

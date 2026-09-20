@@ -568,7 +568,7 @@ class IFly_Nepal_Package_Details_Box {
 			$id,
 			array(
 				'textarea_name' => $name,
-				'textarea_rows' => isset( $field['rows'] ) ? (int) $field['rows'] : 6,
+				'textarea_rows' => isset( $field['rows'] ) ? (int) $field['rows'] : 14,
 				'teeny'         => true,
 				'media_buttons' => false,
 				'quicktags'     => false,

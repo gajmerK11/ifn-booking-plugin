@@ -326,57 +326,66 @@ function iflynepal_package_is_rich_html( $value ) {
 }
 
 /**
- * A `wysiwyg` field's paragraphs, ready to print one `<p>` per item.
+ * A `wysiwyg` field's saved HTML, ready to print as-is.
  *
  * Honours two shapes at once: a legacy plain block of text (the shape
  * `sanitize_textarea_field()` left a `textarea` field in, one paragraph per
  * blank line, no markup at all) and the HTML a wp_editor() field now saves.
- * There is no migration script — opening a package and pressing Update is
- * what moves it to the new shape, the same rule §5.3n's itinerary reader
- * already uses, because the field's own past content has no tags to detect
- * a false positive from.
+ * The rich shape is printed exactly as authored, tags and all — a
+ * paragraph-by-paragraph reparse used to guess at boundaries and dropped
+ * anything that wasn't a bare `<p>` (a bulleted sub-list, say), which is
+ * exactly the formatting this field exists to let an editor keep.
+ *
+ * The editor's reduced (`teeny`) toolbar does not wrap each Enter press in
+ * its own `<p>` — it leaves a bare inline run (`<strong>…</strong>`) with a
+ * blank line after it, confirmed by reading a saved field's raw value
+ * straight out of postmeta. Two runs with nothing block-level between them
+ * sit on the same line in a browser no matter how the HTML source is
+ * spaced. `wpautop()` is the exact filter core runs on `post_content` for
+ * this same shape of input, and it already knows to leave real blocks (the
+ * `<ul>` the Bulleted-list button produces) alone rather than double-wrap
+ * them. There is no migration script — opening a package and pressing
+ * Update is what moves a field to the new shape, the same rule §5.3n's
+ * itinerary reader already uses.
  *
  * @since 1.0.0
  *
- * @param string $value Raw field value.
- * @return string[] Inner HTML of each paragraph, already safe to echo.
+ * @param string $value Raw field value, already wp_kses_post()'d at save time.
+ * @return string Safe-to-echo HTML, or '' when nothing is set.
  */
-function iflynepal_package_rich_paragraphs( $value ) {
+function iflynepal_package_rich_html( $value ) {
 	$value = trim( (string) $value );
 
 	if ( '' === $value ) {
-		return array();
+		return '';
 	}
 
 	if ( ! iflynepal_package_is_rich_html( $value ) ) {
-		return array_map( 'esc_html', iflynepal_package_paragraphs( $value ) );
-	}
-
-	if ( preg_match_all( '#<p[^>]*>(.*?)</p>#is', $value, $matches ) && ! empty( $matches[1] ) ) {
-		return array_values(
-			array_filter(
-				array_map(
-					static function ( $inner ) {
-						return wp_kses_post( trim( $inner ) );
-					},
-					$matches[1]
-				),
-				'strlen'
+		return implode(
+			'',
+			array_map(
+				static function ( $paragraph ) {
+					return '<p>' . esc_html( $paragraph ) . '</p>';
+				},
+				iflynepal_package_paragraphs( $value )
 			)
 		);
 	}
 
-	// No <p> wrapper at all — a single line with no Enter pressed.
-	return array( wp_kses_post( $value ) );
+	return wpautop( $value );
 }
 
 /**
  * A `wysiwyg` field's lines, ready to print one list item per row.
  *
- * Same dual-shape reasoning as iflynepal_package_rich_paragraphs(), plus a
+ * Same dual-shape reasoning as iflynepal_package_rich_html(), plus a
  * third shape of its own: the editor's Bulleted-list button produces `<li>`
  * rather than `<p>`, and either is a valid way to type one highlight per
- * row, so `<li>` is tried first.
+ * row, so `<li>` is tried first. A row typed with a plain Enter rather than
+ * the list button is the same bare-inline-run shape iflynepal_package_rich_html()
+ * documents, so it goes through the same wpautop() pass before the `<p>`
+ * match is tried — the `<li>` pass needs no such help, since a real list
+ * item is already a block.
  *
  * @since 1.0.0
  *
@@ -397,7 +406,9 @@ function iflynepal_package_rich_lines( $value ) {
 	}
 
 	foreach ( array( 'li', 'p' ) as $tag ) {
-		if ( preg_match_all( '#<' . $tag . '[^>]*>(.*?)</' . $tag . '>#is', $value, $matches ) && ! empty( $matches[1] ) ) {
+		$haystack = 'p' === $tag ? wpautop( $value ) : $value;
+
+		if ( preg_match_all( '#<' . $tag . '[^>]*>(.*?)</' . $tag . '>#is', $haystack, $matches ) && ! empty( $matches[1] ) ) {
 			return array_values(
 				array_filter(
 					array_map(
