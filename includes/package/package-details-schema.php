@@ -226,6 +226,13 @@ function iflynepal_package_details_fields() {
 	);
 	$fields['glance_level']['help']    = __( 'How physically demanding the package is.', 'iflynepal' );
 
+	/*
+	 * Check-in is a clock time, not a sentence — a native time picker keeps
+	 * editors from typing "2 PM" one week and "14:00" the next.
+	 */
+	$fields['glance_checkin']['type'] = 'time';
+	$fields['glance_checkin']['help'] = __( 'The time guests can check in.', 'iflynepal' );
+
 	$fields['overview_intro'] = array(
 		'box'     => 'details',
 		'section' => 'overview',

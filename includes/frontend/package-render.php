@@ -84,6 +84,28 @@ function iflynepal_package_page_sections( $post_id ) {
 }
 
 /**
+ * Turns a `type="time"` value ("14:00") into a 12-hour display ("2:00 PM").
+ *
+ * The field stores the browser's own 24-hour HH:MM so it stays a real,
+ * sortable time rather than a free-typed string; the 12-hour form is a
+ * display choice, made only here, at the one place it's read.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value Raw HH:MM value from the field.
+ * @return string 12-hour display, or the original value if it isn't HH:MM.
+ */
+function iflynepal_package_format_time( $value ) {
+	$timestamp = strtotime( (string) $value );
+
+	if ( ! preg_match( '/^\d{2}:\d{2}$/', (string) $value ) || false === $timestamp ) {
+		return $value;
+	}
+
+	return date_i18n( 'g:i A', $timestamp );
+}
+
+/**
  * The at-a-glance rows that have been filled in.
  *
  * The icons are fixed to the rows rather than chosen by an editor: the design
@@ -116,6 +138,10 @@ function iflynepal_package_glance( $post_id ) {
 
 		if ( '' === $value ) {
 			continue;
+		}
+
+		if ( 'glance_checkin' === $key ) {
+			$value = iflynepal_package_format_time( $value );
 		}
 
 		$rows[] = array(

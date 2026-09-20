@@ -273,9 +273,16 @@ class IFly_Nepal_Package_Details_Box {
 			return;
 		}
 
+		$input_type = 'text';
+		if ( 'url' === $field['type'] ) {
+			$input_type = 'url';
+		} elseif ( 'time' === $field['type'] ) {
+			$input_type = 'time';
+		}
+
 		printf(
 			'<input type="%1$s" id="%2$s" name="%3$s" value="%4$s" />',
-			'url' === $field['type'] ? 'url' : 'text',
+			esc_attr( $input_type ),
 			esc_attr( $id ),
 			esc_attr( $name ),
 			esc_attr( $value )
