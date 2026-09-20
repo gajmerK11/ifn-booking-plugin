@@ -1539,24 +1539,66 @@ so it docks to the bottom edge */
 }
 
 /*
- * The at-a-glance table's filler cells.
+ * A package whose fact count isn't a multiple of four leaves the desktop
+ * grid's last row short. The design's own container is one rounded
+ * rectangle with no way to stop partway through a row — its right and
+ * bottom edges, and both bottom corners, always run the full 4-column
+ * width regardless of how much of the last row is real — so bordering and
+ * rounding it as a single box only works while every row is full.
  *
- * The design draws the grid's lines as a border on every cell and then takes
- * two of them off again: `:nth-child(4n)` loses its right border and
- * `:nth-last-child(-n+4)` its bottom. Both are really saying "the last column"
- * and "the last row", and both are only true because that mock-up holds eight
- * facts in two full rows of four. Leave a row short and the rules land on the
- * wrong cells — a rule under the fourth cell of the *top* row, and a border
- * hanging off the last fact with nothing beside it.
- *
- * Rather than rewrite the design's rules to count, the template completes the
- * final row with empty cells, which is the shape those rules already describe.
- * They carry nothing and are hidden from assistive tech: they are the frame of
- * the table, not a fact with no value.
+ * Rather than fight that shape with per-cell overrides, the template
+ * (single-iflynepal_package.php) splits the facts in two: every complete
+ * row of four goes in `.iflynepal-pkg-glance`, unchanged from the design and
+ * still exactly the shape its `:nth-child(4n)`/`:nth-last-child(-n+4)`
+ * rules describe (a table with no leftover facts renders only this box,
+ * exactly as before — nothing below is reachable for it). Whatever is left
+ * over — one to three facts — goes in a second, independent box,
+ * `.iflynepal-pkg-glance-tail`, sized and rounded for exactly the facts it
+ * holds rather than a 4-column shape it doesn't fill.
  */
-.iflynepal-pkg-glance-item--filler{background:var(--ifnpkg-paper)}
+.iflynepal-pkg-glance--capped{
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+}
 
-.iflynepal-pkg-glance-item--filler:hover{background:var(--ifnpkg-paper)}
+/*
+ * The tail box's own width is constrained to `n` quarters of the full
+ * table's width (`--iflynepal-glance-tail-n`, set inline by the template)
+ * so its columns line up at exactly the same width as the box above it,
+ * rather than stretching 1-3 facts across the whole row. Attached to a
+ * `.iflynepal-pkg-glance` above it, it shares that box's left and right
+ * edges, sits flush against its bottom border (no top border or top radius
+ * of its own — the divider between the two boxes is one line, not two),
+ * and only its own bottom corners round.
+ */
+.iflynepal-pkg-glance-tail{
+  display:grid;
+  grid-template-columns:repeat(var(--iflynepal-glance-tail-n),1fr);
+  border:1px solid var(--ifnpkg-line);
+  border-radius:var(--ifnpkg-r-md);
+  background:#fff;
+  overflow:hidden;
+}
+.iflynepal-pkg-glance-tail--attached{
+  width:calc(var(--iflynepal-glance-tail-n) / 4 * 100%);
+  border-top:0;
+  border-top-left-radius:0;
+  border-top-right-radius:0;
+}
+.iflynepal-pkg-glance-tail .iflynepal-pkg-glance-item:last-child{border-right:0}
+
+@media (max-width:760px){
+  /*
+   * One column, one fact per row — the same collapse
+   * `.iflynepal-pkg-glance` itself goes through below, and for the same
+   * reason: a width fraction of a 4-column table means nothing once there
+   * is only one column.
+   */
+  .iflynepal-pkg-glance-tail{grid-template-columns:1fr}
+  .iflynepal-pkg-glance-tail--attached{width:100%}
+  .iflynepal-pkg-glance-tail .iflynepal-pkg-glance-item{border-right:0;border-bottom:1px solid var(--ifnpkg-line)}
+  .iflynepal-pkg-glance-tail .iflynepal-pkg-glance-item:last-child{border-bottom:0}
+}
 
 /*
  * The picked run in the calendar. The design already styles the two ends of a
@@ -1892,6 +1934,14 @@ so it docks to the bottom edge */
  * so the space left here is deliberately small.
  */
 .iflynepal-pkg-price-tiers + .iflynepal-pkg-price-actions{margin-top:4px}
+/*
+ * A package with no Price card list leaves the flat "From" price sitting
+ * directly against the buttons with nothing between them — the checklist's
+ * own margin (22px above it) is what normally does that spacing, and with
+ * no checklist in the DOM at all there is nothing left to carry it. Restated
+ * here so the two boxes don't read as one crammed block.
+ */
+.iflynepal-pkg-price-from + .iflynepal-pkg-price-actions{margin-top:22px}
 /*
  * On a short screen the card sheds its checklist and the buttons inherit the
  * 22px that was spacing them from it. The list is not there to be spaced from,

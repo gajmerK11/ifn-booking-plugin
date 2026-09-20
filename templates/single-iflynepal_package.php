@@ -224,48 +224,70 @@ while ( have_posts() ) :
 			$iflynepal_glance = iflynepal_package_glance( $iflynepal_id );
 
 			if ( ! empty( $iflynepal_glance ) ) :
+				/*
+				 * The design's grid lines are a border on every cell with two of
+				 * them taken off again, by `:nth-child(4n)` and
+				 * `:nth-last-child(-n+4)`. Those rules mean "the last column" and
+				 * "the last row" only while every row is full, which is true of
+				 * the design's own eight facts and not of a package where an
+				 * editor has left one blank — and the single rounded rectangle
+				 * the container draws around the whole table has the same
+				 * problem one level up: it has no way to stop partway through a
+				 * row, so a short last row left its right/bottom edges and its
+				 * bottom corners running on past the last real fact with nothing
+				 * above them.
+				 *
+				 * Rather than teach one box to draw two different shapes, any
+				 * complete rows go in `.iflynepal-pkg-glance` exactly as the
+				 * design has it — a package whose fact count is already a
+				 * multiple of four renders only this, unchanged — and whatever
+				 * is left over (one to three facts) goes in a second, smaller
+				 * box, `.iflynepal-pkg-glance-tail`, sized and rounded for
+				 * exactly the facts it holds. See package.css.
+				 */
+				$iflynepal_count = count( $iflynepal_glance );
+				$iflynepal_full  = array_slice( $iflynepal_glance, 0, $iflynepal_count - ( $iflynepal_count % 4 ) );
+				$iflynepal_tail  = array_slice( $iflynepal_glance, count( $iflynepal_full ) );
+
+				/**
+				 * One at-a-glance cell's markup.
+				 *
+				 * @param array $iflynepal_row Has 'label', 'value' and 'icon'.
+				 * @return void
+				 */
+				$iflynepal_glance_item = function ( $iflynepal_row ) {
+					?>
+					<div class="iflynepal-pkg-glance-item">
+						<span class="iflynepal-pkg-glance-ico">
+							<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-<?php echo esc_attr( $iflynepal_row['icon'] ); ?>"/></svg>
+						</span>
+						<div>
+							<small><?php echo esc_html( $iflynepal_row['label'] ); ?></small>
+							<strong><?php echo esc_html( $iflynepal_row['value'] ); ?></strong>
+						</div>
+					</div>
+					<?php
+				};
 				?>
 				<div class="iflynepal-pkg-trip-glance" data-iflynepal-anim>
 					<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'At a glance', 'iflynepal' ); ?></span>
-					<div class="iflynepal-pkg-glance">
-						<?php foreach ( $iflynepal_glance as $iflynepal_row ) : ?>
-							<div class="iflynepal-pkg-glance-item">
-								<span class="iflynepal-pkg-glance-ico">
-									<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-<?php echo esc_attr( $iflynepal_row['icon'] ); ?>"/></svg>
-								</span>
-								<div>
-									<small><?php echo esc_html( $iflynepal_row['label'] ); ?></small>
-									<strong><?php echo esc_html( $iflynepal_row['value'] ); ?></strong>
-								</div>
-							</div>
-						<?php endforeach; ?>
-
-						<?php
-						/*
-						 * Complete the last row.
-						 *
-						 * The design's grid lines are a border on every cell with
-						 * two of them taken off again, by `:nth-child(4n)` and
-						 * `:nth-last-child(-n+4)`. Those rules mean "the last
-						 * column" and "the last row" only while every row is full,
-						 * which is true of the design's own eight facts and not of
-						 * a package where an editor has left one blank — the rule
-						 * then lands under a cell in the middle of the table and a
-						 * border hangs off the last fact with nothing beside it.
-						 *
-						 * Padding to a multiple of four restores the shape those
-						 * rules describe, and covers the two-column layout below
-						 * 760px with it, four being a multiple of two. The cells
-						 * are empty and aria-hidden: they are the frame of the
-						 * table, not a fact with no value.
-						 */
-						$iflynepal_filler = ( 4 - ( count( $iflynepal_glance ) % 4 ) ) % 4;
-
-						for ( $iflynepal_i = 0; $iflynepal_i < $iflynepal_filler; $iflynepal_i++ ) :
-							?>
-							<div class="iflynepal-pkg-glance-item iflynepal-pkg-glance-item--filler" aria-hidden="true"></div>
-						<?php endfor; ?>
-					</div>
+					<?php if ( ! empty( $iflynepal_full ) ) : ?>
+						<div class="iflynepal-pkg-glance<?php echo ! empty( $iflynepal_tail ) ? ' iflynepal-pkg-glance--capped' : ''; ?>">
+							<?php foreach ( $iflynepal_full as $iflynepal_row ) : ?>
+								<?php $iflynepal_glance_item( $iflynepal_row ); ?>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+					<?php if ( ! empty( $iflynepal_tail ) ) : ?>
+						<div
+							class="iflynepal-pkg-glance-tail<?php echo ! empty( $iflynepal_full ) ? ' iflynepal-pkg-glance-tail--attached' : ''; ?>"
+							style="--iflynepal-glance-tail-n:<?php echo (int) count( $iflynepal_tail ); ?>"
+						>
+							<?php foreach ( $iflynepal_tail as $iflynepal_row ) : ?>
+								<?php $iflynepal_glance_item( $iflynepal_row ); ?>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 		</section>
