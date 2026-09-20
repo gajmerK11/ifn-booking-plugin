@@ -400,6 +400,7 @@ function iflynepal_package_details_fields() {
 		'section' => 'dates',
 		'label'   => __( 'Currency', 'iflynepal' ),
 		'type'    => 'text',
+		'default' => 'USD',
 		'help'    => __( 'Shown in front of the price, e.g. USD.', 'iflynepal' ),
 	);
 
@@ -467,7 +468,7 @@ function iflynepal_package_details_fields() {
 		'box'     => 'details',
 		'section' => 'booking',
 		/* translators: %d: the most tiers allowed. */
-		'label'   => sprintf( __( 'Group-size prices (max %d)', 'iflynepal' ), IFLYNEPAL_PACKAGE_PRICE_TIERS_MAX ),
+		'label'   => sprintf( __( 'Group-size prices (Pax prices, max %d)', 'iflynepal' ), IFLYNEPAL_PACKAGE_PRICE_TIERS_MAX ),
 		'type'    => 'cards',
 		'help'    => __( 'One row per group size, smallest group first. The price card shows the row matching how many travellers are picked, and the total is worked out from it. Leave this empty to price the package at one rate for everybody.', 'iflynepal' ),
 		'item'    => __( 'Tier', 'iflynepal' ),
@@ -546,6 +547,7 @@ function iflynepal_package_details_fields() {
 		'section' => 'booking',
 		'label'   => __( 'Expert location', 'iflynepal' ),
 		'type'    => 'text',
+		'default' => 'Nepal',
 		'help'    => __( 'Shown after the name, e.g. "Nepal".', 'iflynepal' ),
 	);
 
@@ -554,7 +556,8 @@ function iflynepal_package_details_fields() {
 		'section' => 'booking',
 		'label'   => __( 'Expert button label', 'iflynepal' ),
 		'type'    => 'text',
-		'help'    => __( 'Usually the phone number.', 'iflynepal' ),
+		'default' => '9841771010',
+		'help'    => __( 'Usually the phone number. Pre-filled with the office number, same as the WhatsApp number above; change it only if this package is answered by someone else.', 'iflynepal' ),
 	);
 
 	$fields['expert_link'] = array(
@@ -562,7 +565,7 @@ function iflynepal_package_details_fields() {
 		'section' => 'booking',
 		'label'   => __( 'Expert button link', 'iflynepal' ),
 		'type'    => 'url',
-		'help'    => '',
+		'help'    => __( 'Filled in automatically as a WhatsApp click-to-chat link for the label above — edit it directly to point somewhere else instead.', 'iflynepal' ),
 	);
 
 	$fields['packing_heading'] = array(

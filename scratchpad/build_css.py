@@ -829,6 +829,14 @@ EXTRAS = u"""
 @media (min-width:1001px) and (max-height:860px){
   .iflynepal-pkg-price-card .iflynepal-pkg-price-actions{margin-top:4px}
 }
+/*
+ * The expert card with no photo picked. Its grid is two columns, 64px then
+ * 1fr, built for an avatar in the first — with none, the text block became
+ * that grid's first item and got squeezed into the 64px track instead of
+ * the wide one. One column when there's nothing to reserve the narrow one
+ * for.
+ */
+.iflynepal-pkg-expert--no-photo{grid-template-columns:1fr}
 """
 
 header = """/**

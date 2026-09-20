@@ -793,6 +793,8 @@ so the nav
       box-shadow:0 0 0 26px rgba(255,255,255,.03);
     }
     .iflynepal-pkg-expert img{width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,.5);object-position:center 20%}
+    /* No photo picked — the text block is the grid's only column, not squeezed into the 64px one meant for the avatar. */
+    .iflynepal-pkg-expert--no-photo{grid-template-columns:1fr}
     .iflynepal-pkg-expert small{display:block;color:#BBD4F7;font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
     .iflynepal-pkg-expert strong{display:block;margin-top:2px;font-size:17px}
     .iflynepal-pkg-expert strong span{color:rgba(255,255,255,.62);font-size:13px;font-weight:500}

@@ -289,7 +289,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 		$iflynepal_label = iflynepal_package_field( $iflynepal_id, 'expert_label' );
 		$iflynepal_link  = iflynepal_package_field( $iflynepal_id, 'expert_link' );
 		?>
-		<div class="iflynepal-pkg-expert">
+		<div class="iflynepal-pkg-expert<?php echo $iflynepal_photo ? '' : ' iflynepal-pkg-expert--no-photo'; ?>">
 			<?php
 			if ( $iflynepal_photo ) {
 				// Core-escaped markup. The alt names the person, who is the subject here.
