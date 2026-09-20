@@ -211,6 +211,21 @@ function iflynepal_package_details_fields() {
 	);
 	$fields['glance_stay']['help']    = __( 'Whether accommodation is included in the package price.', 'iflynepal' );
 
+	/*
+	 * Experience level is likewise one of a fixed set, not free text —
+	 * dropdown keeps editors from typing near-duplicate labels (e.g.
+	 * "Moderate" vs "Medium") that would render as separate untranslated
+	 * strings on the front end.
+	 */
+	$fields['glance_level']['type']    = 'select';
+	$fields['glance_level']['options'] = array(
+		'Relaxed'  => __( 'Relaxed', 'iflynepal' ),
+		'Easy'     => __( 'Easy', 'iflynepal' ),
+		'Moderate' => __( 'Moderate', 'iflynepal' ),
+		'Hard'     => __( 'Hard', 'iflynepal' ),
+	);
+	$fields['glance_level']['help']    = __( 'How physically demanding the package is.', 'iflynepal' );
+
 	$fields['overview_intro'] = array(
 		'box'     => 'details',
 		'section' => 'overview',
