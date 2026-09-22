@@ -45,6 +45,7 @@ $iflynepal_lead    = iflynepal_package_field( $iflynepal_id, 'faq_lead' );
 						array(
 							'b'      => array(),
 							'strong' => array(),
+							'em'     => array(),
 							'br'     => array(),
 						)
 					);

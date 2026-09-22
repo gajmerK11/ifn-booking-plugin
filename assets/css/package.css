@@ -95,11 +95,25 @@ footer :focus-visible,
       transform:rotate(18deg);
     }
     .iflynepal-pkg-lead{max-width:700px;color:var(--ifnpkg-muted);font-size:17px}
-    /* The FAQ lead is the one place this paragraph can carry <b>/<strong> (see
-       faqs.php) — bold in the same muted grey as the rest of the line reads
-       as barely bold at all, so it is pinned to pure black instead. */
+    /* The FAQ lead is the one place this paragraph can carry <b>/<strong>/<em>
+       (see faqs.php) — bold in the same muted grey as the rest of the line
+       reads as barely bold at all, so it is pinned to pure black instead. */
     #ifnpkg-faqs .iflynepal-pkg-lead b,
     #ifnpkg-faqs .iflynepal-pkg-lead strong{color:#000}
+    /* Same accent treatment every <em> on this page gets in a heading (see
+       .iflynepal-package :is(h1,h2,h3) em below) — a lead paragraph is not a
+       heading, so that selector does not reach it, but <em> is documented
+       site-wide as "the accent style" and this is the one place it means
+       something other than a heading. */
+    #ifnpkg-faqs .iflynepal-pkg-lead em{
+      display:inline-block;
+      color:var(--ifnpkg-navy);
+      font-family:var(--ifnpkg-serif-alt);
+      font-size:1.14em;
+      font-style:italic;
+      font-weight:600;
+      letter-spacing:-.025em;
+    }
 
     .iflynepal-pkg-eyebrow{
       display:inline-flex;
