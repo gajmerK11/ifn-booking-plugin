@@ -397,12 +397,14 @@
 	/*
 	 * background-clip:text paints the gradient only inside this box; at the
 	 * tight 1.04 line-height the box is shorter than the italic serif's
-	 * descender (the "p" tail), so the tail's tip fell outside it and showed
-	 * the photo through instead of gold. Padding grows the box past the
-	 * descender and the matching negative margin cancels it back out so the
-	 * line spacing above/below is untouched.
+	 * ascender and descender (the "l" swash and the "p" tail), so their tips
+	 * fell outside it and showed the photo through instead of gold. Padding
+	 * grows the box past both and the matching negative margins cancel it
+	 * back out so the line spacing above/below is untouched.
 	 */
+	padding-top: 0.25em;
 	padding-bottom: 0.25em;
+	margin-top: -0.25em;
 	margin-bottom: -0.25em;
 	background-image: linear-gradient(
 		100deg,
@@ -415,7 +417,18 @@
 		#f2c879 100%
 	);
 	background-clip: text;
-	background-position: 0 0;
+	/*
+	 * "Nepal" itself runs about 2em wide, well under the 5em tile, so
+	 * wherever the tile sits determines which stops paint the word. At
+	 * 0 0 the box shows the tile's 0%-40% span, which runs past the 30%
+	 * mark into the shine's cream/white band — the last letter or two
+	 * (the "l") landed in the fade every time the animation looped back
+	 * to its start, reading as washed out rather than gold. 1em 0 centres
+	 * the box on the seam between the 70%-100% and 0%-30% gold stops
+	 * instead, so the word sits on solid gold at rest and only the
+	 * travelling shine (not the loop's resting state) ever touches it.
+	 */
+	background-position: 1em 0;
 	background-repeat: repeat;
 	background-size: 5em 100%;
 	-webkit-background-clip: text;
@@ -427,11 +440,11 @@
 @keyframes iflynepal-catalogue-shine {
 
 	from {
-		background-position: 0 0;
+		background-position: 1em 0;
 	}
 
 	to {
-		background-position: -5em 0;
+		background-position: -4em 0;
 	}
 }
 
