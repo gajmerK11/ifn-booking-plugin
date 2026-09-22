@@ -306,6 +306,19 @@ function iflynepal_package_sanitize_value( $value, $type, $field = array() ) {
 
 			return in_array( $value, $options, true ) ? $value : '';
 
+		case 'checkbox_group':
+			/*
+			 * Stored as one comma-separated string, in the field's own option
+			 * order rather than whatever order the checkboxes posted in — so
+			 * "Lunch, Breakfast" ticked in that order still reads "Breakfast,
+			 * Lunch" on the front end, the same fixed order every time.
+			 */
+			$options  = isset( $field['options'] ) ? array_keys( $field['options'] ) : array();
+			$posted   = is_array( $value ) ? array_map( 'sanitize_text_field', $value ) : array();
+			$selected = array_values( array_intersect( $options, $posted ) );
+
+			return implode( ', ', $selected );
+
 		case 'textarea':
 		case 'lines':
 			return sanitize_textarea_field( (string) $value );

@@ -252,6 +252,12 @@ class IFly_Nepal_Package_Details_Box {
 			return;
 		}
 
+		if ( 'checkbox_group' === $field['type'] ) {
+			$this->render_checkbox_group( $id, $name, iflynepal_package_field( $post_id, $key ), $field );
+
+			return;
+		}
+
 		$value = iflynepal_package_field( $post_id, $key );
 
 		// A field with nothing saved yet may declare what to show instead —
@@ -604,6 +610,37 @@ class IFly_Nepal_Package_Details_Box {
 	}
 
 	/**
+	 * A group of checkboxes for a field that can hold more than one option at
+	 * once, stored as one comma-separated string.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $id    Base input id.
+	 * @param string $name  Base input name.
+	 * @param string $value Stored value, comma-separated.
+	 * @param array  $field Field definition, carrying 'options' (value => label).
+	 * @return void
+	 */
+	private function render_checkbox_group( $id, $name, $value, $field ) {
+		$options  = isset( $field['options'] ) ? $field['options'] : array();
+		$selected = array_map( 'trim', explode( ',', (string) $value ) );
+		?>
+		<?php foreach ( $options as $option_value => $option_label ) : ?>
+			<label class="iflynepal-package-checkbox">
+				<input
+					type="checkbox"
+					id="<?php echo esc_attr( $id . '_' . $option_value ); ?>"
+					name="<?php echo esc_attr( $name . '[]' ); ?>"
+					value="<?php echo esc_attr( $option_value ); ?>"
+					<?php checked( in_array( $option_value, $selected, true ) ); ?>
+				/>
+				<?php echo esc_html( $option_label ); ?>
+			</label>
+		<?php endforeach; ?>
+		<?php
+	}
+
+	/**
 	 * The box's own presentation.
 	 *
 	 * Only what the panels add on top of the Package Card box's rules, which are
@@ -688,6 +725,14 @@ class IFly_Nepal_Package_Details_Box {
 
 			.iflynepal-package-fields--panels .form-table select {
 				max-width: 320px;
+			}
+
+			.iflynepal-package-checkbox {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				margin: 0 16px 0 0;
+				font-weight: 400;
 			}
 
 			/* wp_editor() prints its own chrome; only the outer width is ours to set. */

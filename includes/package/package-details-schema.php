@@ -233,6 +233,20 @@ function iflynepal_package_details_fields() {
 	$fields['glance_checkin']['type'] = 'time';
 	$fields['glance_checkin']['help'] = __( 'The time guests can check in.', 'iflynepal' );
 
+	/*
+	 * Meals can be more than one of the same three — a package feeding
+	 * breakfast and lunch is not the same fact as one feeding just breakfast —
+	 * so it is checkboxes, not a single-choice dropdown. Stored and displayed
+	 * as one comma-separated string, the same shape free text already used.
+	 */
+	$fields['glance_meals']['type']    = 'checkbox_group';
+	$fields['glance_meals']['options'] = array(
+		'Breakfast' => __( 'Breakfast', 'iflynepal' ),
+		'Lunch'     => __( 'Lunch', 'iflynepal' ),
+		'Dinner'    => __( 'Dinner', 'iflynepal' ),
+	);
+	$fields['glance_meals']['help']    = __( 'Which meals are included.', 'iflynepal' );
+
 	$fields['overview_intro'] = array(
 		'box'     => 'details',
 		'section' => 'overview',
