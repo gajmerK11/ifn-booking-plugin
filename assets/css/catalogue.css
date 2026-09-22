@@ -479,18 +479,28 @@
 }
 
 .iflynepal-listing__head .iflynepal-section-head {
-	max-width: 820px;
+	max-width: none;
 	margin-bottom: 0;
 }
 
+/*
+ * Forced rather than left to a generous max-width: a term whose heading
+ * happens to run longer than 820px (the old cap) would wrap without warning,
+ * on a page where editors already have <br> in iflynepal_booking_kses_text()
+ * to ask for a break on purpose. max-width: none above gives the line the
+ * full column to run in before nowrap would ever show an overflow.
+ */
 .iflynepal-listing__head .iflynepal-section-head h2 {
 	margin-bottom: 16px;
+	white-space: nowrap;
 }
 
-/* Wide enough that the sub-title sits on one row under the heading. */
+/* Same guarantee as the heading above — nl2br() already turns an editor's own
+   line break into a <br>, so wrapping here would only ever be an accident. */
 .iflynepal-listing__head .iflynepal-lead {
-	max-width: 760px;
+	max-width: none;
 	margin-top: 12px;
+	white-space: nowrap;
 }
 
 .iflynepal-annot {
@@ -779,6 +789,18 @@
 		right: 0;
 		bottom: 0;
 		margin: 0;
+	}
+
+	/*
+	 * The note is this band's only child on a category with no child terms
+	 * of its own, and it just went position:absolute above — the band is
+	 * left with nothing in flow but still carries margin-bottom: 26px,
+	 * which is spacing for a pill row that was never there. Zeroed here so
+	 * the cards sit level with the filter rail instead of starting 26px
+	 * below it.
+	 */
+	.iflynepal-listing__controls--note-only {
+		margin-bottom: 0;
 	}
 }
 

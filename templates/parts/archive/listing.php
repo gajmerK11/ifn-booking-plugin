@@ -223,8 +223,20 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 				 * starts on the same left edge as the cards it filters.
 				 */
 				if ( ! empty( $iflynepal_pill_facets ) || $iflynepal_has_note ) :
+					/*
+					 * A category with a note and no pill row (no child
+					 * categories of its own) has nothing left in the band
+					 * once ≥1200px pulls the note out of flow to sit beside
+					 * the heading instead — see .iflynepal-annot below. This
+					 * class only matters at that width; it tells the
+					 * stylesheet the band's margin-bottom is now spacing
+					 * nothing, so the cards can sit level with the rail
+					 * instead of leaving its phantom height as a gap.
+					 */
+					$iflynepal_controls_class  = 'iflynepal-listing__controls';
+					$iflynepal_controls_class .= empty( $iflynepal_pill_facets ) ? ' iflynepal-listing__controls--note-only' : '';
 					?>
-					<div class="iflynepal-listing__controls">
+					<div class="<?php echo esc_attr( $iflynepal_controls_class ); ?>">
 						<?php if ( ! empty( $iflynepal_pill_facets ) ) : ?>
 							<div class="iflynepal-listing__filters iflynepal-filter-panel" data-iflynepal-anim>
 								<?php
