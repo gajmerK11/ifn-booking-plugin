@@ -167,13 +167,12 @@
 }
 
 /*
- * No hero on this one, and the theme's header is fixed — so the page has to
- * clear it itself or the title band starts underneath it. The docked height,
- * because iflynepal_booking_dock_header() docks it before the first paint.
+ * No padding above the first band. This page used to open on a title band
+ * under the theme's fixed header and had to clear it itself; it now opens on
+ * the theme's full-height hero (iflynepal_the_packages_hero()), which the
+ * header is meant to sit transparently on top of, and any clearance here would
+ * push the photograph down and leave a white strip where the header is.
  */
-.iflynepal-archive--all {
-	padding-top: var(--ifn-hdr);
-}
 
 .iflynepal-archive h3 {
 	font-size: clamp(22px, 2vw, 30px);
@@ -375,7 +374,8 @@
  * white off that same rule.
  */
 .iflynepal-hero--package-type .iflynepal-hero__title,
-.iflynepal-hero--package-category .iflynepal-hero__title {
+.iflynepal-hero--package-category .iflynepal-hero__title,
+.iflynepal-hero--packages .iflynepal-hero__title {
 	color: #fff !important;
 	font-size: clamp(48px, 6.8vw, 88px) !important;
 	font-weight: 500 !important;
@@ -384,7 +384,8 @@
 }
 
 .iflynepal-hero--package-type .iflynepal-hero__lead,
-.iflynepal-hero--package-category .iflynepal-hero__lead {
+.iflynepal-hero--package-category .iflynepal-hero__lead,
+.iflynepal-hero--packages .iflynepal-hero__lead {
 	color: #fff !important;
 }
 
@@ -395,7 +396,8 @@
  * pass so the loop point cannot be seen and the word is fully painted at every
  * frame.
  */
-.iflynepal-hero--package-type .iflynepal-hero__title em {
+.iflynepal-hero--package-type .iflynepal-hero__title em,
+.iflynepal-hero--packages .iflynepal-hero__title em {
 	/*
 	 * background-clip:text paints the gradient only inside this box; at the
 	 * tight 1.04 line-height the box is shorter than the italic serif's
@@ -2665,7 +2667,8 @@ a.iflynepal-departure__reserve:focus-visible {
 		animation: none;
 	}
 
-	.iflynepal-hero--package-type .iflynepal-hero__title em {
+	.iflynepal-hero--package-type .iflynepal-hero__title em,
+	.iflynepal-hero--packages .iflynepal-hero__title em {
 		background-image: none;
 		color: var(--ifn-gold);
 		-webkit-text-fill-color: var(--ifn-gold);

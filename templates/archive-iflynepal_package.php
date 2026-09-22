@@ -53,22 +53,32 @@ get_header();
 <main id="main" class="iflynepal-archive iflynepal-archive--all">
 	<?php
 	/*
-	 * The title band, matching the explore page's own: centred head, eyebrow
-	 * above the heading, mist ground. The heading is an <h1> here and an <h2>
-	 * there, and the difference is correct rather than an inconsistency — this
-	 * is a real archive whose title is the page's subject, while the explore
-	 * page is a Page whose own title the theme never prints.
+	 * The hero, which is the theme's — its markup, its copy and the Customizer
+	 * section behind it (Appearance > Customize > Packages Archive) all live
+	 * there, and this template only says where on the page it goes. Same
+	 * component as every other hero on the site, so the theme's hero.js docks
+	 * the header over it exactly as it does elsewhere.
+	 *
+	 * Guarded on the function, not on the theme's name: under any other theme
+	 * the page simply opens on its first band, which is the pale title band
+	 * this replaced and a correct page either way.
 	 */
-	?>
-	<section class="iflynepal-section iflynepal-section--mist" data-iflynepal-fade>
-		<div class="iflynepal-container">
-			<div class="iflynepal-section-head iflynepal-section-head--center">
-				<span class="iflynepal-eyebrow"><?php esc_html_e( 'Everything we run', 'iflynepal' ); ?></span>
-				<h1><?php post_type_archive_title(); ?></h1>
-				<p class="iflynepal-lead"><?php esc_html_e( 'Every kind of trip we run, a few from each. Open any one to see the whole list.', 'iflynepal' ); ?></p>
+	if ( function_exists( 'iflynepal_the_packages_hero' ) ) {
+		iflynepal_the_packages_hero();
+	} else {
+		?>
+		<section class="iflynepal-section iflynepal-section--mist" data-iflynepal-fade>
+			<div class="iflynepal-container">
+				<div class="iflynepal-section-head iflynepal-section-head--center">
+					<span class="iflynepal-eyebrow"><?php esc_html_e( 'Everything we run', 'iflynepal' ); ?></span>
+					<h1><?php post_type_archive_title(); ?></h1>
+					<p class="iflynepal-lead"><?php esc_html_e( 'Every kind of trip we run, a few from each. Open any one to see the whole list.', 'iflynepal' ); ?></p>
+				</div>
 			</div>
-		</div>
-	</section>
+		</section>
+		<?php
+	}
+	?>
 
 	<?php if ( $iflynepal_sections ) : ?>
 		<?php

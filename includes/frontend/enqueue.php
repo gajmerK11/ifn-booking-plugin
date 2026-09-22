@@ -139,18 +139,18 @@ add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_package_assets', 20
  */
 function iflynepal_booking_dock_header() {
 	/*
-	 * Two templates open directly under the header with no hero behind it: a
-	 * single package (a white photo gallery) and the whole-catalogue archive (a
-	 * pale title band). The theme's header is fixed and transparent until
-	 * something docks it, so on both of these its white type was rendering
-	 * white-on-white — measured on /packages/, where the header sat at
-	 * rgba(0,0,0,0) over a page whose own <main> began at y=0.
+	 * One template opens directly under the header with no hero behind it: a
+	 * single package, whose design starts on a white photo gallery. The theme's
+	 * header is fixed and transparent until something docks it, so here its
+	 * white type was rendering white-on-white.
 	 *
-	 * A term archive is not in this list: those draw the theme's hero component
-	 * from the archive content model, and hero.js docks the header itself on
-	 * the first scroll.
+	 * Neither archive is in this list. A term archive draws the theme's hero
+	 * component from the archive content model, and /packages/ now draws it too
+	 * (iflynepal_the_packages_hero(), from Customize > Packages Archive) — on
+	 * both, hero.js docks the header itself on the first scroll, and docking it
+	 * here as well would paint a solid navy bar over the top of the photograph.
 	 */
-	if ( ! is_singular( IFLYNEPAL_PACKAGE_POST_TYPE ) && ! is_post_type_archive( IFLYNEPAL_PACKAGE_POST_TYPE ) ) {
+	if ( ! is_singular( IFLYNEPAL_PACKAGE_POST_TYPE ) ) {
 		return;
 	}
 	?>
@@ -189,6 +189,13 @@ function iflynepal_booking_has_hero( $has_hero ) {
 	if ( is_tax( IFLYNEPAL_PACKAGE_TAXONOMY ) ) {
 		return true;
 	}
+
+	/*
+	 * /packages/ carries one too. The theme answers for that route itself —
+	 * the hero, its copy and its Customizer section are all the theme's — so
+	 * nothing is claimed here, and $has_hero already says yes under this theme
+	 * and no under any other.
+	 */
 
 	/*
 	 * A package page has no hero. The design opens on a white photo gallery
@@ -535,8 +542,6 @@ function iflynepal_booking_enqueue_connect_gate() {
 		'iflynepal-connect-gate',
 		'document.documentElement.classList.add("iflynepal-connect-js");'
 	);
-
-	
 }
 add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_connect_gate' );
 
