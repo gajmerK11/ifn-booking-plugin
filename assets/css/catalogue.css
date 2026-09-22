@@ -2520,6 +2520,22 @@ a.iflynepal-departure__reserve:focus-visible {
 	color: rgba(255, 255, 255, 0.75);
 }
 
+/*
+ * The card is wide enough above 1020px (the same tablet/laptop line the
+ * plans section head already wraps at) to hold this sentence on one row —
+ * at 16px it measures ~724px, well inside the card's ~1148px usable width
+ * once padding is subtracted. max-width grows alongside nowrap: the card
+ * itself has overflow:hidden, so a wider single line without a wider box
+ * would get clipped rather than just refuse to wrap.
+ */
+@media (min-width: 1021px) {
+
+	.iflynepal-final__card p {
+		max-width: 800px;
+		white-space: nowrap;
+	}
+}
+
 .iflynepal-final__copy .iflynepal-actions {
 	justify-content: center;
 }
