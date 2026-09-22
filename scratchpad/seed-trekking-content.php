@@ -356,7 +356,6 @@ $fields = array(
 	'highlights'        => "Journey to Everest Base Camp at 5,364m, on the Khumbu Glacier beneath the famous icefall\nAmazing flight views on the 35-minute flight into Tenzing-Hillary Airport at Lukla\nThe wilderness of Sagarmatha National Park, from rhododendron forest to high, dry mountain land\nNamche Bazaar, the Khumbu’s trading town, with its bakeries and Sherpa Culture Museum\nSherpa culture in the villages and teahouses that line the trail\nHotel Everest View at 3,880m, for your first wide view of Everest, Lhotse and Ama Dablam\nTengboche Monastery, the largest and most important in the region\nThe Khumbu Glacier and Icefall, up close at base camp\nSunrise from Kala Patthar at 5,545m, the highest point of the trek\nMountain views of Everest, Lhotse, Nuptse, Makalu and Ama Dablam",
 
 	'itinerary_heading' => 'Fourteen days to the foot of <em>Everest</em>.',
-	'altitude_note'     => 'Base camp at 5,364m on Day 9, then Kala Patthar, 5,545m, on Day 10, with rest days at Namche and Dingboche on the way up.',
 
 	'dates_heading'     => 'Choose your <span class="iflynepal-ink-mark">start date</span>.',
 	'dates_lead'        => 'Secure your spot now on our best-selling trip. Spaces fill up fast, so book early, and feel free to ask any questions later.',

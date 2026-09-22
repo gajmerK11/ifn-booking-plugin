@@ -41,7 +41,6 @@ $iflynepal_unit = empty( $iflynepal_days ) ? __( 'Week', 'iflynepal' ) : __( 'Da
 
 $iflynepal_heading  = iflynepal_package_field( $iflynepal_id, 'itinerary_heading' );
 $iflynepal_altitude = iflynepal_package_altitude_profile( $iflynepal_id );
-$iflynepal_alt_note = iflynepal_package_field( $iflynepal_id, 'altitude_note' );
 
 $iflynepal_has_short = false;
 
@@ -100,9 +99,6 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 		<div class="iflynepal-pkg-alt-card" data-iflynepal-anim>
 			<div class="iflynepal-pkg-alt-head">
 				<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Altitude profile', 'iflynepal' ); ?></span>
-				<?php if ( '' !== $iflynepal_alt_note ) : ?>
-					<p><?php echo esc_html( $iflynepal_alt_note ); ?></p>
-				<?php endif; ?>
 			</div>
 			<div class="iflynepal-pkg-alt-scroll">
 				<svg class="iflynepal-pkg-alt-svg" viewBox="0 0 660 230" role="img" aria-label="<?php echo esc_attr( $iflynepal_alt_label ); ?>">
@@ -206,12 +202,22 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 			$iflynepal_open     = 0 === $iflynepal_index;
 			$iflynepal_panel_id = 'ifnpkg-day-' . $iflynepal_number;
 			$iflynepal_stops    = isset( $iflynepal_item['timeline'] ) ? iflynepal_package_timeline( $iflynepal_item['timeline'] ) : array();
+			$iflynepal_prose    = isset( $iflynepal_item['description'] ) ? trim( (string) $iflynepal_item['description'] ) : '';
 			?>
 			<article class="iflynepal-pkg-day<?php echo $iflynepal_open ? ' iflynepal-pkg-is-open' : ''; ?>">
 				<h3 class="iflynepal-pkg-day-h">
 					<button class="iflynepal-pkg-day-toggle" type="button" aria-expanded="<?php echo $iflynepal_open ? 'true' : 'false'; ?>" aria-controls="<?php echo esc_attr( $iflynepal_panel_id ); ?>">
 						<span class="iflynepal-pkg-day-num"><?php echo esc_html( $iflynepal_unit ); ?><b><?php echo esc_html( (string) $iflynepal_number ); ?></b></span>
-						<span>
+						<?php
+						/*
+						 * A day with no summary line under its title is one line, not
+						 * two, and a one-line block left at the top of a 52px badge
+						 * reads as a missing second line. The modifier centres it
+						 * against the badge and sets it a little larger, which is the
+						 * whole of the difference.
+						 */
+						?>
+						<span class="<?php echo '' === $iflynepal_item['meta'] ? 'iflynepal-pkg-dt--solo' : ''; ?>">
 							<span class="iflynepal-pkg-dt-title"><?php echo esc_html( $iflynepal_item['title'] ); ?></span>
 							<?php if ( '' !== $iflynepal_item['meta'] ) : ?>
 								<span class="iflynepal-pkg-dt-sub"><?php echo esc_html( $iflynepal_item['meta'] ); ?></span>
@@ -232,6 +238,25 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 									</li>
 								<?php endforeach; ?>
 							</ol>
+						<?php endif; ?>
+
+						<?php
+						/*
+						 * The day told in prose, under its stops, laid out as it was
+						 * written: the part is a wp_editor(), so its paragraphs,
+						 * lists and emphasis arrive as markup and are printed rather
+						 * than rebuilt. wpautop() still runs, for the days written
+						 * before the editor replaced the plain textarea — it wraps
+						 * the loose lines those hold and leaves anything already in
+						 * a block tag alone. wp_kses_post() is what keeps this to
+						 * the tags the toolbar can make; it is the same pass the
+						 * value already went through on save.
+						 */
+						?>
+						<?php if ( '' !== $iflynepal_prose ) : ?>
+							<div class="iflynepal-pkg-day-prose">
+								<?php echo wp_kses_post( wpautop( $iflynepal_prose ) ); ?>
+							</div>
 						<?php endif; ?>
 
 						<?php

@@ -107,10 +107,17 @@ class IFly_Nepal_Package_Details_Box {
 		 */
 		wp_enqueue_editor();
 
+		/*
+		 * `editor` is a declared dependency because the prose parts inside the
+		 * itinerary repeater are mounted by wp.editor.initialize() rather than
+		 * printed by wp_editor(): a repeater cannot hand out the unique id
+		 * wp_editor() needs, so the script builds the editors itself and has to
+		 * be sure the function exists by the time it runs.
+		 */
 		wp_enqueue_script(
 			'iflynepal-archive-fields',
 			IFLYNEPAL_BOOKING_URL . 'assets/js/admin/archive-fields.js',
-			array(),
+			array( 'editor' ),
 			iflynepal_booking_asset_version( 'assets/js/admin/archive-fields.js' ),
 			true
 		);
@@ -358,12 +365,59 @@ class IFly_Nepal_Package_Details_Box {
 	private function render_card_row( $name, $index, $row, $field ) {
 		$base = $name . '[' . $index . ']';
 		$item = isset( $field['item'] ) ? $field['item'] : __( 'Card', 'iflynepal' );
+
+		/*
+		 * A prose part is drawn by the timeline above it rather than on its own
+		 * line, so that its button sits beside Add Stop: the two are the same
+		 * choice — how this day is told — and a control for that choice below
+		 * the timeline, separated from the other half of it, reads as unrelated.
+		 * With no timeline on the card it falls back to drawing itself in place.
+		 */
+		$prose_key = '';
+
+		foreach ( $field['parts'] as $part_key => $part ) {
+			if ( 'prose' === $part['type'] ) {
+				$prose_key = $part_key;
+
+				break;
+			}
+		}
+
+		$has_timeline = false;
+
+		foreach ( $field['parts'] as $part ) {
+			if ( 'timeline' === $part['type'] ) {
+				$has_timeline = true;
+
+				break;
+			}
+		}
+
+		$companion = array();
+
+		if ( '' !== $prose_key && $has_timeline ) {
+			$companion = array(
+				'name'  => $base . '[' . $prose_key . ']',
+				'part'  => $field['parts'][ $prose_key ],
+				'value' => isset( $row[ $prose_key ] ) ? $row[ $prose_key ] : '',
+			);
+		}
 		?>
 		<div class="iflynepal-archive__card" data-iflynepal-card>
 			<p class="iflynepal-archive__card-number" data-iflynepal-card-number></p>
 
 			<?php foreach ( $field['parts'] as $part_key => $part ) : ?>
-				<?php $this->render_card_part( $base . '[' . $part_key . ']', $part, isset( $row[ $part_key ] ) ? $row[ $part_key ] : '' ); ?>
+				<?php if ( ! empty( $companion ) && $part_key === $prose_key ) : ?>
+					<?php continue; ?>
+				<?php endif; ?>
+				<?php
+				$this->render_card_part(
+					$base . '[' . $part_key . ']',
+					$part,
+					isset( $row[ $part_key ] ) ? $row[ $part_key ] : '',
+					'timeline' === $part['type'] ? $companion : array()
+				);
+				?>
 			<?php endforeach; ?>
 
 			<button type="button" class="button iflynepal-archive__card-remove" data-iflynepal-card-remove>
@@ -381,12 +435,14 @@ class IFly_Nepal_Package_Details_Box {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name  Full input name.
-	 * @param array  $part  Part definition.
-	 * @param mixed  $value Stored value.
+	 * @param string $name      Full input name.
+	 * @param array  $part      Part definition.
+	 * @param mixed  $value     Stored value.
+	 * @param array  $companion Optional. A prose part for a timeline to host, as
+	 *                          'name', 'part' and 'value'.
 	 * @return void
 	 */
-	private function render_card_part( $name, $part, $value ) {
+	private function render_card_part( $name, $part, $value, $companion = array() ) {
 		if ( 'image' === $part['type'] ) {
 			// A repeater row passes no id: its name is unique, a duplicated id is not.
 			$this->render_image( '', $name, (int) $value );
@@ -397,7 +453,19 @@ class IFly_Nepal_Package_Details_Box {
 		<label class="iflynepal-archive__card-label"><?php echo esc_html( $part['label'] ); ?></label>
 		<?php
 		if ( 'timeline' === $part['type'] ) {
-			$this->render_timeline( $name, $part, $value );
+			$this->render_timeline( $name, $part, $value, $companion );
+
+			return;
+		}
+
+		if ( 'prose' === $part['type'] ) {
+			// Only reached on a card with no timeline to host the toggle.
+			?>
+			<div class="iflynepal-prose" data-iflynepal-prose>
+				<?php $this->render_prose_toggle( $part, $value ); ?>
+				<?php $this->render_prose_body( $name, $part, $value, false ); ?>
+			</div>
+			<?php
 
 			return;
 		}
@@ -436,12 +504,14 @@ class IFly_Nepal_Package_Details_Box {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name  Full input name for the part, e.g. …[0][timeline].
-	 * @param array  $part  Part definition, carrying 'max' and 'item'.
-	 * @param mixed  $value Stored rows, or the legacy line text.
+	 * @param string $name      Full input name for the part, e.g. …[0][timeline].
+	 * @param array  $part      Part definition, carrying 'max' and 'item'.
+	 * @param mixed  $value     Stored rows, or the legacy line text.
+	 * @param array  $companion Optional. A prose part to host beside Add Stop, as
+	 *                          'name', 'part' and 'value'.
 	 * @return void
 	 */
-	private function render_timeline( $name, $part, $value ) {
+	private function render_timeline( $name, $part, $value, $companion = array() ) {
 		/*
 		 * Legacy line text is parsed into rows here rather than migrated in the
 		 * database: the control shows what was already stored, and the first
@@ -451,22 +521,32 @@ class IFly_Nepal_Package_Details_Box {
 		$max  = isset( $part['max'] ) ? (int) $part['max'] : 0;
 		$item = isset( $part['item'] ) ? $part['item'] : __( 'Stop', 'iflynepal' );
 		?>
-		<div class="iflynepal-timeline" data-iflynepal-timeline data-max="<?php echo esc_attr( (string) $max ); ?>">
+		<div class="iflynepal-timeline" data-iflynepal-timeline data-max="<?php echo esc_attr( (string) $max ); ?>"<?php echo empty( $companion ) ? '' : ' data-iflynepal-prose'; ?>>
 			<div class="iflynepal-timeline__list" data-iflynepal-timeline-list>
 				<?php foreach ( $rows as $index => $row ) : ?>
 					<?php $this->render_timeline_row( $name, (int) $index, $row ); ?>
 				<?php endforeach; ?>
 			</div>
 
-			<button type="button" class="button iflynepal-timeline__add" data-iflynepal-timeline-add>
-				<?php
-				/* translators: %s: what one row is called, e.g. Stop. */
-				printf( esc_html__( '+ Add %s', 'iflynepal' ), esc_html( $item ) );
-				?>
-			</button>
+			<div class="iflynepal-timeline__foot">
+				<button type="button" class="button iflynepal-timeline__add" data-iflynepal-timeline-add>
+					<?php
+					/* translators: %s: what one row is called, e.g. Stop. */
+					printf( esc_html__( '+ Add %s', 'iflynepal' ), esc_html( $item ) );
+					?>
+				</button>
+
+				<?php if ( ! empty( $companion ) ) : ?>
+					<?php $this->render_prose_toggle( $companion['part'], $companion['value'] ); ?>
+				<?php endif; ?>
+			</div>
 
 			<?php if ( isset( $part['help'] ) && '' !== $part['help'] ) : ?>
 				<p class="description"><?php echo esc_html( $part['help'] ); ?></p>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $companion ) ) : ?>
+				<?php $this->render_prose_body( $companion['name'], $companion['part'], $companion['value'] ); ?>
 			<?php endif; ?>
 
 			<template data-iflynepal-timeline-template>
@@ -518,6 +598,79 @@ class IFly_Nepal_Package_Details_Box {
 				<button type="button" class="button-link iflynepal-timeline__move" data-iflynepal-timeline-down aria-label="<?php esc_attr_e( 'Move down', 'iflynepal' ); ?>">&darr;</button>
 				<button type="button" class="button-link iflynepal-timeline__remove" data-iflynepal-timeline-remove aria-label="<?php esc_attr_e( 'Remove stop', 'iflynepal' ); ?>">&times;</button>
 			</span>
+		</div>
+		<?php
+	}
+
+	/**
+	 * The button that opens a prose part.
+	 *
+	 * Drawn apart from the box it opens so that a timeline can put it in the same
+	 * row as Add Stop while the box itself sits under the stops. The two are tied
+	 * together by the nearest [data-iflynepal-prose] ancestor rather than by an
+	 * id: a card repeater clones its rows, and a cloned id is two of the same id.
+	 *
+	 * A part that already has prose in it opens showing it — a filled field
+	 * hidden behind a button is a field an editor will not know is there.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $part  Part definition, carrying 'button' and 'hide'.
+	 * @param mixed $value Stored prose.
+	 * @return void
+	 */
+	private function render_prose_toggle( $part, $value ) {
+		$open = '' !== trim( (string) $value );
+		$add  = isset( $part['button'] ) ? $part['button'] : __( 'Add description', 'iflynepal' );
+		$hide = isset( $part['hide'] ) ? $part['hide'] : __( 'Hide description', 'iflynepal' );
+		?>
+		<button type="button" class="button iflynepal-prose__toggle" data-iflynepal-prose-toggle
+			aria-expanded="<?php echo $open ? 'true' : 'false'; ?>"
+			data-label-add="<?php echo esc_attr( $add ); ?>"
+			data-label-hide="<?php echo esc_attr( $hide ); ?>">
+			<?php echo esc_html( $open ? $hide : $add ); ?>
+		</button>
+		<?php
+	}
+
+	/**
+	 * The box a prose part is written in.
+	 *
+	 * Hidden rather than absent when closed, so the value is still posted: a day
+	 * whose prose was collapsed by an editor looking at something else must not
+	 * lose it on Update.
+	 *
+	 * The textarea is mounted as a wp_editor() by the script rather than printed
+	 * as one here, and carries no id of its own. wp_editor() needs an id that is
+	 * unique on the page, and a repeater cannot promise one: its rows are cloned
+	 * from a <template> and renumbered as they are added, moved and removed, so
+	 * an id printed here would be duplicated the first time a day is added. The
+	 * script assigns one at the moment it initialises the editor, which is the
+	 * moment the box is first opened — a TinyMCE built inside a hidden element
+	 * measures itself as zero and comes up unusable.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name       Full input name.
+	 * @param array  $part       Part definition.
+	 * @param mixed  $value      Stored prose.
+	 * @param bool   $with_label Whether to draw the part's label, which the caller
+	 *                           may already have drawn.
+	 * @return void
+	 */
+	private function render_prose_body( $name, $part, $value, $with_label = true ) {
+		$open = '' !== trim( (string) $value );
+		?>
+		<div class="iflynepal-prose__body" data-iflynepal-prose-body<?php echo $open ? '' : ' hidden'; ?>>
+			<?php if ( $with_label ) : ?>
+				<label class="iflynepal-archive__card-label"><?php echo esc_html( $part['label'] ); ?></label>
+			<?php endif; ?>
+
+			<textarea class="iflynepal-prose__editor" data-iflynepal-prose-editor name="<?php echo esc_attr( $name ); ?>" rows="10"><?php echo esc_textarea( (string) $value ); ?></textarea>
+
+			<?php if ( isset( $part['help'] ) && '' !== $part['help'] ) : ?>
+				<p class="description"><?php echo esc_html( $part['help'] ); ?></p>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
@@ -842,7 +995,41 @@ class IFly_Nepal_Package_Details_Box {
 			}
 
 			.iflynepal-package-fields .iflynepal-timeline__add {
+				margin-top: 0;
+			}
+
+			.iflynepal-timeline__foot {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				align-items: center;
 				margin-top: 4px;
+			}
+
+			/* ----------------------------------------------- prose part */
+
+			.iflynepal-prose__body {
+				margin-top: 10px;
+			}
+
+			.iflynepal-prose__body[hidden] {
+				display: none;
+			}
+
+			.iflynepal-package-fields .iflynepal-prose__body textarea {
+				width: 100%;
+			}
+
+			/*
+			 * Until the script mounts it, the field is a plain textarea; after,
+			 * wp_editor() prints its own chrome and only the outer width is ours.
+			 */
+			.iflynepal-prose__body .wp-editor-wrap {
+				max-width: 100%;
+			}
+
+			.iflynepal-prose__body .wp-editor-wrap + .description {
+				margin-top: 8px;
 			}
 
 			/* -------------------------------------------------- image picker */

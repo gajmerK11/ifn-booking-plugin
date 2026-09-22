@@ -181,6 +181,7 @@
 			refresh();
 			initField(row.querySelector('[data-iflynepal-media]'));
 			row.querySelectorAll('[data-iflynepal-timeline]').forEach(initTimeline);
+			row.querySelectorAll('[data-iflynepal-prose]').forEach(initProse);
 		});
 
 		list.addEventListener('click', function (event) {
@@ -190,7 +191,10 @@
 				return;
 			}
 
-			button.closest('[data-iflynepal-card]').remove();
+			var card = button.closest('[data-iflynepal-card]');
+
+			removeProseEditors(card);
+			card.remove();
 			renumber();
 			refresh();
 		});
@@ -397,6 +401,130 @@
 		refresh();
 	}
 
+	/* -------------------------------------------------------- prose part */
+
+	/**
+	 * Wires one prose part: a button that shows and hides the box beside it.
+	 *
+	 * The box is hidden, never removed, so a collapsed description is still
+	 * posted — collapsing a field must not be a way to lose what is in it.
+	 *
+	 * @param {HTMLElement} wrap The [data-iflynepal-prose] wrapper, which is the
+	 *                           timeline itself when a timeline is hosting the
+	 *                           button.
+	 */
+	var proseSeq = 0;
+
+	/**
+	 * Mounts one prose textarea as a reduced-toolbar wp_editor().
+	 *
+	 * The id is assigned here rather than printed in the markup: a repeater
+	 * clones its rows, and a cloned id is two of the same id — which is exactly
+	 * what TinyMCE keys its instances by. Mounting is also deliberately late,
+	 * on the first open, because an editor built inside a hidden element
+	 * measures itself as zero and comes up with no usable typing area.
+	 *
+	 * @param {HTMLTextAreaElement} field The textarea to take over.
+	 */
+	function mountProseEditor(field) {
+		if (!field || field.dataset.iflynepalEditor === '1') {
+			return;
+		}
+
+		if (!window.wp || !window.wp.editor || 'function' !== typeof window.wp.editor.initialize) {
+			return;
+		}
+
+		if (!field.id) {
+			proseSeq += 1;
+			field.id = 'iflynepal-prose-editor-' + proseSeq;
+		}
+
+		field.dataset.iflynepalEditor = '1';
+
+		/*
+		 * The same toolbar the top-level prose fields carry: bold, italic,
+		 * underline, a bulleted list and a link. Nothing here offers a block
+		 * the front end has no style for.
+		 */
+		window.wp.editor.initialize(field.id, {
+			mediaButtons: false,
+			quicktags: false,
+			tinymce: {
+				toolbar1: 'bold,italic,underline,bullist,link,unlink,undo,redo',
+				toolbar2: '',
+				wpautop: true
+			}
+		});
+	}
+
+	/**
+	 * Takes the editors inside an element down before it is removed.
+	 *
+	 * TinyMCE keeps its instances in a registry of its own, and an instance
+	 * whose textarea has been removed from the page goes on being registered —
+	 * the next triggerSave() then writes into a detached element.
+	 *
+	 * @param {HTMLElement} scope The element about to be removed.
+	 */
+	function removeProseEditors(scope) {
+		if (!scope || !window.wp || !window.wp.editor || 'function' !== typeof window.wp.editor.remove) {
+			return;
+		}
+
+		scope.querySelectorAll('[data-iflynepal-prose-editor]').forEach(function (field) {
+			if (field.id && field.dataset.iflynepalEditor === '1') {
+				window.wp.editor.remove(field.id);
+			}
+		});
+	}
+
+	/**
+	 * Wires one prose part: a button that shows and hides the box beside it.
+	 *
+	 * The box is hidden, never removed, so a collapsed description is still
+	 * posted — collapsing a field must not be a way to lose what is in it.
+	 *
+	 * @param {HTMLElement} wrap The [data-iflynepal-prose] wrapper, which is the
+	 *                           timeline itself when a timeline is hosting the
+	 *                           button.
+	 */
+	function initProse(wrap) {
+		if (!wrap || wrap.dataset.iflynepalProseReady === '1') {
+			return;
+		}
+
+		var toggle = wrap.querySelector('[data-iflynepal-prose-toggle]');
+		var body = wrap.querySelector('[data-iflynepal-prose-body]');
+
+		if (!toggle || !body) {
+			return;
+		}
+
+		wrap.dataset.iflynepalProseReady = '1';
+
+		var field = body.querySelector('[data-iflynepal-prose-editor]');
+
+		// A part that already has prose in it opens showing it, so it mounts now.
+		if (!body.hidden) {
+			mountProseEditor(field);
+		}
+
+		toggle.addEventListener('click', function () {
+			var open = body.hidden;
+
+			body.hidden = !open;
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			toggle.textContent = open
+				? toggle.dataset.labelHide || toggle.textContent
+				: toggle.dataset.labelAdd || toggle.textContent;
+
+			if (open) {
+				mountProseEditor(field);
+			}
+		});
+	}
+
 	/* ---------------------------------------------------- comparison table */
 
 	/**
@@ -527,6 +655,23 @@
 	document.querySelectorAll('[data-iflynepal-cards]').forEach(initCards);
 	document.querySelectorAll('[data-iflynepal-table]').forEach(initTable);
 	document.querySelectorAll('[data-iflynepal-timeline]').forEach(initTimeline);
+	document.querySelectorAll('[data-iflynepal-prose]').forEach(initProse);
+
+	/*
+	 * TinyMCE holds what is being typed in an iframe of its own and only writes
+	 * it back to the textarea when asked. Core asks on submit for the editors it
+	 * printed itself; these were mounted by hand, so the asking is ours too — and
+	 * without it a description typed and saved in one go would post empty.
+	 */
+	document.addEventListener(
+		'submit',
+		function () {
+			if (window.tinymce && 'function' === typeof window.tinymce.triggerSave) {
+				window.tinymce.triggerSave();
+			}
+		},
+		true
+	);
 
 	/* --------------------------------------------- wa.me link auto-fill */
 

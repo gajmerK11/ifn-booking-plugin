@@ -53,23 +53,28 @@ $iflynepal_eyebrow  = iflynepal_package_field( $iflynepal_id, 'price_eyebrow' );
 $iflynepal_pay = iflynepal_package_payment_markup( $iflynepal_id );
 
 /*
- * The price is split so the design can set the currency small and raised and
- * the pence small beside the figure. Split here rather than asking an editor to
- * type three fields: they type one number, and the presentation is the
- * template's problem. It is a closure because the card prints a figure once
- * with a flat price and once per rung with a ladder, and one of the two would
- * otherwise be a copy of the other's typography.
+ * The price is split so the design can set the currency small and raised
+ * beside the figure. Split here rather than asking an editor to type two
+ * fields: they type one number, and the presentation is the template's
+ * problem. It is a closure because the card prints a figure once with a flat
+ * price and once per rung with a ladder, and one of the two would otherwise
+ * be a copy of the other's typography.
+ *
+ * Whole numbers only, client-directed: a price of 3360 reads as "3,360 /
+ * person", not "3,360.00 / person" — nobody prices a trip to the cent, and
+ * the trailing .00 was also what pushed "/ person" onto its own line for a
+ * four-digit price, since the flex row it shares with the figure had to fit
+ * ".00 / person" as well as the wider number.
  */
 $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use ( $iflynepal_currency ) {
-	$iflynepal_parts = explode( '.', number_format( (float) $iflynepal_amount, 2, '.', ',' ) );
 	?>
 	<strong>
 		<?php if ( '' !== $iflynepal_currency ) : ?>
 			<sup><?php echo esc_html( $iflynepal_currency ); ?></sup>
 		<?php endif; ?>
-		<?php echo esc_html( $iflynepal_parts[0] ); ?>
+		<?php echo esc_html( number_format( (float) $iflynepal_amount, 0, '.', ',' ) ); ?>
 	</strong>
-	<span>.<?php echo esc_html( $iflynepal_parts[1] ); ?> / <?php echo esc_html( $iflynepal_unit ); ?></span>
+	<span>/ <?php echo esc_html( $iflynepal_unit ); ?></span>
 	<?php
 };
 ?>

@@ -286,21 +286,6 @@ function iflynepal_package_details_fields() {
 		'help'    => __( 'Wrap a word in <em> for the accent style, e.g. "Two days, <em>gently</em> paced."', 'iflynepal' ),
 	);
 
-	/*
-	 * The altitude profile is one paragraph plus whatever Elevation values the
-	 * days below carry — there is no separate on/off switch, the same rule as
-	 * every other opt-in section on this page. Fewer than two days with a
-	 * number in Elevation and the whole chart, note included, is left off:
-	 * one point has no line to draw.
-	 */
-	$fields['altitude_note'] = array(
-		'box'     => 'details',
-		'section' => 'itinerary',
-		'label'   => __( 'Altitude profile note', 'iflynepal' ),
-		'type'    => 'textarea',
-		'help'    => __( 'The line above the chart, e.g. "Base camp at 5,364m on Day 9, with rest days at Namche and Dingboche on the way up." Needs at least two days below with an Elevation value, or the chart — and this note — is left off.', 'iflynepal' ),
-	);
-
 	$fields['itinerary_days'] = array(
 		'box'     => 'details',
 		'section' => 'itinerary',
@@ -311,26 +296,48 @@ function iflynepal_package_details_fields() {
 		'item'    => __( 'Day', 'iflynepal' ),
 		'max'     => IFLYNEPAL_PACKAGE_ITINERARY_MAX,
 		'parts'   => array(
-			'title'     => array(
+			'title'       => array(
 				'label' => __( 'Day title', 'iflynepal' ),
 				'type'  => 'text',
 			),
-			'elevation' => array(
-				'label' => __( 'Elevation (m), for the altitude chart', 'iflynepal' ),
-				'type'  => 'text',
-			),
-			'meta'      => array(
+
+			/*
+			 * Elevation — the altitude chart's only data source — was removed
+			 * on the client's instruction, same rule as the accommodation and
+			 * meals parts below: iflynepal_package_altitude_profile() reads
+			 * $day['elevation'], finds it on no day ever again, and the chart
+			 * (and the note above it, already removed) stays permanently
+			 * opted out rather than being torn out itself. Stored values
+			 * survive until a day is next saved, at which point the sanitizer
+			 * drops what the schema no longer declares.
+			 */
+			'meta'        => array(
 				'label' => __( 'Times and summary line', 'iflynepal' ),
 				'type'  => 'text',
 			),
-			'timeline'  => array(
+			'timeline'    => array(
 				'label' => __( 'Timeline', 'iflynepal' ),
 				'type'  => 'timeline',
 				'item'  => __( 'Stop', 'iflynepal' ),
 				'max'   => IFLYNEPAL_PACKAGE_TIMELINE_MAX,
 				'help'  => __( 'One row per stop, in the order they happen. Drag a row by its handle, or use the arrows, to move it.', 'iflynepal' ),
 			),
-			'summary'   => array(
+
+			/*
+			 * The day told in prose, for a day whose shape is a story rather than
+			 * a clock: it is offered by a button beside Add Stop rather than as a
+			 * box that is always open, because most days are one or the other and
+			 * an empty textarea under every timeline reads as work left undone.
+			 * Both render, in that order, for the day that wants both.
+			 */
+			'description' => array(
+				'label'  => __( 'Descriptive itinerary', 'iflynepal' ),
+				'type'   => 'prose',
+				'button' => __( 'Add Descriptive Itinerary', 'iflynepal' ),
+				'hide'   => __( 'Hide descriptive itinerary', 'iflynepal' ),
+				'help'   => __( 'Shown under the timeline on the Detailed Itinerary tab, laid out exactly as it is written here — press Enter for a new paragraph, and use the toolbar for bold, underline and bulleted lists.', 'iflynepal' ),
+			),
+			'summary'     => array(
 				'label' => __( 'Short itinerary entry', 'iflynepal' ),
 				'type'  => 'textarea',
 			),

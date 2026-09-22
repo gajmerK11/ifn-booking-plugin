@@ -766,6 +766,23 @@ function iflynepal_archive_sanitize_value( $value, $type, $field = array() ) {
 		case 'lines':
 			return sanitize_textarea_field( (string) $value );
 
+		case 'prose':
+			/*
+			 * A prose part is a repeater's wp_editor(), so it is saved the way the
+			 * top-level wysiwyg fields are: the sanitizer core uses for post
+			 * content, which keeps the paragraphs, the lists and the emphasis the
+			 * toolbar can produce and drops everything else.
+			 *
+			 * An editor emptied in TinyMCE posts back a paragraph holding a
+			 * non-breaking space rather than nothing at all, so a value with no
+			 * words left in it is stored as empty — otherwise a description an
+			 * editor deleted would go on printing a blank paragraph on the page,
+			 * and would keep its day alive as a "filled" row.
+			 */
+			$value = wp_kses_post( (string) $value );
+
+			return '' === trim( wp_strip_all_tags( str_replace( '&nbsp;', ' ', $value ) ) ) ? '' : $value;
+
 		case 'checkbox':
 			return $value ? '1' : '';
 

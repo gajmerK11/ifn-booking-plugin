@@ -551,6 +551,8 @@ so the nav
     .iflynepal-pkg-day-toggle>span:nth-child(2){min-width:0}
     .iflynepal-pkg-dt-title{display:block;font-size:19px;font-weight:600;letter-spacing:-.02em;line-height:1.25}
     .iflynepal-pkg-dt-sub{display:block;margin-top:4px;color:var(--ifnpkg-muted);font-size:13px;font-weight:400}
+    .iflynepal-pkg-dt--solo{align-self:center}
+    .iflynepal-pkg-dt--solo .iflynepal-pkg-dt-title{font-size:21.5px}
     .iflynepal-pkg-chev{
       display:grid;
       place-items:center;
@@ -586,6 +588,29 @@ so the nav
     }
     .iflynepal-pkg-timeline time{color:var(--ifnpkg-navy);font-size:12.5px;font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
     .iflynepal-pkg-timeline p{padding-left:8px;color:#3B4148;font-size:14.5px;line-height:1.7}
+    .iflynepal-pkg-day-prose{margin:0 22px;padding:18px 0 6px;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-timeline+.iflynepal-pkg-day-prose{padding-top:16px}
+    .iflynepal-pkg-day-prose p{margin:0 0 14px;color:#3B4148;font-size:14.5px;line-height:1.8}
+    .iflynepal-pkg-day-prose p:last-child{margin-bottom:0}
+    .iflynepal-pkg-day-prose strong,.iflynepal-pkg-day-prose b{font-weight:700;color:var(--ifnpkg-ink)}
+    .iflynepal-pkg-day-prose a{color:var(--ifnpkg-navy);text-decoration:underline;text-underline-offset:3px}
+    /* The timeline's own marker, filled in: the same dot, reading as a bullet. */
+    .iflynepal-pkg-day-prose ul{margin:0 0 14px;padding:0;list-style:none}
+    .iflynepal-pkg-day-prose ul:last-child{margin-bottom:0}
+    .iflynepal-pkg-day-prose ul li{position:relative;padding-left:22px;margin-bottom:8px;color:#3B4148;font-size:14.5px;line-height:1.8}
+    .iflynepal-pkg-day-prose ul li:last-child{margin-bottom:0}
+    .iflynepal-pkg-day-prose ul li::before{
+      content:"";
+      position:absolute;
+      left:0;top:.72em;
+      width:9px;height:9px;
+      border-radius:50%;
+      background:var(--ifnpkg-navy);
+    }
+    .iflynepal-pkg-day-prose ol{margin:0 0 14px;padding-left:20px}
+    .iflynepal-pkg-day-prose ol:last-child{margin-bottom:0}
+    .iflynepal-pkg-day-prose ol li{margin-bottom:8px;color:#3B4148;font-size:14.5px;line-height:1.8}
+    .iflynepal-pkg-day-prose ul ul,.iflynepal-pkg-day-prose ol ol{margin:8px 0 0}
     [role="tabpanel"][hidden]{display:none}
 
     /* dates & prices */
@@ -757,11 +782,22 @@ so the nav
     }
     .iflynepal-pkg-price-card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--ifnpkg-navy),var(--ifnpkg-navy-2) 60%,var(--ifnpkg-gold))}
     .iflynepal-pkg-price-card .iflynepal-pkg-eyebrow{display:block!important;width:100%!important;text-align:center!important;margin-bottom:28px}
-    .iflynepal-pkg-price-from{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
-    .iflynepal-pkg-price-from small{color:var(--ifnpkg-muted);font-size:13px;font-weight:600}
-    .iflynepal-pkg-price-from strong{font-size:40px;font-weight:700;letter-spacing:-.035em;line-height:1}
+    .iflynepal-pkg-price-from{display:flex;align-items:baseline;gap:6px;flex-wrap:nowrap}
+    .iflynepal-pkg-price-from small{color:var(--ifnpkg-muted);font-size:13px;font-weight:600;flex-shrink:0;white-space:nowrap}
+    .iflynepal-pkg-price-from strong{font-size:40px;font-weight:700;letter-spacing:-.035em;line-height:1;flex-shrink:0;white-space:nowrap}
     .iflynepal-pkg-price-from strong sup{font-size:.4em;font-weight:700;letter-spacing:0;vertical-align:1.3em;margin-right:2px}
-    .iflynepal-pkg-price-from span{color:var(--ifnpkg-muted);font-size:13px}
+    /*
+     * flex-wrap:nowrap on the row above only stops the row from breaking
+     * into two rows — it does nothing for a flex item's own content. This
+     * span holds two words ("/ person"), and a flex item's default
+     * min-width:auto lets it shrink below that content's width, which wraps
+     * "/ person" onto its own second line and stretches the whole
+     * baseline-aligned row to match — the exact four-digit-price bug this is
+     * fixing, just moved one level down. flex-shrink:0 keeps the span at its
+     * natural width instead of shrinking, and white-space:nowrap is the
+     * backstop for anywhere it still gets squeezed.
+     */
+    .iflynepal-pkg-price-from span{color:var(--ifnpkg-muted);font-size:13px;flex-shrink:0;white-space:nowrap}
     .iflynepal-pkg-price-card .iflynepal-pkg-check-list{grid-template-columns:1fr;gap:10px;margin:22px 0 24px;padding-top:20px;border-top:1px solid var(--ifnpkg-line)}
     .iflynepal-pkg-price-card .iflynepal-pkg-check-list li{font-size:13.5px}
     .iflynepal-pkg-price-card .iflynepal-pkg-check-list .iflynepal-pkg-tick{width:22px;height:22px}
