@@ -257,7 +257,7 @@ function iflynepal_package_the_share( $post_id ) {
 		foreach ( $iflynepal_share_socials as $iflynepal_social ) :
 			?>
 			<a class="iflynepal-pkg-share-btn" data-share="<?php echo esc_attr( $iflynepal_social['slug'] ); ?>" target="_blank" rel="noopener"
-				href="<?php echo esc_url( $iflynepal_social['url'] ); ?>"
+				<?php echo iflynepal_booking_anchor_attr( $iflynepal_social['url'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 				aria-label="<?php echo esc_attr( sprintf( /* translators: %s: social network name. */ __( 'Visit us on %s', 'iflynepal' ), $iflynepal_social['label'] ) ); ?>">
 				<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="<?php echo esc_attr( $iflynepal_social['path'] ); ?>"/></svg>
 			</a>

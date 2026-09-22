@@ -252,9 +252,9 @@ function iflynepal_archive_the_actions( $term_id, $prefix, $wrapper = 'iflynepal
 
 	foreach ( $drawable as $button ) {
 		printf(
-			'<a class="%1$s" href="%2$s">%3$s%4$s</a>',
+			'<a class="%1$s" %2$s>%3$s%4$s</a>',
 			esc_attr( $button['class'] ),
-			esc_url( $button['url'] ),
+			iflynepal_booking_anchor_attr( $button['url'] ),
 			esc_html( $button['label'] ),
 			$button['arrow'] ? iflynepal_booking_arrow_icon() : '' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, no input.
 		);

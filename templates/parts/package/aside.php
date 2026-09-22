@@ -241,7 +241,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 
 				<?php if ( '' !== $iflynepal_whatsapp ) : ?>
 					<a class="iflynepal-pkg-button iflynepal-pkg-button--outline iflynepal-pkg-button--block"
-						href="<?php echo esc_url( $iflynepal_whatsapp ); ?>"
+						<?php echo iflynepal_booking_anchor_attr( $iflynepal_whatsapp ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 						target="_blank" rel="noopener noreferrer">
 						<?php esc_html_e( 'Chat on WhatsApp', 'iflynepal' ); ?>
 					</a>
@@ -275,7 +275,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 			<?php $iflynepal_chat = iflynepal_whatsapp_url( $iflynepal_id ); ?>
 
 			<?php if ( '' !== $iflynepal_chat ) : ?>
-				<a class="iflynepal-enquiry-card__chat" href="<?php echo esc_url( $iflynepal_chat ); ?>" target="_blank" rel="noopener noreferrer">
+				<a class="iflynepal-enquiry-card__chat" <?php echo iflynepal_booking_anchor_attr( $iflynepal_chat ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?> target="_blank" rel="noopener noreferrer">
 					<?php esc_html_e( 'Or chat on WhatsApp', 'iflynepal' ); ?>
 				</a>
 			<?php endif; ?>
@@ -316,7 +316,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 			</div>
 
 			<?php if ( '' !== $iflynepal_link && '' !== $iflynepal_label ) : ?>
-				<a class="iflynepal-pkg-button iflynepal-pkg-button--block" href="<?php echo esc_url( $iflynepal_link ); ?>">
+				<a class="iflynepal-pkg-button iflynepal-pkg-button--block" <?php echo iflynepal_booking_anchor_attr( $iflynepal_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>>
 					<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8a9.1 9.1 0 0 0-7.9 13.7L2.8 21.2l4.8-1.3A9.1 9.1 0 1 0 12 2.8zm0 16.6c-1.4 0-2.8-.4-4-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A7.5 7.5 0 1 1 12 19.4zm4.1-5.6c-.2-.1-1.3-.7-1.6-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.2-.1-1-.4-1.8-1.1-.7-.6-1.1-1.3-1.3-1.5-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5 2 .8 2.4.6 2.8.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1l-.5-.3z"/></svg>
 					<?php echo esc_html( $iflynepal_label ); ?>
 				</a>

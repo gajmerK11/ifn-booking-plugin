@@ -55,3 +55,48 @@ function iflynepal_booking_asset_version( $relative_path ) {
 
 	return IFLYNEPAL_BOOKING_VERSION;
 }
+
+/**
+ * Builds the attributes an `<a>` needs for a stored link field.
+ *
+ * Deliberately a copy of the theme's iflynepal_anchor_attr() for the same
+ * reason iflynepal_booking_kses_text() copies iflynepal_kses_text() above:
+ * the plugin's own CTAs (archive hero/closing buttons, package asides, ...)
+ * have to keep working if the theme is switched.
+ *
+ * A real URL prints as an ordinary `href`. An in-page anchor (`#id`) does not:
+ * a hash `href` always shows the resolved target in the status bar on hover,
+ * which is exactly what every hash CTA on the site used to reveal before a
+ * visitor ever clicked. There is no CSS or HTML way to keep an `href` and lose
+ * that preview, so an anchor gets no `href` at all: instead
+ * `data-iflynepal-scroll` carries the target id and the theme's
+ * assets/js/global/anchor-scroll.js does the scrolling on click (and on
+ * Enter/Space, since `role="button" tabindex="0"` is what makes the element
+ * focusable without one). The trade-off, accepted deliberately, is that these
+ * links need JavaScript — a bare `#` (a JS hook with no scroll target, same as
+ * a menu toggle) prints nothing at all rather than a dead attribute.
+ *
+ * @since 1.0.0
+ *
+ * @param string $url Stored link value.
+ * @return string Attribute markup, ready to print inside an `<a ...>` tag.
+ */
+function iflynepal_booking_anchor_attr( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	if ( '#' === $url[0] ) {
+		$target = ltrim( $url, '#' );
+
+		if ( '' === $target ) {
+			return '';
+		}
+
+		return sprintf( 'data-iflynepal-scroll="%s" role="button" tabindex="0"', esc_attr( $target ) );
+	}
+
+	return sprintf( 'href="%s"', esc_url( $url ) );
+}

@@ -78,7 +78,7 @@ if ( empty( $iflynepal_plans ) ) {
 					 */
 					?>
 					<?php if ( '' !== $iflynepal_plan['cta_label'] && '' !== $iflynepal_plan['cta_url'] ) : ?>
-						<a class="iflynepal-button iflynepal-button--line" href="<?php echo esc_url( $iflynepal_plan['cta_url'] ); ?>">
+						<a class="iflynepal-button iflynepal-button--line" <?php echo iflynepal_booking_anchor_attr( $iflynepal_plan['cta_url'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>>
 							<?php echo esc_html( $iflynepal_plan['cta_label'] ); ?>
 						</a>
 					<?php endif; ?>

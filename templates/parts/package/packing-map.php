@@ -89,7 +89,7 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed ) {
 							</div>
 
 							<?php if ( '' !== $iflynepal_map_link ) : ?>
-								<a href="<?php echo esc_url( $iflynepal_map_link ); ?>" target="_blank" rel="noopener">
+								<a <?php echo iflynepal_booking_anchor_attr( $iflynepal_map_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?> target="_blank" rel="noopener">
 									<?php esc_html_e( 'Open in Maps', 'iflynepal' ); ?>
 									<svg class="iflynepal-pkg-link-arrow" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
 								</a>

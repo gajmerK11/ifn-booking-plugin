@@ -135,7 +135,7 @@ $iflynepal_reserve = __( 'Reserve', 'iflynepal' );
 									<span><?php echo esc_html( $iflynepal_card['duration'] ); ?></span>
 									<span><?php echo esc_html( $iflynepal_card['price'] ); ?></span>
 									<?php if ( '' !== $iflynepal_card['link'] ) : ?>
-										<a class="iflynepal-departure__reserve" href="<?php echo esc_url( $iflynepal_card['link'] ); ?>">
+										<a class="iflynepal-departure__reserve" <?php echo iflynepal_booking_anchor_attr( $iflynepal_card['link'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>>
 											<?php echo esc_html( $iflynepal_reserve ); ?>
 										</a>
 									<?php else : ?>
