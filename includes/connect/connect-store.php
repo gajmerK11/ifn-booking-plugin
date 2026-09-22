@@ -55,7 +55,7 @@ function iflynepal_connect_fields() {
 			'type'         => 'tel',
 			'required'     => true,
 			'autocomplete' => 'tel',
-			'placeholder'  => __( '+977 98XXXXXXXX', 'iflynepal' ),
+			'placeholder'  => __( 'Enter your WhatsApp number', 'iflynepal' ),
 			'help'         => __( 'Include your country code so we can reach you.', 'iflynepal' ),
 		),
 		'email'        => array(
@@ -63,7 +63,7 @@ function iflynepal_connect_fields() {
 			'type'         => 'email',
 			'required'     => true,
 			'autocomplete' => 'email',
-			'placeholder'  => __( 'you@example.com', 'iflynepal' ),
+			'placeholder'  => __( 'Enter your email', 'iflynepal' ),
 		),
 		'package_type' => array(
 			'label'    => __( 'Which package type would you like to know about?', 'iflynepal' ),
