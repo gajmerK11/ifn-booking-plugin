@@ -100,3 +100,45 @@ function iflynepal_booking_anchor_attr( $url ) {
 
 	return sprintf( 'href="%s"', esc_url( $url ) );
 }
+
+/**
+ * `target="_blank" rel="noopener noreferrer"`, printed only for a link that
+ * actually leaves the site.
+ *
+ * Package aside.php builds its WhatsApp button by hand and hardcodes this
+ * attribute pair because it always knows it is linking to wa.me. The archive
+ * hero/closing CTAs (iflynepal_archive_the_actions()) can't hardcode
+ * anything — the same two buttons carry "Explore retreats" (an in-page
+ * anchor), "Talk to a retreat guide" (an internal /contact-us path), "Ask
+ * about Immersive dates" (also internal) and "WhatsApp a trip planner" (a
+ * wa.me link), depending on which term's admin fields filled them in. Rather
+ * than a field to tick per button, the host tells the difference on its own:
+ * no host at all (an anchor, a relative path, tel:, mailto:) never gets it: a
+ * host that isn't this site's does.
+ *
+ * @since 1.0.0
+ *
+ * @param string $url Stored link value.
+ * @return string Attribute markup, or '' for an internal/non-URL link.
+ */
+function iflynepal_booking_external_link_attr( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url || '#' === $url[0] ) {
+		return '';
+	}
+
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+
+	if ( ! $host ) {
+		return '';
+	}
+
+	$site_host = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	if ( strtolower( $host ) === strtolower( (string) $site_host ) ) {
+		return '';
+	}
+
+	return ' target="_blank" rel="noopener noreferrer"';
+}

@@ -239,7 +239,9 @@
 .iflynepal-section-head--center .iflynepal-eyebrow::before,
 .iflynepal-plans .iflynepal-eyebrow::before,
 .iflynepal-departures .iflynepal-eyebrow::before,
-.iflynepal-compare .iflynepal-eyebrow::before {
+.iflynepal-compare .iflynepal-eyebrow::before,
+.iflynepal-faq__head .iflynepal-eyebrow::before,
+.iflynepal-final__copy .iflynepal-eyebrow::before {
 	display: none;
 }
 
@@ -2464,9 +2466,19 @@ a.iflynepal-departure__reserve:focus-visible {
 
 /* The wrapper exists only to keep the hero and the closing card reading the
    same way in the templates; the picture inside it is positioned against the
-   card, so the wrapper itself takes no space. */
+   card, so the wrapper itself takes no space.
+ *
+ * z-index: -1 matters, not just cosmetic: without it this is a plain
+ * position:absolute box with z-index:auto, which paints ABOVE the card's
+ * static in-flow content (CSS stacks positioned/z-index:auto elements over
+ * non-positioned ones, regardless of DOM order) — so despite being visually
+ * empty (its own img sinks to z-index -2), the wrapper's full-card hit box
+ * silently ate clicks on whatever sat beneath it. The theme's own
+ * .iflynepal-hero__media sinks itself the same way, for the same reason.
+ */
 .iflynepal-final__media {
 	position: absolute;
+	z-index: -1;
 	inset: 0;
 }
 
