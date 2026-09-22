@@ -2442,7 +2442,8 @@ a.iflynepal-departure__reserve:focus-visible {
 	margin: 0;
 	padding: 0 50px 20px 0;
 	color: var(--ifn-muted);
-	font-size: 13px;
+	font-size: 16px;
+	line-height: 1.6;
 }
 
 /* ------------------------------------------------------------------ final */
