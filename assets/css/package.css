@@ -95,6 +95,11 @@ footer :focus-visible,
       transform:rotate(18deg);
     }
     .iflynepal-pkg-lead{max-width:700px;color:var(--ifnpkg-muted);font-size:17px}
+    /* The FAQ lead is the one place this paragraph can carry <b>/<strong> (see
+       faqs.php) — bold in the same muted grey as the rest of the line reads
+       as barely bold at all, so it is pinned to pure black instead. */
+    #ifnpkg-faqs .iflynepal-pkg-lead b,
+    #ifnpkg-faqs .iflynepal-pkg-lead strong{color:#000}
 
     .iflynepal-pkg-eyebrow{
       display:inline-flex;
@@ -513,6 +518,8 @@ so the nav
     }
     .iflynepal-pkg-day-badge small{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
     .iflynepal-pkg-day-badge b{margin-top:6px;font-size:30px;font-weight:700}
+    /* A label rather than a count — "3-4" — set to fit the badge it is in. */
+    .iflynepal-pkg-day-badge.iflynepal-pkg-is-wide b{font-size:21px;letter-spacing:-.02em}
     .iflynepal-pkg-sum-day h3{margin-bottom:8px;font-size:19px}
     .iflynepal-pkg-sum-day p{color:var(--ifnpkg-muted);font-size:14.5px}
 
@@ -546,6 +553,7 @@ so the nav
       transition:background .3s ease,color .3s ease;
     }
     .iflynepal-pkg-day-num b{display:block;font-size:20px;letter-spacing:0}
+    .iflynepal-pkg-day-num.iflynepal-pkg-is-wide b{font-size:15px}
     .iflynepal-pkg-day.iflynepal-pkg-is-open .iflynepal-pkg-day-num{background:var(--ifnpkg-navy);color:#fff}
     .iflynepal-pkg-day-h{margin:0;font-size:inherit;letter-spacing:0;line-height:inherit}
     .iflynepal-pkg-day-toggle>span:nth-child(2){min-width:0}

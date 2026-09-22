@@ -274,7 +274,7 @@ class IFly_Nepal_Package_Details_Box {
 			$value = $field['default'];
 		}
 
-		if ( 'textarea' === $field['type'] || 'lines' === $field['type'] ) {
+		if ( 'textarea' === $field['type'] || 'lines' === $field['type'] || 'rich_textarea' === $field['type'] ) {
 			printf(
 				'<textarea rows="%1$d" id="%2$s" name="%3$s">%4$s</textarea>',
 				'lines' === $field['type'] ? 6 : 4,
@@ -402,30 +402,84 @@ class IFly_Nepal_Package_Details_Box {
 				'value' => isset( $row[ $prose_key ] ) ? $row[ $prose_key ] : '',
 			);
 		}
+
+		/*
+		 * The part a `badge` flag marks is drawn in the header rather than in
+		 * the body: on an itinerary day it is the number on the badge, and the
+		 * number on the badge is the header. Splitting them would have put the
+		 * same fact on screen twice, one of them editable.
+		 */
+		$badge_key = '';
+
+		foreach ( $field['parts'] as $part_key => $part ) {
+			if ( ! empty( $part['badge'] ) ) {
+				$badge_key = $part_key;
+
+				break;
+			}
+		}
 		?>
 		<div class="iflynepal-archive__card" data-iflynepal-card>
-			<p class="iflynepal-archive__card-number" data-iflynepal-card-number></p>
-
-			<?php foreach ( $field['parts'] as $part_key => $part ) : ?>
-				<?php if ( ! empty( $companion ) && $part_key === $prose_key ) : ?>
-					<?php continue; ?>
+			<?php
+			/*
+			 * A day carries a timeline, a description and a summary, which is a
+			 * screenful apiece: a package of a fortnight drawn open is a box
+			 * nobody can find anything in. The header is the handle — the row's
+			 * number and whatever has been typed into its title, so a shut card
+			 * still says which day it is — and every saved row starts shut. A row
+			 * the editor has just added opens itself, because the only reason to
+			 * add one is to fill it in.
+			 *
+			 * The header is not one button, because part of it is a field: the
+			 * badge is typed into directly, and a form control inside a button is
+			 * neither valid nor clickable. The toggle is the rest of the row.
+			 */
+			?>
+			<div class="iflynepal-archive__card-head">
+				<?php if ( '' !== $badge_key ) : ?>
+					<span class="iflynepal-archive__card-number iflynepal-archive__card-number--field">
+						<span class="iflynepal-archive__card-unit" data-iflynepal-card-unit></span>
+						<input type="text" class="iflynepal-archive__card-badge" data-iflynepal-card-badge
+							name="<?php echo esc_attr( $base . '[' . $badge_key . ']' ); ?>"
+							value="<?php echo esc_attr( isset( $row[ $badge_key ] ) ? (string) $row[ $badge_key ] : '' ); ?>"
+							aria-label="<?php echo esc_attr( $field['parts'][ $badge_key ]['label'] ); ?>"
+							title="<?php echo esc_attr( isset( $field['parts'][ $badge_key ]['help'] ) ? $field['parts'][ $badge_key ]['help'] : '' ); ?>" />
+					</span>
+				<?php else : ?>
+					<span class="iflynepal-archive__card-number" data-iflynepal-card-number></span>
 				<?php endif; ?>
-				<?php
-				$this->render_card_part(
-					$base . '[' . $part_key . ']',
-					$part,
-					isset( $row[ $part_key ] ) ? $row[ $part_key ] : '',
-					'timeline' === $part['type'] ? $companion : array()
-				);
-				?>
-			<?php endforeach; ?>
 
-			<button type="button" class="button iflynepal-archive__card-remove" data-iflynepal-card-remove>
-				<?php
-				/* translators: %s: what one row is called, e.g. Day or Question. */
-				printf( esc_html__( 'Remove %s', 'iflynepal' ), esc_html( $item ) );
-				?>
-			</button>
+				<button type="button" class="iflynepal-archive__card-toggle" data-iflynepal-card-toggle aria-expanded="false">
+					<span class="iflynepal-archive__card-title" data-iflynepal-card-title></span>
+					<span class="iflynepal-archive__card-chev" aria-hidden="true"></span>
+				</button>
+			</div>
+
+			<div class="iflynepal-archive__card-body" data-iflynepal-card-body hidden>
+				<?php foreach ( $field['parts'] as $part_key => $part ) : ?>
+					<?php if ( ! empty( $companion ) && $part_key === $prose_key ) : ?>
+						<?php continue; ?>
+					<?php endif; ?>
+					<?php if ( $part_key === $badge_key ) : ?>
+						<?php continue; ?>
+					<?php endif; ?>
+					<?php
+					$this->render_card_part(
+						$base . '[' . $part_key . ']',
+						$part,
+						isset( $row[ $part_key ] ) ? $row[ $part_key ] : '',
+						'timeline' === $part['type'] ? $companion : array()
+					);
+					?>
+				<?php endforeach; ?>
+
+				<button type="button" class="button iflynepal-archive__card-remove" data-iflynepal-card-remove>
+					<?php
+					/* translators: %s: what one row is called, e.g. Day or Question. */
+					printf( esc_html__( 'Remove %s', 'iflynepal' ), esc_html( $item ) );
+					?>
+				</button>
+			</div>
 		</div>
 		<?php
 	}
@@ -477,14 +531,42 @@ class IFly_Nepal_Package_Details_Box {
 				esc_textarea( (string) $value )
 			);
 
+			$this->render_card_part_help( $part );
+
 			return;
 		}
 
+		/*
+		 * `header` marks the field a shut card is named by in the editor. It is
+		 * declared rather than guessed at because the first text field on a row
+		 * is no longer the one that names it: an itinerary day now opens with
+		 * its badge label, and a card headed "3-4" says nothing about the day.
+		 */
 		printf(
-			'<input type="text" name="%1$s" value="%2$s" />',
+			'<input type="text" name="%1$s" value="%2$s"%3$s />',
 			esc_attr( $name ),
-			esc_attr( (string) $value )
+			esc_attr( (string) $value ),
+			empty( $part['header'] ) ? '' : ' data-iflynepal-card-title-source'
 		);
+
+		$this->render_card_part_help( $part );
+	}
+
+	/**
+	 * The note under one repeater part, when it has one.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $part Part definition.
+	 * @return void
+	 */
+	private function render_card_part_help( $part ) {
+		if ( ! isset( $part['help'] ) || '' === $part['help'] ) {
+			return;
+		}
+		?>
+		<p class="description"><?php echo esc_html( $part['help'] ); ?></p>
+		<?php
 	}
 
 	/**
@@ -898,19 +980,116 @@ class IFly_Nepal_Package_Details_Box {
 			.iflynepal-archive__card {
 				position: relative;
 				margin-bottom: 12px;
-				padding: 16px 18px 18px;
 				border: 1px solid #e0e0e0;
 				border-radius: 6px;
 				background: #fdfdfd;
 			}
 
-			.iflynepal-archive__card-number {
-				margin: 0 0 10px;
-				padding-bottom: 8px;
+			.iflynepal-archive__card.is-open {
+				border-color: #c3c4c7;
+			}
+
+			.iflynepal-archive__card-head {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				padding-left: 16px;
+			}
+
+			.iflynepal-archive__card.is-open .iflynepal-archive__card-head {
 				border-bottom: 1px solid #ececec;
+			}
+
+			/* Everything the badge does not cover is the handle. */
+			.iflynepal-archive__card-toggle {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				flex: 1;
+				min-width: 0;
+				padding: 12px 16px 12px 0;
+				border: 0;
+				background: none;
+				color: #1d2327;
+				font-size: 13px;
+				text-align: left;
+				cursor: pointer;
+			}
+
+			.iflynepal-archive__card-toggle:focus {
+				outline: 1px solid #2271b1;
+				outline-offset: -1px;
+			}
+
+			.iflynepal-archive__card-number {
+				margin: 0;
+				font-size: 13px;
+				font-weight: 600;
+				white-space: nowrap;
+			}
+
+			.iflynepal-archive__card-number--field {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			/*
+			 * The badge is typed into where it is read. It is sized to its own
+			 * contents by the script, so "1" and "3-4" both sit in the chip.
+			 */
+			.iflynepal-package-fields .iflynepal-archive__card-badge {
+				width: auto;
+				min-width: 44px;
+				min-height: 0;
+				margin: 0;
+				padding: 3px 8px;
+				border-color: #dcdcde;
+				border-radius: 4px;
+				background: #fff;
 				color: #1d2327;
 				font-size: 13px;
 				font-weight: 600;
+				line-height: 1.4;
+				text-align: center;
+			}
+
+			.iflynepal-package-fields .iflynepal-archive__card-badge:focus {
+				border-color: #2271b1;
+				box-shadow: 0 0 0 1px #2271b1;
+			}
+
+			/* What was typed into the row's first field, so a shut card is legible. */
+			.iflynepal-archive__card-title {
+				overflow: hidden;
+				flex: 1;
+				color: #646970;
+				font-weight: 400;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.iflynepal-archive__card-chev {
+				flex: none;
+				color: #646970;
+				font-size: 16px;
+				line-height: 1;
+			}
+
+			.iflynepal-archive__card-chev::before {
+				content: "\25be";
+			}
+
+			.iflynepal-archive__card.is-open .iflynepal-archive__card-chev::before {
+				content: "\25b4";
+			}
+
+			.iflynepal-archive__card-body {
+				padding: 4px 18px 18px;
+			}
+
+			.iflynepal-archive__card-body[hidden] {
+				display: none;
 			}
 
 			.iflynepal-archive__card-label {

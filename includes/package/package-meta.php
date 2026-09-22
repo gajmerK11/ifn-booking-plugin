@@ -323,6 +323,16 @@ function iflynepal_package_sanitize_value( $value, $type, $field = array() ) {
 		case 'lines':
 			return sanitize_textarea_field( (string) $value );
 
+		case 'rich_textarea':
+			/*
+			 * Same reasoning as 'rich' above, for a field that needs more than
+			 * one line: sanitize_textarea_field() would strip <b>, <strong>
+			 * and <br> silently. wp_kses (inside iflynepal_booking_kses_text())
+			 * leaves newlines alone on its own, so nothing further is needed
+			 * to keep this a real textarea's worth of text.
+			 */
+			return iflynepal_booking_kses_text( (string) $value );
+
 		default:
 			return sanitize_text_field( (string) $value );
 	}

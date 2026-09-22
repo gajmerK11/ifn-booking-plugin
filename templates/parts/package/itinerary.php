@@ -180,10 +180,23 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 					<?php if ( '' === $iflynepal_item['summary'] ) : ?>
 						<?php continue; ?>
 					<?php endif; ?>
+					<?php
+					/*
+					 * The badge reads whatever the card's label says, and counts the
+					 * cards when it says nothing — see the `number` part in
+					 * package-details-schema.php. Anything longer than a plain
+					 * number ("3-4") is set smaller so it still fits the badge.
+					 */
+					$iflynepal_badge = trim( (string) $iflynepal_item['number'] );
+
+					if ( '' === $iflynepal_badge ) {
+						$iflynepal_badge = (string) ( $iflynepal_index + 1 );
+					}
+					?>
 					<div class="iflynepal-pkg-sum-day">
-						<span class="iflynepal-pkg-day-badge">
+						<span class="iflynepal-pkg-day-badge<?php echo strlen( $iflynepal_badge ) > 2 ? ' iflynepal-pkg-is-wide' : ''; ?>">
 							<small><?php echo esc_html( $iflynepal_unit ); ?></small>
-							<b><?php echo esc_html( (string) ( $iflynepal_index + 1 ) ); ?></b>
+							<b><?php echo esc_html( $iflynepal_badge ); ?></b>
 						</span>
 						<div>
 							<h3><?php echo esc_html( $iflynepal_item['title'] ); ?></h3>
@@ -199,6 +212,8 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 		<?php foreach ( $iflynepal_items as $iflynepal_index => $iflynepal_item ) : ?>
 			<?php
 			$iflynepal_number   = $iflynepal_index + 1;
+			$iflynepal_badge    = trim( (string) $iflynepal_item['number'] );
+			$iflynepal_badge    = '' === $iflynepal_badge ? (string) $iflynepal_number : $iflynepal_badge;
 			$iflynepal_open     = 0 === $iflynepal_index;
 			$iflynepal_panel_id = 'ifnpkg-day-' . $iflynepal_number;
 			$iflynepal_stops    = isset( $iflynepal_item['timeline'] ) ? iflynepal_package_timeline( $iflynepal_item['timeline'] ) : array();
@@ -207,7 +222,7 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 			<article class="iflynepal-pkg-day<?php echo $iflynepal_open ? ' iflynepal-pkg-is-open' : ''; ?>">
 				<h3 class="iflynepal-pkg-day-h">
 					<button class="iflynepal-pkg-day-toggle" type="button" aria-expanded="<?php echo $iflynepal_open ? 'true' : 'false'; ?>" aria-controls="<?php echo esc_attr( $iflynepal_panel_id ); ?>">
-						<span class="iflynepal-pkg-day-num"><?php echo esc_html( $iflynepal_unit ); ?><b><?php echo esc_html( (string) $iflynepal_number ); ?></b></span>
+						<span class="iflynepal-pkg-day-num<?php echo strlen( $iflynepal_badge ) > 2 ? ' iflynepal-pkg-is-wide' : ''; ?>"><?php echo esc_html( $iflynepal_unit ); ?><b><?php echo esc_html( $iflynepal_badge ); ?></b></span>
 						<?php
 						/*
 						 * A day with no summary line under its title is one line, not

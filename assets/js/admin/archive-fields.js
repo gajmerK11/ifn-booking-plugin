@@ -140,11 +140,32 @@
 		 */
 		function renumber() {
 			rows().forEach(function (row, i) {
+				var pattern = wrap.dataset.label || strings.cardLabel || 'Card %d';
 				var label = row.querySelector('[data-iflynepal-card-number]');
 
 				if (label) {
-					label.textContent = (wrap.dataset.label || strings.cardLabel || 'Card %d').replace('%d', i + 1);
+					label.textContent = pattern.replace('%d', i + 1);
 				}
+
+				/*
+				 * A row whose badge is typed into shows the word and the position
+				 * apart: the word is fixed ("Day"), and the position is only the
+				 * placeholder, because an editor who types nothing wants the
+				 * automatic numbering and one who types "3-4" means it.
+				 */
+				var unit = row.querySelector('[data-iflynepal-card-unit]');
+				var badge = row.querySelector('[data-iflynepal-card-badge]');
+
+				if (unit) {
+					unit.textContent = pattern.replace('%d', '').trim();
+				}
+
+				if (badge) {
+					badge.placeholder = String(i + 1);
+					badge.size = Math.max(2, badge.value.length || String(i + 1).length);
+				}
+
+				retitle(row);
 
 				row.querySelectorAll('input, textarea').forEach(function (input) {
 					var name = input.getAttribute('name');
@@ -154,6 +175,72 @@
 					}
 				});
 			});
+		}
+
+		/**
+		 * The field a row is known by — a day's title, a FAQ's question.
+		 *
+		 * The schema says which one that is; the first text field on the row is
+		 * only the fallback, and on an itinerary day it is now the badge label
+		 * rather than the title.
+		 *
+		 * @param {HTMLElement} row One card.
+		 * @return {HTMLInputElement|null} The field, or null on a row with none.
+		 */
+		function titleField(row) {
+			return (
+				row.querySelector('[data-iflynepal-card-body] [data-iflynepal-card-title-source]') ||
+				row.querySelector('[data-iflynepal-card-body] input[type="text"]')
+			);
+		}
+
+		/**
+		 * Puts what that field says into the row's header, so a shut card still
+		 * says which one it is. Read live, so it is right while typing.
+		 *
+		 * @param {HTMLElement} row One card.
+		 */
+		function retitle(row) {
+			var slot = row.querySelector('[data-iflynepal-card-title]');
+
+			if (!slot) {
+				return;
+			}
+
+			var field = titleField(row);
+
+			slot.textContent = field ? field.value.trim() : '';
+		}
+
+		/**
+		 * Opens or shuts one card.
+		 *
+		 * @param {HTMLElement} row  One card.
+		 * @param {boolean}     open Whether it should end up open.
+		 */
+		function setOpen(row, open) {
+			var toggle = row.querySelector('[data-iflynepal-card-toggle]');
+			var body = row.querySelector('[data-iflynepal-card-body]');
+
+			if (!toggle || !body) {
+				return;
+			}
+
+			body.hidden = !open;
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			row.classList.toggle('is-open', open);
+
+			/*
+			 * An editor cannot be built inside a shut card, so any prose box that
+			 * was already showing has been waiting for this moment.
+			 */
+			if (open) {
+				whenEditorReady(function () {
+					body.querySelectorAll('[data-iflynepal-prose-body]:not([hidden]) [data-iflynepal-prose-editor]').forEach(function (field) {
+						mountProseEditor(field);
+					});
+				});
+			}
 		}
 
 		// The button goes away at the cap rather than failing on click.
@@ -182,21 +269,59 @@
 			initField(row.querySelector('[data-iflynepal-media]'));
 			row.querySelectorAll('[data-iflynepal-timeline]').forEach(initTimeline);
 			row.querySelectorAll('[data-iflynepal-prose]').forEach(initProse);
+
+			// The only reason to add a row is to fill it in, so it opens.
+			setOpen(row, true);
+
+			var field = titleField(row);
+
+			if (field) {
+				field.focus();
+			}
 		});
 
 		list.addEventListener('click', function (event) {
 			var button = event.target.closest('[data-iflynepal-card-remove]');
 
-			if (!button) {
+			if (button) {
+				var card = button.closest('[data-iflynepal-card]');
+
+				removeProseEditors(card);
+				card.remove();
+				renumber();
+				refresh();
+
 				return;
 			}
 
-			var card = button.closest('[data-iflynepal-card]');
+			var toggle = event.target.closest('[data-iflynepal-card-toggle]');
 
-			removeProseEditors(card);
-			card.remove();
-			renumber();
-			refresh();
+			if (!toggle) {
+				return;
+			}
+
+			var row = toggle.closest('[data-iflynepal-card]');
+
+			setOpen(row, 'true' !== toggle.getAttribute('aria-expanded'));
+		});
+
+		// Typing renames the header as it goes, and widens the badge to fit.
+		list.addEventListener('input', function (event) {
+			var row = event.target.closest('[data-iflynepal-card]');
+
+			if (!row) {
+				return;
+			}
+
+			if (event.target.hasAttribute('data-iflynepal-card-badge')) {
+				event.target.size = Math.max(2, event.target.value.length || String(rows().indexOf(row) + 1).length);
+
+				return;
+			}
+
+			if (event.target === titleField(row)) {
+				retitle(row);
+			}
 		});
 
 		renumber();
@@ -403,26 +528,60 @@
 
 	/* -------------------------------------------------------- prose part */
 
-	/**
-	 * Wires one prose part: a button that shows and hides the box beside it.
-	 *
-	 * The box is hidden, never removed, so a collapsed description is still
-	 * posted — collapsing a field must not be a way to lose what is in it.
-	 *
-	 * @param {HTMLElement} wrap The [data-iflynepal-prose] wrapper, which is the
-	 *                           timeline itself when a timeline is hosting the
-	 *                           button.
-	 */
 	var proseSeq = 0;
+
+	/**
+	 * Whether TinyMCE is loaded and configured enough to mount an editor on.
+	 *
+	 * wp.editor.initialize() reads its defaults from tinyMCEPreInit, which core
+	 * prints from admin_print_footer_scripts at priority 50 — after the footer
+	 * scripts themselves, this one included. So on a page load there is a window
+	 * in which wp.editor exists and cannot yet be used, and an editor asked for
+	 * inside it silently never appears: the field stays the plain textarea it
+	 * started as, which is the raw <ul> an editor was left typing into.
+	 *
+	 * @return {boolean} True once an editor can be built.
+	 */
+	function editorReady() {
+		return !!(
+			window.tinymce &&
+			window.tinyMCEPreInit &&
+			window.wp &&
+			window.wp.editor &&
+			'function' === typeof window.wp.editor.initialize
+		);
+	}
+
+	/**
+	 * Runs something once an editor can be built, now or at window load.
+	 *
+	 * @param {Function} fn What to run.
+	 */
+	function whenEditorReady(fn) {
+		if (editorReady()) {
+			fn();
+
+			return;
+		}
+
+		window.addEventListener('load', function () {
+			if (editorReady()) {
+				fn();
+			}
+		});
+	}
 
 	/**
 	 * Mounts one prose textarea as a reduced-toolbar wp_editor().
 	 *
 	 * The id is assigned here rather than printed in the markup: a repeater
 	 * clones its rows, and a cloned id is two of the same id — which is exactly
-	 * what TinyMCE keys its instances by. Mounting is also deliberately late,
-	 * on the first open, because an editor built inside a hidden element
-	 * measures itself as zero and comes up with no usable typing area.
+	 * what TinyMCE keys its instances by.
+	 *
+	 * Nothing is mounted into something that is not on screen. A TinyMCE built
+	 * inside a hidden element measures itself as zero and comes up with no
+	 * usable typing area, and both of the things this field sits inside — the
+	 * day card and the prose box itself — can be shut.
 	 *
 	 * @param {HTMLTextAreaElement} field The textarea to take over.
 	 */
@@ -431,7 +590,7 @@
 			return;
 		}
 
-		if (!window.wp || !window.wp.editor || 'function' !== typeof window.wp.editor.initialize) {
+		if (!editorReady() || null === field.offsetParent) {
 			return;
 		}
 
@@ -505,9 +664,16 @@
 
 		var field = body.querySelector('[data-iflynepal-prose-editor]');
 
-		// A part that already has prose in it opens showing it, so it mounts now.
+		/*
+		 * A part that already has prose in it opens showing it, so it mounts as
+		 * soon as it can — which is at window load on a fresh page, and at once
+		 * for a row added later. mountProseEditor() itself declines while the
+		 * card around it is still shut; opening that card asks again.
+		 */
 		if (!body.hidden) {
-			mountProseEditor(field);
+			whenEditorReady(function () {
+				mountProseEditor(field);
+			});
 		}
 
 		toggle.addEventListener('click', function () {
@@ -520,7 +686,9 @@
 				: toggle.dataset.labelAdd || toggle.textContent;
 
 			if (open) {
-				mountProseEditor(field);
+				whenEditorReady(function () {
+					mountProseEditor(field);
+				});
 			}
 		});
 	}

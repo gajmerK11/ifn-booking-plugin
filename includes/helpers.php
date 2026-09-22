@@ -32,6 +32,7 @@ function iflynepal_booking_kses_text( $value ) {
 			'span'   => array( 'class' => array() ),
 			'em'     => array(),
 			'strong' => array(),
+			'b'      => array(),
 			'br'     => array(),
 		)
 	);

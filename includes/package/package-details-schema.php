@@ -296,9 +296,26 @@ function iflynepal_package_details_fields() {
 		'item'    => __( 'Day', 'iflynepal' ),
 		'max'     => IFLYNEPAL_PACKAGE_ITINERARY_MAX,
 		'parts'   => array(
-			'title'       => array(
-				'label' => __( 'Day title', 'iflynepal' ),
+
+			/*
+			 * What the badge reads, when counting is not the whole truth. A card
+			 * standing for two days of the same thing is "3-4", not "3", and a
+			 * package that opens with an arrival evening may want "0". Left
+			 * empty — which is every card until someone says otherwise — the
+			 * badge counts the cards, so numbering still looks after itself.
+			 */
+			'number'      => array(
+				'label' => __( 'Day label', 'iflynepal' ),
 				'type'  => 'text',
+				'help'  => __( 'Leave empty to number this card by its position. Fill it in for a card that covers more than one day, e.g. 3-4.', 'iflynepal' ),
+				// Typed into the card's own header rather than drawn as a field.
+				'badge' => true,
+			),
+			'title'       => array(
+				'label'  => __( 'Day title', 'iflynepal' ),
+				'type'   => 'text',
+				// What a shut card in the editor is named by.
+				'header' => true,
 			),
 
 			/*
@@ -372,9 +389,16 @@ function iflynepal_package_details_fields() {
 		'item'    => __( 'Week', 'iflynepal' ),
 		'max'     => IFLYNEPAL_PACKAGE_ITINERARY_WEEKS_MAX,
 		'parts'   => array(
-			'title'   => array(
-				'label' => __( 'Week title', 'iflynepal' ),
+			'number'  => array(
+				'label' => __( 'Week label', 'iflynepal' ),
 				'type'  => 'text',
+				'help'  => __( 'Leave empty to number this card by its position. Fill it in for a card that covers more than one week, e.g. 3-4.', 'iflynepal' ),
+				'badge' => true,
+			),
+			'title'   => array(
+				'label'  => __( 'Week title', 'iflynepal' ),
+				'type'   => 'text',
+				'header' => true,
 			),
 			'meta'    => array(
 				'label' => __( 'Summary line', 'iflynepal' ),
@@ -657,8 +681,8 @@ function iflynepal_package_details_fields() {
 		'box'     => 'details',
 		'section' => 'faqs',
 		'label'   => __( 'Lead paragraph', 'iflynepal' ),
-		'type'    => 'textarea',
-		'help'    => '',
+		'type'    => 'rich_textarea',
+		'help'    => __( '<b>, <strong> and <br> are allowed.', 'iflynepal' ),
 	);
 
 	$fields['faq_items'] = array(

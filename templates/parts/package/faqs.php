@@ -38,7 +38,18 @@ $iflynepal_lead    = iflynepal_package_field( $iflynepal_id, 'faq_lead' );
 				<h2 id="ifnpkg-faqs-h"><?php iflynepal_package_the_heading( $iflynepal_heading ); ?></h2>
 			<?php endif; ?>
 			<?php if ( '' !== $iflynepal_lead ) : ?>
-				<p class="iflynepal-pkg-lead"><?php echo esc_html( $iflynepal_lead ); ?></p>
+				<p class="iflynepal-pkg-lead">
+					<?php
+					echo wp_kses( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses escapes.
+						$iflynepal_lead,
+						array(
+							'b'      => array(),
+							'strong' => array(),
+							'br'     => array(),
+						)
+					);
+					?>
+				</p>
 			<?php endif; ?>
 		</div>
 
