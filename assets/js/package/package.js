@@ -396,7 +396,7 @@
 		var card = id( 'price-card' );
 		var links = nav ? Array.prototype.slice.call( nav.querySelectorAll( 'a' ) ) : [];
 		var sections = links.map( function ( link ) {
-			return document.querySelector( link.getAttribute( 'href' ) );
+			return document.getElementById( link.getAttribute( 'data-iflynepal-scroll' ) );
 		} ).filter( Boolean );
 
 		/*
@@ -445,7 +445,7 @@
 
 		links.forEach( function ( link ) {
 			link.addEventListener( 'click', function ( event ) {
-				var target = document.querySelector( link.getAttribute( 'href' ) );
+				var target = document.getElementById( link.getAttribute( 'data-iflynepal-scroll' ) );
 
 				if ( ! target ) {
 					return;

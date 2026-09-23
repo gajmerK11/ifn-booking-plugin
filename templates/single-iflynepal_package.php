@@ -317,7 +317,7 @@ while ( have_posts() ) :
 					<ol class="iflynepal-pkg-side-links">
 						<?php foreach ( $iflynepal_sections as $iflynepal_slug => $iflynepal_section ) : ?>
 							<li>
-								<a href="#ifnpkg-<?php echo esc_attr( $iflynepal_slug ); ?>"<?php echo $iflynepal_section['first'] ? ' class="iflynepal-pkg-is-active" aria-current="true"' : ''; ?>>
+								<a <?php echo iflynepal_booking_anchor_attr( '#ifnpkg-' . $iflynepal_slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?><?php echo $iflynepal_section['first'] ? ' class="iflynepal-pkg-is-active" aria-current="true"' : ''; ?>>
 									<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-<?php echo esc_attr( $iflynepal_section['icon'] ); ?>"/></svg>
 									<?php echo esc_html( $iflynepal_section['label'] ); ?>
 								</a>
