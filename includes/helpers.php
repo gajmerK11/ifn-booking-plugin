@@ -39,6 +39,33 @@ function iflynepal_booking_kses_text( $value ) {
 }
 
 /**
+ * Strips inline `style` attributes out of a wp_kses_post()'d wysiwyg field.
+ *
+ * The reduced toolbar wp_kses_post() editor fields render with can only
+ * produce bold, italic, underline, a link and a list — never a `style`
+ * attribute. One only shows up in saved content when an editor pasted
+ * formatted text from elsewhere (Word, Docs, a browser selection), carrying
+ * its source's font-family/color inline. wp_kses_post() keeps it, since
+ * font-family and color are on core's safe-CSS allowlist, and that inline
+ * style then outranks every site stylesheet, silently breaking the page's
+ * type and color rather than inheriting it.
+ *
+ * @since 1.0.0
+ *
+ * @param string $html Already wp_kses_post()'d HTML.
+ * @return string Same HTML with every `style` attribute removed.
+ */
+function iflynepal_booking_strip_inline_style( $html ) {
+	$allowed = wp_kses_allowed_html( 'post' );
+
+	foreach ( $allowed as $tag => $attrs ) {
+		unset( $allowed[ $tag ]['style'] );
+	}
+
+	return wp_kses( (string) $html, $allowed );
+}
+
+/**
  * Cache-busting version string for a plugin asset.
  *
  * Mirrors the theme's iflynepal_asset_version(): use the file's mtime so a

@@ -779,7 +779,7 @@ function iflynepal_archive_sanitize_value( $value, $type, $field = array() ) {
 			 * editor deleted would go on printing a blank paragraph on the page,
 			 * and would keep its day alive as a "filled" row.
 			 */
-			$value = wp_kses_post( (string) $value );
+			$value = iflynepal_booking_strip_inline_style( wp_kses_post( (string) $value ) );
 
 			return '' === trim( wp_strip_all_tags( str_replace( '&nbsp;', ' ', $value ) ) ) ? '' : $value;
 

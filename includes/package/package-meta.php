@@ -292,7 +292,7 @@ function iflynepal_package_sanitize_value( $value, $type, $field = array() ) {
 			 * list) is a small subset of what this allows, so nothing here
 			 * depends on the toolbar staying that small.
 			 */
-			return wp_kses_post( (string) $value );
+			return iflynepal_booking_strip_inline_style( wp_kses_post( (string) $value ) );
 
 		case 'select':
 			/*
