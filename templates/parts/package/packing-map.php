@@ -49,10 +49,12 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_
 					<?php foreach ( $iflynepal_items as $iflynepal_item ) : ?>
 						<li>
 							<span class="iflynepal-pkg-mark"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-bag"/></svg></span>
-							<?php
-							// Already run through wp_kses_post()/esc_html() by iflynepal_package_rich_lines().
-							echo $iflynepal_item; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							?>
+							<span class="iflynepal-pkg-pack-text">
+								<?php
+								// Already run through wp_kses_post()/esc_html() by iflynepal_package_rich_lines().
+								echo $iflynepal_item; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								?>
+							</span>
 						</li>
 					<?php endforeach; ?>
 				</ul>

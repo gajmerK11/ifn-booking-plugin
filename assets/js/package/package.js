@@ -129,6 +129,56 @@
 		sync();
 	}() );
 
+	/* ---------------------------------------------------------- map title */
+
+	( function mapTitleFit() {
+		var heading = document.querySelector( '#ifnpkg-map h2' );
+
+		if ( ! heading ) {
+			return;
+		}
+
+		/*
+		 * The map heading is an editor's own free text (map_heading), so it
+		 * has no fixed length the way "Overview" or "FAQs" do — the design's
+		 * band heading is sized to read as a single line, and a long one
+		 * (e.g. "Everest Base Camp Trek Map & Elevation") otherwise wraps to
+		 * two at the clamp()'d size .iflynepal-package h2 shares site-wide.
+		 * Shrinking only this heading, not that shared rule, keeps every
+		 * other band's heading at its full size.
+		 */
+		var MIN_FONT_SIZE = 18;
+
+		function fit() {
+			heading.style.removeProperty( 'font-size' );
+			heading.style.whiteSpace = 'nowrap';
+
+			var fontSize = parseFloat( getComputedStyle( heading ).fontSize );
+
+			while ( heading.scrollWidth > heading.clientWidth && fontSize > MIN_FONT_SIZE ) {
+				fontSize -= 1;
+				heading.style.setProperty( 'font-size', fontSize + 'px' );
+			}
+
+			/*
+			 * Still too long at the floor size: an ordinary two-line wrap
+			 * reads better than either clipping or a title shrunk unreadably
+			 * small.
+			 */
+			if ( heading.scrollWidth > heading.clientWidth ) {
+				heading.style.whiteSpace = 'normal';
+			}
+		}
+
+		fit();
+
+		var resizeTimer;
+		window.addEventListener( 'resize', function () {
+			clearTimeout( resizeTimer );
+			resizeTimer = setTimeout( fit, 150 );
+		} );
+	}() );
+
 	/* ------------------------------------------------------------ lightbox */
 
 	( function gallery() {
