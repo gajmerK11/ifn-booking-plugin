@@ -878,6 +878,8 @@ so the nav
     .iflynepal-pkg-mark .iflynepal-pkg-ico{width:15px;height:15px}
     .iflynepal-pkg-map-card{border-radius:var(--ifnpkg-r-lg);overflow:hidden;background:#fff;border:1px solid var(--ifnpkg-line);box-shadow:0 18px 50px rgba(4,26,64,.08)}
     .iflynepal-pkg-map-card iframe{display:block;width:100%;height:380px;border:0;filter:saturate(.85)}
+    .iflynepal-pkg-map-card img{display:block;width:100%;height:auto}
+    .iflynepal-pkg-map-photo{display:block;width:100%;padding:0;border:0;background:none;cursor:pointer;outline-offset:-4px}
     .iflynepal-pkg-map-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px}
     .iflynepal-pkg-map-foot strong{display:block;font-size:15px}
     .iflynepal-pkg-map-foot span{color:var(--ifnpkg-muted);font-size:12.5px}
@@ -995,8 +997,10 @@ so the nav
     .iflynepal-pkg-lb-btn:hover{background:rgba(255,255,255,.16)}
     .iflynepal-pkg-lb-btn .iflynepal-pkg-ico{width:20px;height:20px}
     .iflynepal-pkg-lb-stage{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;padding:0 24px;min-height:0}
-    .iflynepal-pkg-lb-figure{margin:0;height:100%;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-    .iflynepal-pkg-lb-figure img{width:auto;max-width:100%;max-height:calc(100vh - 250px);border-radius:16px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+    .iflynepal-pkg-lb-figure{margin:0;height:100%;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow:hidden}
+    .iflynepal-pkg-lb-figure img{width:auto;max-width:100%;max-height:calc(100vh - 250px);border-radius:16px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,.4);cursor:zoom-in}
+    .iflynepal-pkg-lb-figure.is-zoomed{align-items:flex-start;justify-content:flex-start;overflow:auto;cursor:zoom-out}
+    .iflynepal-pkg-lb-figure.is-zoomed img{max-width:none;max-height:none;width:auto;height:auto;cursor:zoom-out}
     .iflynepal-pkg-lb-figure figcaption{color:rgba(255,255,255,.75);font-size:13.5px;text-align:center}
     .iflynepal-pkg-lb-thumbs{display:flex;justify-content:center;gap:8px;padding:18px 24px 24px;overflow-x:auto}
     .iflynepal-pkg-lb-thumbs button{

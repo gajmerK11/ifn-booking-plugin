@@ -134,7 +134,7 @@
 	( function gallery() {
 		var box = id( 'lightbox' );
 		var source = id( 'photos' );
-		var tiles = root.querySelectorAll( '.iflynepal-pkg-g-tile, .iflynepal-pkg-g-all' );
+		var tiles = root.querySelectorAll( '.iflynepal-pkg-g-tile, .iflynepal-pkg-g-all, .iflynepal-pkg-map-photo' );
 
 		if ( ! box || ! source || ! tiles.length ) {
 			return;
@@ -156,8 +156,20 @@
 		var cap = id( 'lb-cap' );
 		var count = id( 'lb-count' );
 		var thumbs = id( 'lb-thumbs' );
+		var figure = img.parentElement;
 		var current = 0;
 		var lastFocus = null;
+
+		/*
+		 * The photo is already the full-size original — lightbox.php's own
+		 * `data-full` is wp_get_attachment_image_url( ..., 'full' ) — so
+		 * "zoom" needs no second, larger image to load: it is the same file,
+		 * just no longer scaled down to fit the stage. is-zoomed lifts that
+		 * scaling in the stylesheet and turns on scrolling to pan it.
+		 */
+		img.addEventListener( 'click', function () {
+			figure.classList.toggle( 'is-zoomed' );
+		} );
 
 		photos.forEach( function ( photo, index ) {
 			var button = document.createElement( 'button' );
@@ -179,6 +191,10 @@
 
 		function show( index ) {
 			current = ( index + photos.length ) % photos.length;
+
+			// A new photo opens fit-to-screen; carrying the last one's zoom
+			// over would pan straight to whatever corner it was scrolled to.
+			figure.classList.remove( 'is-zoomed' );
 
 			img.src = photos[ current ].full;
 			img.alt = photos[ current ].alt;

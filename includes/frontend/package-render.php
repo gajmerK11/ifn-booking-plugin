@@ -52,7 +52,8 @@ function iflynepal_package_page_sections( $post_id ) {
 			'label'  => __( 'Packing & map', 'iflynepal' ),
 			'icon'   => 'bag',
 			'filled' => array() !== iflynepal_package_field_lines( $post_id, 'packing_items' )
-				|| '' !== iflynepal_package_field( $post_id, 'map_embed' ),
+				|| '' !== iflynepal_package_field( $post_id, 'map_embed' )
+				|| '' !== iflynepal_package_field( $post_id, 'map_image' ),
 		),
 		'faqs'      => array(
 			'label'  => __( 'FAQs', 'iflynepal' ),

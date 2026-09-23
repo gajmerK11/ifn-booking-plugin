@@ -44,6 +44,24 @@ while ( have_posts() ) :
 	 */
 	$iflynepal_photos   = array_values( array_unique( array_filter( array_merge( array( $iflynepal_lead ), $iflynepal_gallery ) ) ) );
 	$iflynepal_heading  = iflynepal_package_field( $iflynepal_id, 'heading' );
+
+	/*
+	 * The map image opens in the same lightbox as the gallery, but is not one
+	 * of "the photographs" the gallery counts itself by — its own aria-labels
+	 * and its "View all N photos" button both read $iflynepal_photos, and a
+	 * map graphic inflating that count would advertise more trip photos than
+	 * the grid actually shows. So the lightbox gets a second, longer list of
+	 * its own, and only packing-map.php's tile points at the extra slot on
+	 * the end of it.
+	 */
+	$iflynepal_lightbox_photos = $iflynepal_photos;
+	$iflynepal_map_image       = absint( iflynepal_package_field( $iflynepal_id, 'map_image' ) );
+	$iflynepal_map_lb_index    = false;
+
+	if ( $iflynepal_map_image ) {
+		$iflynepal_lightbox_photos = array_values( array_unique( array_filter( array_merge( $iflynepal_lightbox_photos, array( $iflynepal_map_image ) ) ) ) );
+		$iflynepal_map_lb_index    = array_search( $iflynepal_map_image, $iflynepal_lightbox_photos, true );
+	}
 	$iflynepal_sections = iflynepal_package_page_sections( $iflynepal_id );
 
 	/*
@@ -336,7 +354,13 @@ while ( have_posts() ) :
 				 * painted by a ::before bled out to -100vw, which is also why
 				 * the page root carries `overflow-x: clip`.
 				 */
-				iflynepal_booking_get_part( 'parts/package/packing-map', array( 'id' => $iflynepal_id ) );
+				iflynepal_booking_get_part(
+					'parts/package/packing-map',
+					array(
+						'id'       => $iflynepal_id,
+						'lb_index' => $iflynepal_map_lb_index,
+					)
+				);
 				iflynepal_booking_get_part( 'parts/package/faqs', array( 'id' => $iflynepal_id ) );
 				?>
 			</div>
@@ -357,7 +381,7 @@ while ( have_posts() ) :
 			'parts/package/lightbox',
 			array(
 				'id'     => $iflynepal_id,
-				'photos' => $iflynepal_photos,
+				'photos' => $iflynepal_lightbox_photos,
 			)
 		);
 		?>

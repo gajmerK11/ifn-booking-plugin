@@ -3,13 +3,18 @@
  * The packing list and the map.
  *
  * One band holding both, as the design has it. Either half can be absent: a
- * package with no map embed gets the packing list at full width rather than a
- * grey rectangle where a map would be.
+ * package with no map image and no map embed gets the packing list at full
+ * width rather than a grey rectangle where a map would be. An uploaded map
+ * image wins over the embed when both are set — see map_image and map_embed
+ * in iflynepal_package_detail_fields().
  *
  * @package IFly_Nepal
  * @since   1.0.0
  *
- * @var array $args Passed by iflynepal_booking_get_part(). Holds 'id'.
+ * @var array $args Passed by iflynepal_booking_get_part(). Holds 'id' and,
+ *                   when a map image is set, 'lb_index' — its position in
+ *                   the lightbox's photo list (single-iflynepal_package.php
+ *                   builds both together, so the two never disagree).
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -20,10 +25,12 @@ if ( ! $iflynepal_id ) {
 	return;
 }
 
-$iflynepal_items = iflynepal_package_field_lines( $iflynepal_id, 'packing_items' );
-$iflynepal_embed = iflynepal_package_field( $iflynepal_id, 'map_embed' );
+$iflynepal_items    = iflynepal_package_rich_lines( iflynepal_package_field( $iflynepal_id, 'packing_items' ) );
+$iflynepal_embed    = iflynepal_package_field( $iflynepal_id, 'map_embed' );
+$iflynepal_image_id = absint( iflynepal_package_field( $iflynepal_id, 'map_image' ) );
+$iflynepal_lb_index = isset( $args['lb_index'] ) ? $args['lb_index'] : false;
 
-if ( empty( $iflynepal_items ) && '' === $iflynepal_embed ) {
+if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_id ) {
 	return;
 }
 ?>
@@ -42,14 +49,17 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed ) {
 					<?php foreach ( $iflynepal_items as $iflynepal_item ) : ?>
 						<li>
 							<span class="iflynepal-pkg-mark"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-bag"/></svg></span>
-							<?php echo esc_html( $iflynepal_item ); ?>
+							<?php
+							// Already run through wp_kses_post()/esc_html() by iflynepal_package_rich_lines().
+							echo $iflynepal_item; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							?>
 						</li>
 					<?php endforeach; ?>
 				</ul>
 			</div>
 		<?php endif; ?>
 
-		<?php if ( '' !== $iflynepal_embed ) : ?>
+		<?php if ( $iflynepal_image_id || '' !== $iflynepal_embed ) : ?>
 			<?php
 			$iflynepal_place    = iflynepal_package_field( $iflynepal_id, 'map_place' );
 			$iflynepal_note     = iflynepal_package_field( $iflynepal_id, 'map_note' );
@@ -63,19 +73,57 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed ) {
 				<?php endif; ?>
 
 				<div class="iflynepal-pkg-map-card">
-					<?php
-					/*
-					 * Lazy-loaded on purpose: an embedded map is a third-party
-					 * document with its own scripts, and loading it before it is
-					 * anywhere near the viewport costs the page its budget for
-					 * nothing.
-					 */
-					?>
-					<iframe
-						title="<?php echo esc_attr( '' !== $iflynepal_place ? $iflynepal_place : __( 'Map', 'iflynepal' ) ); ?>"
-						src="<?php echo esc_url( $iflynepal_embed ); ?>"
-						loading="lazy"
-						referrerpolicy="no-referrer-when-downgrade"></iframe>
+					<?php if ( $iflynepal_image_id ) : ?>
+						<?php
+						/*
+						 * A drawn or illustrated map — a route graphic, not a live
+						 * embed — takes the same card the iframe would, so an
+						 * editor can swap one for the other without the layout
+						 * changing underneath it.
+						 */
+						$iflynepal_map_img = wp_get_attachment_image(
+							$iflynepal_image_id,
+							'large',
+							false,
+							array(
+								'loading' => 'lazy',
+								'alt'     => '' !== $iflynepal_place ? $iflynepal_place : __( 'Map', 'iflynepal' ),
+							)
+						);
+						?>
+						<?php if ( false !== $iflynepal_lb_index ) : ?>
+							<?php
+							/*
+							 * The same kind of button a gallery tile is
+							 * (data-index, picked up by package.js's own lightbox
+							 * listener — see .iflynepal-pkg-map-photo there).
+							 * false means single-iflynepal_package.php built no
+							 * lightbox slot for it at all, which only happens
+							 * when this template is reached with no id to look
+							 * one up by.
+							 */
+							?>
+							<button type="button" class="iflynepal-pkg-map-photo" data-index="<?php echo esc_attr( (string) $iflynepal_lb_index ); ?>" aria-label="<?php esc_attr_e( 'Open map image', 'iflynepal' ); ?>">
+								<?php echo $iflynepal_map_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by wp_get_attachment_image(), which escapes its own output. ?>
+							</button>
+						<?php else : ?>
+							<?php echo $iflynepal_map_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by wp_get_attachment_image(), which escapes its own output. ?>
+						<?php endif; ?>
+					<?php else : ?>
+						<?php
+						/*
+						 * Lazy-loaded on purpose: an embedded map is a third-party
+						 * document with its own scripts, and loading it before it is
+						 * anywhere near the viewport costs the page its budget for
+						 * nothing.
+						 */
+						?>
+						<iframe
+							title="<?php echo esc_attr( '' !== $iflynepal_place ? $iflynepal_place : __( 'Map', 'iflynepal' ) ); ?>"
+							src="<?php echo esc_url( $iflynepal_embed ); ?>"
+							loading="lazy"
+							referrerpolicy="no-referrer-when-downgrade"></iframe>
+					<?php endif; ?>
 
 					<?php if ( '' !== $iflynepal_place || '' !== $iflynepal_map_link ) : ?>
 						<div class="iflynepal-pkg-map-foot">

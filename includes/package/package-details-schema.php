@@ -625,8 +625,8 @@ function iflynepal_package_details_fields() {
 		'box'     => 'details',
 		'section' => 'packing',
 		'label'   => __( 'Items', 'iflynepal' ),
-		'type'    => 'lines',
-		'help'    => __( 'One per line.', 'iflynepal' ),
+		'type'    => 'wysiwyg',
+		'help'    => __( 'One per line (press Enter, or use the bulleted-list button). Bold and underline carry through to the list on the page.', 'iflynepal' ),
 	);
 
 	$fields['map_heading'] = array(
@@ -637,12 +637,20 @@ function iflynepal_package_details_fields() {
 		'help'    => __( 'Wrap a word in <em> for the accent style, e.g. "Where you\'ll <em>stay</em>."', 'iflynepal' ),
 	);
 
+	$fields['map_image'] = array(
+		'box'     => 'details',
+		'section' => 'map',
+		'label'   => __( 'Map image', 'iflynepal' ),
+		'type'    => 'image',
+		'help'    => __( 'A drawn route or illustrated map, e.g. an itinerary map graphic. Shown instead of the embed below when both are filled in.', 'iflynepal' ),
+	);
+
 	$fields['map_embed'] = array(
 		'box'     => 'details',
 		'section' => 'map',
 		'label'   => __( 'Map embed URL', 'iflynepal' ),
 		'type'    => 'url',
-		'help'    => __( 'The src of a Google Maps embed, e.g. https://maps.google.com/maps?q=Chandragiri&z=12&output=embed. The map is left off until this is filled in.', 'iflynepal' ),
+		'help'    => __( 'The src of a Google Maps embed, e.g. https://maps.google.com/maps?q=Chandragiri&z=12&output=embed. Ignored while a map image above is set. The map is left off until one of the two is filled in.', 'iflynepal' ),
 	);
 
 	$fields['map_place'] = array(
