@@ -354,6 +354,24 @@ function iflynepal_booking_enqueue_archive_scripts() {
 
 	$gsap = iflynepal_booking_gsap_handles();
 
+	/*
+	 * Shrinks the hero heading to whatever size keeps it inside two lines —
+	 * see the file itself. Enqueued first and with no dependency on the reveal
+	 * animation below: it sets the heading's final font-size synchronously
+	 * before paint settles, rather than after reveal.js has already measured
+	 * or animated it at the clamp()'s raw size.
+	 */
+	wp_enqueue_script(
+		'iflynepal-archive-hero-title-fit',
+		IFLYNEPAL_BOOKING_URL . 'assets/js/archive/hero-title-fit.js',
+		array(),
+		iflynepal_booking_asset_version( 'assets/js/archive/hero-title-fit.js' ),
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+
 	wp_enqueue_script(
 		'iflynepal-archive-reveal',
 		IFLYNEPAL_BOOKING_URL . 'assets/js/archive/reveal.js',
