@@ -123,7 +123,7 @@ $iflynepal_footnote = iflynepal_archive_field( $iflynepal_id, 'compare_footnote'
 			</table>
 
 			<?php if ( '' !== $iflynepal_footnote ) : ?>
-				<p class="iflynepal-compare__foot"><?php echo esc_html( $iflynepal_footnote ); ?></p>
+				<p class="iflynepal-compare__foot"><?php echo iflynepal_booking_kses_text( $iflynepal_footnote ); // kses filtered. ?></p>
 			<?php endif; ?>
 		</div>
 	</div>

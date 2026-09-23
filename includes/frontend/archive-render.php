@@ -108,14 +108,14 @@ function iflynepal_archive_the_head( $term_id, $prefix, $classes = '' ) {
 
 	if ( '' !== $lead ) {
 		/*
-		 * The lead is a plain textarea, so a line break an editor typed is the
-		 * only way they can ask for one — and the design does ask, under the
-		 * plans heading. Escaped first and marked up second: nl2br only ever
-		 * adds <br> to a string that already has no markup left in it.
+		 * The lead is a textarea that may carry <br>, <b> and <span class>
+		 * (see iflynepal_booking_kses_text()) — a line break an editor typed
+		 * with Enter still works too, via nl2br, which only ever adds <br> to
+		 * text kses has already stripped of anything else.
 		 */
 		printf(
 			'<p class="iflynepal-lead">%s</p>',
-			nl2br( esc_html( $lead ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above; nl2br only adds <br>.
+			nl2br( iflynepal_booking_kses_text( $lead ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kses filtered above; nl2br only adds <br>.
 		);
 	}
 

@@ -44,7 +44,7 @@ $iflynepal_lead    = iflynepal_archive_field( $iflynepal_id, 'final_lead' );
 			<?php endif; ?>
 
 			<?php if ( '' !== $iflynepal_lead ) : ?>
-				<p><?php echo esc_html( $iflynepal_lead ); ?></p>
+				<p><?php echo iflynepal_booking_kses_text( $iflynepal_lead ); // kses filtered. ?></p>
 			<?php endif; ?>
 
 			<?php

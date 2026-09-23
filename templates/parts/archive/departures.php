@@ -162,7 +162,7 @@ $iflynepal_reserve = __( 'Reserve', 'iflynepal' );
 
 		<?php if ( '' !== $iflynepal_foot ) : ?>
 			<p class="iflynepal-compare__foot iflynepal-rail__foot" data-iflynepal-anim>
-				<?php echo esc_html( $iflynepal_foot ); ?>
+				<?php echo iflynepal_booking_kses_text( $iflynepal_foot ); // kses filtered. ?>
 			</p>
 		<?php endif; ?>
 	</div>

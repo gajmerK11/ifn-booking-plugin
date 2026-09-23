@@ -81,7 +81,7 @@ if ( $iflynepal_term->parent ) {
 			</h1>
 
 			<?php if ( '' !== $iflynepal_lead ) : ?>
-				<p class="iflynepal-hero__lead"><?php echo esc_html( $iflynepal_lead ); ?></p>
+				<p class="iflynepal-hero__lead"><?php echo iflynepal_booking_kses_text( $iflynepal_lead ); // kses filtered. ?></p>
 			<?php endif; ?>
 
 			<?php iflynepal_archive_the_actions( $iflynepal_id, 'hero', 'wp-block-buttons iflynepal-hero__actions' ); ?>

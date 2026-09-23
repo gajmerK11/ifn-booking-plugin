@@ -78,7 +78,7 @@ if ( empty( $iflynepal_tiles ) ) {
 						<h3 class="iflynepal-benefit__title"><?php echo esc_html( $iflynepal_tile['title'] ); ?></h3>
 
 						<?php if ( '' !== $iflynepal_tile['text'] ) : ?>
-							<p><?php echo esc_html( $iflynepal_tile['text'] ); ?></p>
+							<p><?php echo iflynepal_booking_kses_text( $iflynepal_tile['text'] ); // kses filtered. ?></p>
 						<?php endif; ?>
 					</div>
 				</article>

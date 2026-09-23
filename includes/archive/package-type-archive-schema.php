@@ -139,8 +139,8 @@ function iflynepal_archive_meta_key( $key ) {
  *
  *   text      one line, stored as plain text
  *   rich      one line that may carry <em>, <strong>, <span class> or <br>
- *   textarea  several lines of plain text
- *   lines     a textarea read as one item per line, for short lists
+ *   textarea  several lines that may carry <b>, <span class> or <br>
+ *   lines     a textarea read as one item per line, for short lists — plain text
  *   url       a link target
  *   image     an attachment ID chosen from the media library
  *   cards     a repeater: a list of { title, text, image } added with a button
@@ -164,7 +164,9 @@ function iflynepal_archive_meta_key( $key ) {
  * @return array[] Sections, each with 'label', 'description' and 'fields'.
  */
 function iflynepal_package_type_archive_schema() {
-	$head = static function ( $prefix, $heading_help = '' ) {
+	$textarea_help = __( 'May carry &lt;br&gt; for a line break, &lt;b&gt; for bold, or &lt;span class="..."&gt; for a styled word.', 'iflynepal' );
+
+	$head = static function ( $prefix, $heading_help = '' ) use ( $textarea_help ) {
 		return array(
 			$prefix . '_eyebrow' => array(
 				'label' => __( 'Eyebrow', 'iflynepal' ),
@@ -179,7 +181,7 @@ function iflynepal_package_type_archive_schema() {
 			$prefix . '_lead'    => array(
 				'label' => __( 'Lead paragraph', 'iflynepal' ),
 				'type'  => 'textarea',
-				'help'  => '',
+				'help'  => $textarea_help,
 			),
 		);
 	};
@@ -455,7 +457,7 @@ function iflynepal_package_type_archive_schema() {
 	$departures['departures_foot'] = array(
 		'label' => __( 'Footnote', 'iflynepal' ),
 		'type'  => 'textarea',
-		'help'  => __( 'The small line under the rail, for what the dates are and are not — e.g. that spot counts are indicative. Left empty, nothing is drawn.', 'iflynepal' ),
+		'help'  => __( 'The small line under the rail, for what the dates are and are not — e.g. that spot counts are indicative. Left empty, nothing is drawn.', 'iflynepal' ) . ' ' . $textarea_help,
 	);
 
 	$sections['departures'] = array(
@@ -486,7 +488,7 @@ function iflynepal_package_type_archive_schema() {
 	$compare['compare_footnote'] = array(
 		'label' => __( 'Footnote', 'iflynepal' ),
 		'type'  => 'textarea',
-		'help'  => '',
+		'help'  => $textarea_help,
 	);
 
 	$sections['compare'] = array(
@@ -570,7 +572,7 @@ function iflynepal_package_type_archive_schema() {
 			'final_lead'          => array(
 				'label' => __( 'Lead paragraph', 'iflynepal' ),
 				'type'  => 'textarea',
-				'help'  => '',
+				'help'  => $textarea_help,
 			),
 			'final_image'         => array(
 				'label' => __( 'Background image', 'iflynepal' ),
@@ -760,9 +762,9 @@ function iflynepal_archive_sanitize_value( $value, $type, $field = array() ) {
 			return esc_url_raw( trim( (string) $value ) );
 
 		case 'rich':
+		case 'textarea':
 			return iflynepal_booking_kses_text( $value );
 
-		case 'textarea':
 		case 'lines':
 			return sanitize_textarea_field( (string) $value );
 

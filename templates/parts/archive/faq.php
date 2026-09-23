@@ -63,7 +63,7 @@ $iflynepal_heading = iflynepal_archive_field( $iflynepal_id, 'faq_heading' );
 			<?php foreach ( $iflynepal_entries as $iflynepal_index => $iflynepal_entry ) : ?>
 				<details<?php echo 0 === $iflynepal_index ? ' open' : ''; ?>>
 					<summary><?php echo esc_html( $iflynepal_entry['question'] ); ?></summary>
-					<p><?php echo esc_html( $iflynepal_entry['answer'] ); ?></p>
+					<p><?php echo iflynepal_booking_kses_text( $iflynepal_entry['answer'] ); // kses filtered. ?></p>
 				</details>
 			<?php endforeach; ?>
 		</div>
