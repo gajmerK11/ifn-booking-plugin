@@ -106,7 +106,8 @@ function iflynepal_reasons_card( $package ) {
  * @since 1.0.0
  *
  * @param array[] $cards Cards already built by iflynepal_reasons_card().
- * @return array[] Each with 'slug' and 'label', in term order.
+ * @return array[] Each with 'slug', 'label' and 'url' (that type's own
+ *                 archive, empty when it has none), in term order.
  */
 function iflynepal_reasons_filter_terms( $cards ) {
 	if ( ! $cards || ! taxonomy_exists( IFLYNEPAL_PACKAGE_TAXONOMY ) ) {
@@ -137,9 +138,12 @@ function iflynepal_reasons_filter_terms( $cards ) {
 
 	foreach ( $top_level as $term ) {
 		if ( isset( $in_use[ $term->slug ] ) ) {
+			$url = get_term_link( $term );
+
 			$filters[] = array(
 				'slug'  => $term->slug,
 				'label' => $term->name,
+				'url'   => is_wp_error( $url ) ? '' : $url,
 			);
 		}
 	}

@@ -1624,13 +1624,19 @@
 /*
  * Every link occupies the same cell, so the block is one line tall whichever
  * is showing and swapping categories moves nothing around it.
+ *
+ * Left-aligned, not centered: the grid above reserves its full column count
+ * whether or not every cell has a card in it, so a filtered result of one or
+ * two cards still leaves a full-width row to center against — the link would
+ * float under empty columns rather than under the cards actually there.
+ * Cards themselves start flush left, so this keeps the link under them.
  */
 .iflynepal-listing__foot-inner {
 	display: grid;
 	min-height: 0;
 	/* Room inside the clipping box for the link's focus ring. */
 	padding: 4px 0;
-	justify-items: center;
+	justify-items: start;
 }
 
 .iflynepal-listing__all {
