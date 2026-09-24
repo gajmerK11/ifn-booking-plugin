@@ -316,7 +316,7 @@ share under the right-hand photos */
       font-size:clamp(28px,3.45vw,52px);
       font-weight:600;
       line-height:1.08;
-      white-space:nowrap;
+      overflow-wrap:break-word;
     }
     .iflynepal-pkg-trip-title h1 .iflynepal-pkg-w{display:inline-block}
     .iflynepal-pkg-trip-title h1 em{font-family:var(--ifnpkg-serif-alt);font-size:1.1em;font-weight:600;color:var(--ifnpkg-navy)}
@@ -1109,7 +1109,7 @@ so the nav
     }
     /* Same threshold as the nav strip above — see its comment. */
     @media (max-width:1023px){
-      .iflynepal-pkg-trip-title h1{white-space:normal;font-size:clamp(30px,5vw,44px)}
+      .iflynepal-pkg-trip-title h1{font-size:clamp(30px,5vw,44px)}
       .iflynepal-pkg-trip-layout{grid-template-columns:minmax(0,1fr);gap:0}
       /*
        * !important here, not the usual plain override: this card is meant
@@ -1227,7 +1227,6 @@ so it docks to the bottom edge */
         border-radius:12px;
         scroll-snap-align:start;
       }
-      .iflynepal-pkg-trip-title h1{white-space:normal}
       /*
        * One column, one fact per row. The filler cells (aria-hidden,
        * padded to a multiple of 4 for the 4-column desktop grid — see

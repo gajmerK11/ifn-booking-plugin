@@ -381,6 +381,23 @@
 	font-weight: 500 !important;
 	letter-spacing: -0.02em !important;
 	line-height: 1.04 !important;
+	overflow-wrap: break-word !important;
+}
+
+/*
+ * The clamp's own 48px floor holds flat all the way down to a phone, where a
+ * long single word at that size can still run past the column — the theme's
+ * own 46px phone override (main.css) never reaches here because it carries
+ * no !important against this rule's. Scaled down in step with the viewport
+ * instead of another flat floor, same reasoning as the clamp above.
+ */
+@media (max-width: 480px) {
+
+	.iflynepal-hero--package-type .iflynepal-hero__title,
+	.iflynepal-hero--package-category .iflynepal-hero__title,
+	.iflynepal-hero--packages .iflynepal-hero__title {
+		font-size: clamp(32px, 10vw, 48px) !important;
+	}
 }
 
 .iflynepal-hero--package-type .iflynepal-hero__lead,
@@ -486,23 +503,27 @@
 }
 
 /*
- * Forced rather than left to a generous max-width: a term whose heading
- * happens to run longer than 820px (the old cap) would wrap without warning,
- * on a page where editors already have <br> in iflynepal_booking_kses_text()
- * to ask for a break on purpose. max-width: none above gives the line the
- * full column to run in before nowrap would ever show an overflow.
+ * max-width: none above gives the heading the full column to run in rather
+ * than the shared 790px cap, so it only wraps where it actually runs out of
+ * room. No white-space: nowrap here any more — that forced a term's whole
+ * heading onto one line regardless of viewport, which ran the text straight
+ * off the edge on any narrow screen instead of wrapping. Word-wrap below is
+ * the safety net for the rare single word too long for even a full column.
  */
 .iflynepal-listing__head .iflynepal-section-head h2 {
 	margin-bottom: 16px;
-	white-space: nowrap;
+	overflow-wrap: break-word;
 }
 
-/* Same guarantee as the heading above — nl2br() already turns an editor's own
-   line break into a <br>, so wrapping here would only ever be an accident. */
+/*
+ * No white-space: nowrap here any more, for the same reason as the heading
+ * above: forced onto one line regardless of viewport, this ran the sentence
+ * straight off the edge of any narrow screen instead of wrapping.
+ */
 .iflynepal-listing__head .iflynepal-lead {
 	max-width: none;
 	margin-top: 12px;
-	white-space: nowrap;
+	overflow-wrap: break-word;
 }
 
 .iflynepal-annot {
@@ -676,11 +697,6 @@
 
 	.iflynepal-listing__head .iflynepal-section-head h2 {
 		font-size: clamp(52px, 5.5vw, 58px);
-	}
-
-	.iflynepal-listing__head .iflynepal-lead {
-		max-width: none;
-		white-space: nowrap;
 	}
 }
 
@@ -1318,6 +1334,41 @@
 		margin-top: 0;
 		padding-top: 0;
 		border-top: 0;
+	}
+}
+
+/*
+ * Tablet and small-laptop: the note out of flow, the same technique the
+ * ≥1200px rule above it uses. In the stacked layout the rule just above sets
+ * up (.iflynepal-listing__controls{display:block}), the note sat in normal
+ * flow under the pills and added its own ~88px to the stack before the cards
+ * — opening a gap under the pill row that the ≥1200px layout does not have.
+ *
+ * Anchored to the row's own top-right corner rather than its bottom: the
+ * pills already start there, and growing down toward the cards the arrow
+ * points at cannot run into the lead paragraph above the way growing up
+ * could.
+ *
+ * Left below 601px: a phone this narrow already wraps the pills onto a
+ * second line (.iflynepal-filter-row--pills{flex-wrap:wrap}), and the note's
+ * fixed top-right corner would then sit over that second line rather than
+ * beside a single row of it.
+ *
+ * Scoped off .iflynepal-listing__controls--note-only — a category with no
+ * pill row of its own, where the note is the band's only content. Taking it
+ * out of flow there would collapse the band to nothing above it.
+ */
+@media (min-width: 601px) and (max-width: 1024px) {
+
+	.iflynepal-listing__controls:not(.iflynepal-listing__controls--note-only) {
+		margin-bottom: 40px;
+	}
+
+	.iflynepal-listing__controls:not(.iflynepal-listing__controls--note-only) .iflynepal-annot {
+		position: absolute;
+		top: 0;
+		right: 0;
+		margin: 0;
 	}
 }
 
