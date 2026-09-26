@@ -165,6 +165,48 @@ function iflynepal_package_language_url_prefix( $lang ) {
 }
 
 /**
+ * The URL slug for the flat /packages/ fallback archive, per language.
+ *
+ * A package with no type yet falls back to this path rather than a nested
+ * one, so it needs its own translated slug the same way a package type term
+ * does — a French visitor should never land on an English word in the URL.
+ *
+ * IFLYNEPAL_PACKAGE_ARCHIVE_SLUG stays the slug for the default language and
+ * for a site running without Polylang; every other language is looked up
+ * here, filterable rather than hardcoded so a translated slug is a config
+ * change, not a code change.
+ *
+ * @since 1.0.0
+ *
+ * @param string $lang Language slug, empty for the current front-end language
+ *                      or when Polylang is inactive.
+ * @return string Slug, without leading or trailing slashes.
+ */
+function iflynepal_package_archive_slug( $lang = '' ) {
+	if ( '' === $lang && function_exists( 'pll_current_language' ) ) {
+		$lang = (string) pll_current_language();
+	}
+
+	if ( '' === $lang || ! function_exists( 'PLL' ) || ! PLL() || $lang === PLL()->options['default_lang'] ) {
+		return IFLYNEPAL_PACKAGE_ARCHIVE_SLUG;
+	}
+
+	/**
+	 * Filters the per-language slugs for the flat /packages/ fallback archive.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<string,string> $slugs Language slug => URL slug.
+	 */
+	$slugs = (array) apply_filters(
+		'iflynepal_package_archive_slug_translations',
+		array( 'fr' => 'forfaits' )
+	);
+
+	return isset( $slugs[ $lang ] ) ? $slugs[ $lang ] : IFLYNEPAL_PACKAGE_ARCHIVE_SLUG;
+}
+
+/**
  * The plugin's rewrite rules, in match order.
  *
  * Order is the whole design. Every type archive path is emitted before any
@@ -237,11 +279,32 @@ function iflynepal_package_rewrite_rules() {
 		}
 	}
 
-	$fallback = preg_quote( IFLYNEPAL_PACKAGE_ARCHIVE_SLUG, '#' );
+	/*
+	 * One bare, unprefixed rule per translated slug — the default language's
+	 * own slug, plus every other language's translated one ("forfaits" for
+	 * French). No language prefix or `lang=` query var is added by hand here:
+	 * every one of these rules carries `post_type=…` in its query, which is
+	 * exactly the pattern PLL_Links_Directory::rewrite_rules() (hooked on this
+	 * same 'rewrite_rules_array' filter, after this one — see the class
+	 * comment above) scans for and duplicates itself, prefixed with whichever
+	 * language matches, `lang=$matches[1]` filled in. Adding a prefix here too
+	 * would make it duplicate the prefix on top of Polylang's own.
+	 */
+	$fallback_slugs = array( IFLYNEPAL_PACKAGE_ARCHIVE_SLUG );
 
-	$singles[ $fallback . '/page/([0-9]{1,})/?$' ] = 'index.php?post_type=' . IFLYNEPAL_PACKAGE_POST_TYPE . '&paged=$matches[1]';
-	$singles[ $fallback . '/?$' ]                  = 'index.php?post_type=' . IFLYNEPAL_PACKAGE_POST_TYPE;
-	$singles[ $fallback . '/([^/]+)/?$' ]          = 'index.php?' . IFLYNEPAL_PACKAGE_POST_TYPE . '=$matches[1]';
+	if ( function_exists( 'pll_languages_list' ) ) {
+		foreach ( (array) pll_languages_list() as $fallback_lang ) {
+			$fallback_slugs[] = iflynepal_package_archive_slug( $fallback_lang );
+		}
+	}
+
+	foreach ( array_unique( $fallback_slugs ) as $slug ) {
+		$fallback = preg_quote( $slug, '#' );
+
+		$singles[ $fallback . '/page/([0-9]{1,})/?$' ] = 'index.php?post_type=' . IFLYNEPAL_PACKAGE_POST_TYPE . '&paged=$matches[1]';
+		$singles[ $fallback . '/?$' ]                  = 'index.php?post_type=' . IFLYNEPAL_PACKAGE_POST_TYPE;
+		$singles[ $fallback . '/([^/]+)/?$' ]          = 'index.php?' . IFLYNEPAL_PACKAGE_POST_TYPE . '=$matches[1]';
+	}
 
 	return array_merge( $archives, $singles );
 }
@@ -289,11 +352,15 @@ function iflynepal_package_post_type_link( $post_link, $post ) {
 		return $post_link;
 	}
 
+	$fallback_slug = iflynepal_package_archive_slug(
+		function_exists( 'pll_get_post_language' ) ? (string) pll_get_post_language( $post->ID ) : ''
+	);
+
 	$term = iflynepal_package_primary_type( $post->ID );
-	$path = $term ? iflynepal_package_type_path( $term ) : IFLYNEPAL_PACKAGE_ARCHIVE_SLUG;
+	$path = $term ? iflynepal_package_type_path( $term ) : $fallback_slug;
 
 	if ( '' === $path ) {
-		$path = IFLYNEPAL_PACKAGE_ARCHIVE_SLUG;
+		$path = $fallback_slug;
 	}
 
 	return home_url( user_trailingslashit( $path . '/' . $post->post_name ) );
@@ -331,6 +398,11 @@ add_filter( 'term_link', 'iflynepal_package_type_term_link', 10, 3 );
  * Same reason as the term link: core builds this one from the rewrite base it
  * generated, and this plugin generated it instead.
  *
+ * The slug itself is picked for the current front-end language — Polylang's
+ * own 'post_type_archive_link' filter (priority 20, after this one) adds the
+ * language prefix on top; it never changes the slug text, so a translated
+ * slug like "forfaits" has to be chosen here or it never appears at all.
+ *
  * @since 1.0.0
  *
  * @param string $link      Archive link.
@@ -342,7 +414,7 @@ function iflynepal_package_archive_link( $link, $post_type ) {
 		return $link;
 	}
 
-	return home_url( user_trailingslashit( IFLYNEPAL_PACKAGE_ARCHIVE_SLUG ) );
+	return home_url( user_trailingslashit( iflynepal_package_archive_slug() ) );
 }
 add_filter( 'post_type_archive_link', 'iflynepal_package_archive_link', 10, 2 );
 
