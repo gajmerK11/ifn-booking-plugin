@@ -84,7 +84,42 @@ function iflynepal_booking_settings_schema() {
 }
 
 /**
+ * One setting's raw stored value, exactly as saved — an array for a 'page'
+ * field on a multilingual site, a string for everything else.
+ *
+ * For the settings screen only: it has to redraw one control per language,
+ * which needs the array itself, not the single page ID
+ * iflynepal_booking_setting() resolves down to for the front end.
+ *
+ * @since 1.0.0
+ *
+ * @param string $key Setting key.
+ * @return mixed
+ */
+function iflynepal_booking_setting_raw( $key ) {
+	$schema = iflynepal_booking_settings_schema();
+
+	if ( ! isset( $schema[ $key ] ) ) {
+		return '';
+	}
+
+	$stored = get_option( IFLYNEPAL_BOOKING_OPTION, array() );
+
+	return ( is_array( $stored ) && array_key_exists( $key, $stored ) )
+		? $stored[ $key ]
+		: $schema[ $key ]['default'];
+}
+
+/**
  * One setting's stored value, or its default.
+ *
+ * A 'page' field is language-aware when Polylang is active with more than one
+ * language: a "Trip finder results page" set for French must send a French
+ * visitor to the French results page, not whichever page an English editor
+ * happened to save. The value is stored as one page ID per language in that
+ * case — see IFly_Nepal_Booking_Settings::sanitize() — and this resolves it
+ * down to the single ID the current front-end language should use, so every
+ * caller of this function keeps working exactly as before.
  *
  * @since 1.0.0
  *
@@ -98,7 +133,12 @@ function iflynepal_booking_setting( $key ) {
 		return '';
 	}
 
-	$stored = get_option( IFLYNEPAL_BOOKING_OPTION, array() );
+	$raw = iflynepal_booking_setting_raw( $key );
+
+	if ( 'page' === $schema[ $key ]['type'] && is_array( $raw ) ) {
+		$lang = function_exists( 'pll_current_language' ) ? pll_current_language() : '';
+		$raw  = isset( $raw[ $lang ] ) ? $raw[ $lang ] : reset( $raw );
+	}
 
 	/*
 	 * The default stands in only when the setting has never been saved, not
@@ -107,10 +147,6 @@ function iflynepal_booking_setting( $key ) {
 	 * that cannot be cleared. The form prefills with the default, so a stored
 	 * empty value is always a deliberate one.
 	 */
-	$raw = ( is_array( $stored ) && array_key_exists( $key, $stored ) )
-		? $stored[ $key ]
-		: $schema[ $key ]['default'];
-
 	$value = (string) $raw;
 
 	/*
@@ -121,6 +157,22 @@ function iflynepal_booking_setting( $key ) {
 	 * sign inside a URL.
 	 */
 	return iflynepal_booking_sanitize_setting( $value, $schema[ $key ]['type'] );
+}
+
+/**
+ * Whether a 'page' field should offer one page per language.
+ *
+ * Only when Polylang actually has more than one language configured — a
+ * single-language install (or Polylang inactive) keeps the plain one-page
+ * control, since a per-language picker with nothing to differentiate would
+ * only be a confusing single dropdown wearing a language label.
+ *
+ * @since 1.0.0
+ *
+ * @return bool
+ */
+function iflynepal_booking_page_field_is_multilingual() {
+	return function_exists( 'pll_languages_list' ) && count( pll_languages_list() ) > 1;
 }
 
 /**

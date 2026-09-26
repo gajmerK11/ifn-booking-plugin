@@ -118,6 +118,23 @@ class IFly_Nepal_Booking_Settings {
 		$stored = get_option( IFLYNEPAL_BOOKING_OPTION, array() );
 
 		foreach ( iflynepal_booking_settings_schema() as $key => $field ) {
+			/*
+			 * A 'page' field on a multilingual site submits one page ID per
+			 * language rather than one string — see render() below — so it is
+			 * sanitized as its own array rather than falling into the
+			 * string-only handling every other field type shares.
+			 */
+			if ( 'page' === $field['type'] && iflynepal_booking_page_field_is_multilingual() ) {
+				$clean[ $key ] = array();
+
+				foreach ( pll_languages_list() as $lang ) {
+					$submitted            = isset( $value[ $key ][ $lang ] ) && is_string( $value[ $key ][ $lang ] ) ? $value[ $key ][ $lang ] : '';
+					$clean[ $key ][ $lang ] = iflynepal_booking_sanitize_setting( $submitted, $field['type'] );
+				}
+
+				continue;
+			}
+
 			$raw = isset( $value[ $key ] ) && is_string( $value[ $key ] ) ? $value[ $key ] : '';
 
 			/*
@@ -231,6 +248,43 @@ class IFly_Nepal_Booking_Settings {
 							<?php endif; ?>
 						<?php elseif ( 'textarea' === $field['type'] ) : ?>
 							<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="3"><?php echo esc_textarea( $value ); ?></textarea>
+						<?php elseif ( 'page' === $field['type'] && iflynepal_booking_page_field_is_multilingual() ) : ?>
+							<?php
+							$raw_value = iflynepal_booking_setting_raw( $key );
+							?>
+							<?php foreach ( PLL()->model->get_languages_list() as $language ) : ?>
+								<?php
+								$lang_id = $language->slug;
+
+								if ( is_array( $raw_value ) && isset( $raw_value[ $lang_id ] ) ) {
+									$selected = absint( $raw_value[ $lang_id ] );
+								} elseif ( ! is_array( $raw_value ) && $raw_value && function_exists( 'pll_get_post' ) ) {
+									/*
+									 * Migrating from a single, language-blind page:
+									 * seed each language's dropdown with that
+									 * page's own translation, so switching to this
+									 * per-language control does not blank out what
+									 * was already working for at least one
+									 * language.
+									 */
+									$selected = absint( pll_get_post( absint( $raw_value ), $lang_id ) );
+								} else {
+									$selected = 0;
+								}
+								?>
+								<p class="cc-help" style="margin:0 0 4px;"><strong><?php echo esc_html( $language->name ); ?></strong></p>
+								<?php
+								wp_dropdown_pages(
+									array(
+										'name'              => $name . '[' . $lang_id . ']', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
+										'id'                => $id . '-' . $lang_id, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Same as above.
+										'selected'          => $selected,
+										'show_option_none'  => __( '— Select a page —', 'iflynepal' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
+										'option_none_value' => '0',
+									)
+								);
+								?>
+							<?php endforeach; ?>
 						<?php elseif ( 'page' === $field['type'] ) : ?>
 							<?php
 							wp_dropdown_pages(
