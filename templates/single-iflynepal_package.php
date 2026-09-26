@@ -84,7 +84,7 @@ while ( have_posts() ) :
 		<?php iflynepal_booking_get_part( 'parts/package/icons' ); ?>
 
 		<?php if ( ! empty( $iflynepal_photos ) || $iflynepal_is_video ) : ?>
-			<section class="iflynepal-pkg-gallery iflynepal-pkg-container" aria-label="<?php esc_attr_e( 'Photo gallery', 'iflynepal' ); ?>">
+			<section class="iflynepal-pkg-gallery iflynepal-pkg-container" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Photo gallery' ) ); ?>">
 				<div class="iflynepal-pkg-gallery-frame">
 					<div class="iflynepal-pkg-gallery-grid" id="ifnpkg-gallery">
 						<div class="iflynepal-pkg-g-lead-wrap">
@@ -129,9 +129,9 @@ while ( have_posts() ) :
 									<button class="iflynepal-pkg-g-video-btn" type="button"
 										data-iflynepal-video-toggle
 										aria-pressed="true"
-										data-label-play="<?php esc_attr_e( 'Play video', 'iflynepal' ); ?>"
-										data-label-pause="<?php esc_attr_e( 'Pause video', 'iflynepal' ); ?>"
-										aria-label="<?php esc_attr_e( 'Pause video', 'iflynepal' ); ?>">
+										data-label-play="<?php echo esc_attr( iflynepal_pkg_t( 'Play video' ) ); ?>"
+										data-label-pause="<?php echo esc_attr( iflynepal_pkg_t( 'Pause video' ) ); ?>"
+										aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Pause video' ) ); ?>">
 										<svg class="iflynepal-pkg-g-video-ico iflynepal-pkg-g-video-ico--play" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 											<path d="M8 5.5v13l11-6.5z" fill="currentColor"/>
 										</svg>
@@ -150,7 +150,7 @@ while ( have_posts() ) :
 								 */
 								?>
 								<button class="iflynepal-pkg-g-tile iflynepal-pkg-g-tile--lead" type="button" data-index="0"
-									aria-label="<?php echo esc_attr( sprintf( /* translators: %d: how many photographs there are. */ __( 'Open photo 1 of %d', 'iflynepal' ), count( $iflynepal_photos ) ) ); ?>">
+									aria-label="<?php echo esc_attr( sprintf( iflynepal_pkg_t( 'Open photo 1 of %d' ), count( $iflynepal_photos ) ) ); ?>">
 									<?php
 									// Core-escaped markup. The lead photo is the LCP image on this page.
 									echo wp_get_attachment_image( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -172,8 +172,7 @@ while ( have_posts() ) :
 									<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-grid"/></svg>
 									<?php
 									printf(
-										/* translators: %d: how many photographs there are. */
-										esc_html( _n( 'View %d photo', 'View all %d photos', count( $iflynepal_photos ), 'iflynepal' ) ),
+										esc_html( iflynepal_pkg_tn( 'View %d photo', 'View all %d photos', count( $iflynepal_photos ) ) ),
 										count( $iflynepal_photos )
 									);
 									?>
@@ -194,7 +193,7 @@ while ( have_posts() ) :
 							<div class="iflynepal-pkg-g-thumbs">
 								<?php foreach ( $iflynepal_thumbs as $iflynepal_index => $iflynepal_photo ) : ?>
 									<button class="iflynepal-pkg-g-tile" type="button" data-index="<?php echo esc_attr( (string) ( $iflynepal_index + $iflynepal_offset ) ); ?>"
-										aria-label="<?php echo esc_attr( sprintf( /* translators: 1: photo number, 2: how many photographs there are. */ __( 'Open photo %1$d of %2$d', 'iflynepal' ), $iflynepal_index + $iflynepal_offset + 1, count( $iflynepal_photos ) ) ); ?>">
+										aria-label="<?php echo esc_attr( sprintf( iflynepal_pkg_t( 'Open photo %1$d of %2$d' ), $iflynepal_index + $iflynepal_offset + 1, count( $iflynepal_photos ) ) ); ?>">
 										<?php
 										// Core-escaped markup.
 										echo wp_get_attachment_image( $iflynepal_photo, 'medium_large' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -288,7 +287,7 @@ while ( have_posts() ) :
 				};
 				?>
 				<div class="iflynepal-pkg-trip-glance" data-iflynepal-anim>
-					<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'At a glance', 'iflynepal' ); ?></span>
+					<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'At a glance' ) ); ?></span>
 					<?php if ( ! empty( $iflynepal_full ) ) : ?>
 						<div class="iflynepal-pkg-glance<?php echo ! empty( $iflynepal_tail ) ? ' iflynepal-pkg-glance--capped' : ''; ?>">
 							<?php foreach ( $iflynepal_full as $iflynepal_row ) : ?>
@@ -312,8 +311,8 @@ while ( have_posts() ) :
 
 		<div class="iflynepal-pkg-container iflynepal-pkg-page-body">
 			<?php if ( count( $iflynepal_sections ) > 1 ) : ?>
-				<nav class="iflynepal-pkg-side-nav" id="ifnpkg-side-nav" aria-label="<?php esc_attr_e( 'Package sections', 'iflynepal' ); ?>">
-					<span class="iflynepal-pkg-side-label"><?php esc_html_e( 'Explore this package', 'iflynepal' ); ?></span>
+				<nav class="iflynepal-pkg-side-nav" id="ifnpkg-side-nav" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Package sections' ) ); ?>">
+					<span class="iflynepal-pkg-side-label"><?php echo esc_html( iflynepal_pkg_t( 'Explore this package' ) ); ?></span>
 					<ol class="iflynepal-pkg-side-links">
 						<?php foreach ( $iflynepal_sections as $iflynepal_slug => $iflynepal_section ) : ?>
 							<li>

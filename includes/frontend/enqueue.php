@@ -100,24 +100,31 @@ function iflynepal_booking_enqueue_package_assets() {
 		)
 	);
 
+	/*
+	 * iflynepal_pkg_t(), not __(): these strings are registered with Polylang
+	 * (includes/i18n/package-strings.php), not the plugin's own .mo file —
+	 * this plugin has no gettext textdomain loaded, so __() with the
+	 * 'iflynepal' domain silently always returned the untranslated English
+	 * source here, no matter the page's language.
+	 */
 	wp_localize_script(
 		'iflynepal-package',
 		'iflynepalPackage',
 		array(
 			/* translators: %d: the photograph's number in the gallery. */
-			'showPhoto'   => __( 'Show photo %d', 'iflynepal' ),
-			'expandAll'   => __( 'Expand all', 'iflynepal' ),
-			'collapseAll' => __( 'Collapse all', 'iflynepal' ),
-			'bookNote'    => __( 'Prices are a quotation. Nothing is reserved until you hear from us.', 'iflynepal' ),
+			'showPhoto'   => iflynepal_pkg_t( 'Show photo %d' ),
+			'expandAll'   => iflynepal_pkg_t( 'Expand all' ),
+			'collapseAll' => iflynepal_pkg_t( 'Collapse all' ),
+			'bookNote'    => iflynepal_pkg_t( 'Prices are a quotation. Nothing is reserved until you hear from us.' ),
 			'weekdays'    => array(
 				/* translators: Weekday initials, Monday first, two letters each. */
-				__( 'Mo', 'iflynepal' ),
-				__( 'Tu', 'iflynepal' ),
-				__( 'We', 'iflynepal' ),
-				__( 'Th', 'iflynepal' ),
-				__( 'Fr', 'iflynepal' ),
-				__( 'Sa', 'iflynepal' ),
-				__( 'Su', 'iflynepal' ),
+				iflynepal_pkg_t( 'Mo' ),
+				iflynepal_pkg_t( 'Tu' ),
+				iflynepal_pkg_t( 'We' ),
+				iflynepal_pkg_t( 'Th' ),
+				iflynepal_pkg_t( 'Fr' ),
+				iflynepal_pkg_t( 'Sa' ),
+				iflynepal_pkg_t( 'Su' ),
 			),
 		)
 	);

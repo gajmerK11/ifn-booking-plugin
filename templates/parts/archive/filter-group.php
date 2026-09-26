@@ -70,7 +70,7 @@ $iflynepal_all_on   = '' === $iflynepal_selected;
 		 */
 		?>
 		<button class="iflynepal-filter-btn<?php echo $iflynepal_all_on ? ' is-active' : ''; ?>" type="button" data-filter="all" aria-pressed="<?php echo $iflynepal_all_on ? 'true' : 'false'; ?>">
-			<span class="iflynepal-filter-btn__label"><?php esc_html_e( 'All', 'iflynepal' ); ?></span>
+			<span class="iflynepal-filter-btn__label"><?php echo esc_html( iflynepal_pkg_t( 'All' ) ); ?></span>
 			<?php if ( ! $iflynepal_pills ) : ?>
 				<span class="iflynepal-filter-btn__count"><?php echo esc_html( number_format_i18n( $iflynepal_facet['total'] ) ); ?></span>
 			<?php endif; ?>

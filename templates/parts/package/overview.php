@@ -25,7 +25,7 @@ if ( '' === $iflynepal_intro && '' === $iflynepal_body && empty( $iflynepal_high
 }
 ?>
 
-<section class="iflynepal-pkg-t-section" id="ifnpkg-overview" aria-label="<?php esc_attr_e( 'Overview', 'iflynepal' ); ?>">
+<section class="iflynepal-pkg-t-section" id="ifnpkg-overview" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Overview' ) ); ?>">
 	<?php if ( '' !== $iflynepal_intro ) : ?>
 		<div class="iflynepal-pkg-intro" data-iflynepal-anim>
 			<?php
@@ -61,7 +61,7 @@ if ( '' === $iflynepal_intro && '' === $iflynepal_body && empty( $iflynepal_high
 				<span class="iflynepal-pkg-sub-h__badge" aria-hidden="true">
 					<svg class="iflynepal-pkg-ico" viewBox="0 0 24 24" focusable="false"><use href="#ifnpkg-i-spark"/></svg>
 				</span>
-				<?php esc_html_e( 'Highlights', 'iflynepal' ); ?>
+				<?php echo esc_html( iflynepal_pkg_t( 'Highlights' ) ); ?>
 			</h3>
 			<ul class="iflynepal-pkg-check-list">
 				<?php foreach ( $iflynepal_highlights as $iflynepal_highlight ) : ?>

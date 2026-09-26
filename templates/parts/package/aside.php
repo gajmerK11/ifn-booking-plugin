@@ -79,7 +79,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 };
 ?>
 
-<aside class="iflynepal-pkg-trip-aside" aria-label="<?php esc_attr_e( 'Price and booking', 'iflynepal' ); ?>">
+<aside class="iflynepal-pkg-trip-aside" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Price and booking' ) ); ?>">
 	<?php if ( '' !== $iflynepal_price || $iflynepal_tiers ) : ?>
 		<div class="iflynepal-pkg-price-card" id="ifnpkg-price-card">
 			<?php if ( '' !== $iflynepal_eyebrow ) : ?>
@@ -122,7 +122,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 				<div class="iflynepal-pkg-price-tiers" id="ifnpkg-price-tiers">
 					<?php if ( $iflynepal_normal > 0 ) : ?>
 						<p class="iflynepal-pkg-price-normal">
-							<span><?php esc_html_e( 'Normal price:', 'iflynepal' ); ?></span>
+							<span><?php echo esc_html( iflynepal_pkg_t( 'Normal price:' ) ); ?></span>
 							<s><?php echo esc_html( ( '' !== $iflynepal_currency ? $iflynepal_currency . ' ' : '' ) . number_format( $iflynepal_normal, 2, '.', ',' ) ); ?></s>
 						</p>
 					<?php endif; ?>
@@ -134,20 +134,19 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 							data-price="<?php echo esc_attr( (string) $iflynepal_tier['price'] ); ?>">
 							<span class="iflynepal-pkg-price-tier__pax">
 								<?php
-								/* translators: %s: a group size, e.g. "1–12 pax". */
-								printf( esc_html__( '%s price:', 'iflynepal' ), esc_html( $iflynepal_tier['label'] ) );
+								printf( esc_html( iflynepal_pkg_t( '%s price:' ) ), esc_html( $iflynepal_tier['label'] ) );
 								?>
 							</span>
 							<span class="iflynepal-pkg-price-from">
-								<?php $iflynepal_figure( $iflynepal_tier['price'], __( 'pax', 'iflynepal' ) ); ?>
+								<?php $iflynepal_figure( $iflynepal_tier['price'], iflynepal_pkg_t( 'pax' ) ); ?>
 							</span>
 						</div>
 					<?php endforeach; ?>
 				</div>
 			<?php else : ?>
 				<div class="iflynepal-pkg-price-from">
-					<small><?php esc_html_e( 'From', 'iflynepal' ); ?></small>
-					<?php $iflynepal_figure( $iflynepal_price, __( 'person', 'iflynepal' ) ); ?>
+					<small><?php echo esc_html( iflynepal_pkg_t( 'From' ) ); ?></small>
+					<?php $iflynepal_figure( $iflynepal_price, iflynepal_pkg_t( 'person' ) ); ?>
 				</div>
 			<?php endif; ?>
 
@@ -191,10 +190,10 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 						echo $iflynepal_pay; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						?>
 					</div>
-					<p class="iflynepal-pkg-sum-note" id="ifnpkg-pay-note"><?php esc_html_e( 'Pick a start date and how many are travelling below to book.', 'iflynepal' ); ?></p>
+					<p class="iflynepal-pkg-sum-note" id="ifnpkg-pay-note"><?php echo esc_html( iflynepal_pkg_t( 'Pick a start date and how many are travelling below to book.' ) ); ?></p>
 				<?php else : ?>
 					<a class="iflynepal-pkg-button iflynepal-pkg-button--primary iflynepal-pkg-button--block" href="#ifnpkg-dates">
-						<?php esc_html_e( 'Book now', 'iflynepal' ); ?>
+						<?php echo esc_html( iflynepal_pkg_t( 'Book now' ) ); ?>
 						<svg class="iflynepal-pkg-link-arrow" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
 					</a>
 				<?php endif; ?>
@@ -215,7 +214,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 				?>
 				<a class="iflynepal-pkg-button iflynepal-pkg-button--outline iflynepal-pkg-button--block"
 					href="#iflynepal-enquiry" data-iflynepal-enquiry-open>
-					<?php esc_html_e( 'Inquire now', 'iflynepal' ); ?>
+					<?php echo esc_html( iflynepal_pkg_t( 'Inquire now' ) ); ?>
 				</a>
 
 				<?php
@@ -248,7 +247,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 					<a class="iflynepal-pkg-button iflynepal-pkg-button--outline iflynepal-pkg-button--block"
 						<?php echo iflynepal_booking_anchor_attr( $iflynepal_whatsapp ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
 						target="_blank" rel="noopener noreferrer">
-						<?php esc_html_e( 'Chat on WhatsApp', 'iflynepal' ); ?>
+						<?php echo esc_html( iflynepal_pkg_t( 'Chat on WhatsApp' ) ); ?>
 					</a>
 				<?php endif; ?>
 			</div>
@@ -268,20 +267,20 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 		 */
 		?>
 		<div class="iflynepal-enquiry-card">
-			<h2 class="iflynepal-enquiry-card__title"><?php esc_html_e( 'Ask us about this journey', 'iflynepal' ); ?></h2>
+			<h2 class="iflynepal-enquiry-card__title"><?php echo esc_html( iflynepal_pkg_t( 'Ask us about this journey' ) ); ?></h2>
 			<p class="iflynepal-enquiry-card__text">
-				<?php esc_html_e( 'Tell us your dates and group size and we will send you a price.', 'iflynepal' ); ?>
+				<?php echo esc_html( iflynepal_pkg_t( 'Tell us your dates and group size and we will send you a price.' ) ); ?>
 			</p>
 			<a class="iflynepal-pkg-button iflynepal-pkg-button--primary iflynepal-pkg-button--block"
 				href="#iflynepal-enquiry" data-iflynepal-enquiry-open>
-				<?php esc_html_e( 'Inquire now', 'iflynepal' ); ?>
+				<?php echo esc_html( iflynepal_pkg_t( 'Inquire now' ) ); ?>
 			</a>
 
 			<?php $iflynepal_chat = iflynepal_whatsapp_url( $iflynepal_id ); ?>
 
 			<?php if ( '' !== $iflynepal_chat ) : ?>
 				<a class="iflynepal-enquiry-card__chat" <?php echo iflynepal_booking_anchor_attr( $iflynepal_chat ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?> target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e( 'Or chat on WhatsApp', 'iflynepal' ); ?>
+					<?php echo esc_html( iflynepal_pkg_t( 'Or chat on WhatsApp' ) ); ?>
 				</a>
 			<?php endif; ?>
 		</div>
@@ -311,7 +310,7 @@ $iflynepal_figure = static function ( $iflynepal_amount, $iflynepal_unit ) use (
 			?>
 
 			<div>
-				<small><?php esc_html_e( 'Speak to an expert', 'iflynepal' ); ?></small>
+				<small><?php echo esc_html( iflynepal_pkg_t( 'Speak to an expert' ) ); ?></small>
 				<strong>
 					<?php echo esc_html( $iflynepal_expert ); ?>
 					<?php if ( '' !== $iflynepal_place ) : ?>

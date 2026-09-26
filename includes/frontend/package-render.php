@@ -31,37 +31,37 @@ function iflynepal_package_page_sections( $post_id ) {
 
 	$candidates = array(
 		'overview'  => array(
-			'label'  => __( 'Overview', 'iflynepal' ),
+			'label'  => iflynepal_pkg_t( 'Overview' ),
 			'icon'   => 'doc',
 			'filled' => '' !== iflynepal_package_field( $post_id, 'overview_intro' )
 				|| '' !== iflynepal_package_field( $post_id, 'overview_body' )
 				|| array() !== iflynepal_package_field_lines( $post_id, 'highlights' ),
 		),
 		'itinerary' => array(
-			'label'  => __( 'Itinerary', 'iflynepal' ),
+			'label'  => iflynepal_pkg_t( 'Itinerary' ),
 			'icon'   => 'route',
 			'filled' => array() !== iflynepal_package_cards( $post_id, 'itinerary_days' )
 				|| array() !== iflynepal_package_cards( $post_id, 'itinerary_weeks' ),
 		),
 		'dates'     => array(
-			'label'  => __( 'Dates & prices', 'iflynepal' ),
+			'label'  => iflynepal_pkg_t( 'Dates & prices' ),
 			'icon'   => 'cal',
 			'filled' => '' !== iflynepal_package_field( $post_id, 'price_amount' ),
 		),
 		'packing'   => array(
-			'label'  => __( 'Packing & map', 'iflynepal' ),
+			'label'  => iflynepal_pkg_t( 'Packing & map' ),
 			'icon'   => 'bag',
 			'filled' => array() !== iflynepal_package_field_lines( $post_id, 'packing_items' )
 				|| '' !== iflynepal_package_field( $post_id, 'map_embed' )
 				|| '' !== iflynepal_package_field( $post_id, 'map_image' ),
 		),
 		'faqs'      => array(
-			'label'  => __( 'FAQs', 'iflynepal' ),
+			'label'  => iflynepal_pkg_t( 'FAQs' ),
 			'icon'   => 'help',
 			'filled' => array() !== iflynepal_package_cards( $post_id, 'faq_items' ),
 		),
 		'similar'   => array(
-			'label'  => __( 'Similar packages', 'iflynepal' ),
+			'label'  => iflynepal_pkg_t( 'Similar packages' ),
 			'icon'   => 'lotus',
 			'filled' => array() !== iflynepal_package_related( $post_id ),
 		),
@@ -120,16 +120,42 @@ function iflynepal_package_format_time( $value ) {
  */
 function iflynepal_package_glance( $post_id ) {
 	$map = array(
-		'glance_destination' => array( __( 'Destination', 'iflynepal' ), 'pin' ),
-		'glance_duration'    => array( __( 'Duration', 'iflynepal' ), 'clock' ),
-		'glance_activities'  => array( __( 'Activities', 'iflynepal' ), 'lotus' ),
-		'glance_meals'       => array( __( 'Meals', 'iflynepal' ), 'bowl' ),
-		'glance_stay'        => array( __( 'Accommodation', 'iflynepal' ), 'bed' ),
-		'glance_altitude'    => array( __( 'Max altitude', 'iflynepal' ), 'peak' ),
-		'glance_group'       => array( __( 'Group size', 'iflynepal' ), 'group' ),
-		'glance_level'       => array( __( 'Experience level', 'iflynepal' ), 'level' ),
-		'glance_best_time'   => array( __( 'Best time', 'iflynepal' ), 'sun' ),
-		'glance_checkin'     => array( __( 'Check-in', 'iflynepal' ), 'door' ),
+		'glance_destination' => array( iflynepal_pkg_t( 'Destination' ), 'pin' ),
+		'glance_duration'    => array( iflynepal_pkg_t( 'Duration' ), 'clock' ),
+		'glance_activities'  => array( iflynepal_pkg_t( 'Activities' ), 'lotus' ),
+		'glance_meals'       => array( iflynepal_pkg_t( 'Meals' ), 'bowl' ),
+		'glance_stay'        => array( iflynepal_pkg_t( 'Accommodation' ), 'bed' ),
+		'glance_altitude'    => array( iflynepal_pkg_t( 'Max altitude' ), 'peak' ),
+		'glance_group'       => array( iflynepal_pkg_t( 'Group size' ), 'group' ),
+		'glance_level'       => array( iflynepal_pkg_t( 'Experience level' ), 'level' ),
+		'glance_best_time'   => array( iflynepal_pkg_t( 'Best time' ), 'sun' ),
+		'glance_checkin'     => array( iflynepal_pkg_t( 'Check-in' ), 'door' ),
+	);
+
+	/*
+	 * Stored English keys, translated for display: these three fields offer a
+	 * fixed vocabulary (see includes/package/package-details-schema.php), so
+	 * the value saved to the database is always one of these literal keys,
+	 * never a translated string — the same "store the key, translate the
+	 * label" split a <select> normally gets for free from the browser, done
+	 * here by hand because these render as plain text.
+	 */
+	$vocab = array(
+		'glance_stay'   => array(
+			'Included'     => iflynepal_pkg_t( 'Included' ),
+			'Not included' => iflynepal_pkg_t( 'Not included' ),
+		),
+		'glance_level'  => array(
+			'Relaxed'  => iflynepal_pkg_t( 'Relaxed' ),
+			'Easy'     => iflynepal_pkg_t( 'Easy' ),
+			'Moderate' => iflynepal_pkg_t( 'Moderate' ),
+			'Hard'     => iflynepal_pkg_t( 'Hard' ),
+		),
+		'glance_meals'  => array(
+			'Breakfast' => iflynepal_pkg_t( 'Breakfast' ),
+			'Lunch'     => iflynepal_pkg_t( 'Lunch' ),
+			'Dinner'    => iflynepal_pkg_t( 'Dinner' ),
+		),
 	);
 
 	$rows = array();
@@ -143,6 +169,14 @@ function iflynepal_package_glance( $post_id ) {
 
 		if ( 'glance_checkin' === $key ) {
 			$value = iflynepal_package_format_time( $value );
+		} elseif ( isset( $vocab[ $key ] ) ) {
+			$labels = array();
+
+			foreach ( array_map( 'trim', explode( ',', $value ) ) as $stored_key ) {
+				$labels[] = isset( $vocab[ $key ][ $stored_key ] ) ? $vocab[ $key ][ $stored_key ] : $stored_key;
+			}
+
+			$value = implode( ', ', $labels );
 		}
 
 		$rows[] = array(
@@ -170,7 +204,7 @@ function iflynepal_package_the_breadcrumb( $post_id ) {
 	$term      = iflynepal_package_primary_type( $post_id );
 	$separator = '<svg class="iflynepal-pkg-ico iflynepal-pkg-sep" aria-hidden="true"><use href="#ifnpkg-i-right"/></svg>';
 	$crumbs    = array(
-		'<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'iflynepal' ) . '</a>',
+		'<a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html( iflynepal_pkg_t( 'Home' ) ) . '</a>',
 	);
 
 	if ( $term instanceof WP_Term ) {
@@ -191,7 +225,7 @@ function iflynepal_package_the_breadcrumb( $post_id ) {
 
 	$crumbs[] = '<span aria-current="page">' . esc_html( get_the_title( $post_id ) ) . '</span>';
 	?>
-	<nav class="iflynepal-pkg-crumbs" aria-label="<?php esc_attr_e( 'Breadcrumb', 'iflynepal' ); ?>">
+	<nav class="iflynepal-pkg-crumbs" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Breadcrumb' ) ); ?>">
 		<?php
 		// Every crumb is escaped as it is built above; the separator is static markup.
 		echo implode( $separator, $crumbs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -217,23 +251,23 @@ function iflynepal_package_the_share( $post_id ) {
 	$title = get_the_title( $post_id );
 	?>
 	<div class="iflynepal-pkg-share" id="ifnpkg-share" data-url="<?php echo esc_url( $url ); ?>">
-		<span class="iflynepal-pkg-share-label"><?php esc_html_e( 'Share this:', 'iflynepal' ); ?></span>
+		<span class="iflynepal-pkg-share-label"><?php echo esc_html( iflynepal_pkg_t( 'Share this:' ) ); ?></span>
 
 		<a class="iflynepal-pkg-share-btn" data-share="facebook" target="_blank" rel="noopener"
 			href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $url ) ); ?>"
-			aria-label="<?php esc_attr_e( 'Share on Facebook', 'iflynepal' ); ?>">
+			aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Share on Facebook' ) ); ?>">
 			<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5H16l.4-3H13.5V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21z"/></svg>
 		</a>
 
 		<a class="iflynepal-pkg-share-btn" data-share="x" target="_blank" rel="noopener"
 			href="<?php echo esc_url( 'https://twitter.com/intent/tweet?url=' . rawurlencode( $url ) . '&text=' . rawurlencode( $title ) ); ?>"
-			aria-label="<?php esc_attr_e( 'Share on X', 'iflynepal' ); ?>">
+			aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Share on X' ) ); ?>">
 			<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.3 3.5h3l-6.6 7.5 7.8 9.5h-6.1l-4.8-6-5.5 6H2.1l7-8L1.6 3.5h6.2l4.3 5.5zm-1 15.3h1.7L7 5.1H5.2z"/></svg>
 		</a>
 
 		<a class="iflynepal-pkg-share-btn" data-share="whatsapp" target="_blank" rel="noopener"
 			href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( $title . ' ' . $url ) ); ?>"
-			aria-label="<?php esc_attr_e( 'Share on WhatsApp', 'iflynepal' ); ?>">
+			aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Share on WhatsApp' ) ); ?>">
 			<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8a9.1 9.1 0 0 0-7.9 13.7L2.8 21.2l4.8-1.3A9.1 9.1 0 1 0 12 2.8zm0 16.6c-1.4 0-2.8-.4-4-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A7.5 7.5 0 1 1 12 19.4zm4.1-5.6c-.2-.1-1.3-.7-1.6-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.2-.1-1-.4-1.8-1.1-.7-.6-1.1-1.3-1.3-1.5-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5 2 .8 2.4.6 2.8.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1l-.5-.3z"/></svg>
 		</a>
 
@@ -259,14 +293,14 @@ function iflynepal_package_the_share( $post_id ) {
 			?>
 			<a class="iflynepal-pkg-share-btn" data-share="<?php echo esc_attr( $iflynepal_social['slug'] ); ?>" target="_blank" rel="noopener"
 				<?php echo iflynepal_booking_anchor_attr( $iflynepal_social['url'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?>
-				aria-label="<?php echo esc_attr( sprintf( /* translators: %s: social network name. */ __( 'Visit us on %s', 'iflynepal' ), $iflynepal_social['label'] ) ); ?>">
+				aria-label="<?php echo esc_attr( sprintf( iflynepal_pkg_t( 'Visit us on %s' ), $iflynepal_social['label'] ) ); ?>">
 				<svg class="iflynepal-pkg-ico iflynepal-pkg-ico--fill" viewBox="0 0 24 24" aria-hidden="true"><path d="<?php echo esc_attr( $iflynepal_social['path'] ); ?>"/></svg>
 			</a>
 		<?php endforeach; ?>
 
-		<button class="iflynepal-pkg-share-btn" data-share="copy" type="button" aria-label="<?php esc_attr_e( 'Copy link', 'iflynepal' ); ?>">
+		<button class="iflynepal-pkg-share-btn" data-share="copy" type="button" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Copy link' ) ); ?>">
 			<svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-link"/></svg>
-			<span class="iflynepal-pkg-share-toast" role="status"><?php esc_html_e( 'Link copied', 'iflynepal' ); ?></span>
+			<span class="iflynepal-pkg-share-toast" role="status"><?php echo esc_html( iflynepal_pkg_t( 'Link copied' ) ); ?></span>
 		</button>
 	</div>
 	<?php

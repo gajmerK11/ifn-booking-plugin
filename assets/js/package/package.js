@@ -179,6 +179,57 @@
 		} );
 	}() );
 
+	/* -------------------------------------------------------------- price */
+
+	( function priceFit() {
+		var rows = root.querySelectorAll( '.iflynepal-pkg-price-from' );
+
+		if ( ! rows.length ) {
+			return;
+		}
+
+		/*
+		 * Same technique as mapTitleFit() above, aimed at the price figure
+		 * instead of a heading: the row is fixed to one line (CSS
+		 * flex-wrap:nowrap, every child flex-shrink:0), sized for English's
+		 * short "/ person". A translation's unit word can run longer — French
+		 * "/ personne" — with nothing left in the row able to give, so it
+		 * overflowed past the price card's own overflow:hidden and read as
+		 * clipped text. Shrinking the figure (not the unit label, which is
+		 * already the smaller of the two) buys the row back its width.
+		 */
+		var MIN_FONT_SIZE = 22;
+
+		function fit( row ) {
+			var figure = row.querySelector( 'strong' );
+
+			if ( ! figure ) {
+				return;
+			}
+
+			figure.style.removeProperty( 'font-size' );
+
+			var fontSize = parseFloat( getComputedStyle( figure ).fontSize );
+
+			while ( row.scrollWidth > row.clientWidth && fontSize > MIN_FONT_SIZE ) {
+				fontSize -= 1;
+				figure.style.setProperty( 'font-size', fontSize + 'px' );
+			}
+		}
+
+		function fitAll() {
+			Array.prototype.forEach.call( rows, fit );
+		}
+
+		fitAll();
+
+		var resizeTimer;
+		window.addEventListener( 'resize', function () {
+			clearTimeout( resizeTimer );
+			resizeTimer = setTimeout( fitAll, 150 );
+		} );
+	}() );
+
 	/* ------------------------------------------------------------ lightbox */
 
 	( function gallery() {
@@ -707,8 +758,19 @@
 			return currency + ' ' + amount.toFixed( 2 ).replace( /\B(?=(\d{3})+(?!\d))/g, ',' );
 		}
 
+		/*
+		 * The page's own language, not the visitor's browser locale —
+		 * toLocaleDateString( undefined, … ) reads the latter, which stays
+		 * English for a French visitor on an English-language OS, silently
+		 * disagreeing with the French text everywhere else on the page.
+		 * document.documentElement.lang is the html lang="fr-FR" WordPress
+		 * already sets from Polylang's current language, so this simply
+		 * agrees with it instead of guessing again.
+		 */
+		var pageLocale = document.documentElement.lang || undefined;
+
 		function longDate( date ) {
-			return date.toLocaleDateString( undefined, { day: 'numeric', month: 'short', year: 'numeric' } );
+			return date.toLocaleDateString( pageLocale, { day: 'numeric', month: 'short', year: 'numeric' } );
 		}
 
 		/**
@@ -756,7 +818,7 @@
 			/* Monday-first, which is how the design's grid reads. */
 			var lead = ( first.getDay() + 6 ) % 7;
 
-			label.textContent = view.toLocaleDateString( undefined, { month: 'long', year: 'numeric' } );
+			label.textContent = view.toLocaleDateString( pageLocale, { month: 'long', year: 'numeric' } );
 			grid.textContent = '';
 
 			/*
@@ -1001,7 +1063,7 @@
 					var button = document.createElement( 'button' );
 
 					button.type = 'button';
-					button.textContent = date.toLocaleDateString( undefined, { day: 'numeric', month: 'short' } );
+					button.textContent = date.toLocaleDateString( pageLocale, { day: 'numeric', month: 'short' } );
 					button.addEventListener( 'click', function () {
 						chosen = date;
 						view = new Date( date.getFullYear(), date.getMonth(), 1 );

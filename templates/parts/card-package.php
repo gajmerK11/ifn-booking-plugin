@@ -140,13 +140,12 @@ $iflynepal_slugs = iflynepal_package_filter_slugs( $iflynepal_post_id );
 
 			<?php
 			$iflynepal_link_label = sprintf(
-				/* translators: %s: package title. */
-				__( 'Explore %s', 'iflynepal' ),
+				iflynepal_pkg_t( 'Explore %s' ),
 				get_the_title( $iflynepal_package )
 			);
 			?>
 			<a class="iflynepal-card__link" href="<?php echo esc_url( get_permalink( $iflynepal_package ) ); ?>" aria-label="<?php echo esc_attr( $iflynepal_link_label ); ?>">
-				<?php esc_html_e( 'Explore', 'iflynepal' ); ?>
+				<?php echo esc_html( iflynepal_pkg_t( 'Explore' ) ); ?>
 				<?php echo iflynepal_booking_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, no input. ?>
 			</a>
 		</div>

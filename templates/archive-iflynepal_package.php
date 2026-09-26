@@ -70,9 +70,9 @@ get_header();
 		<section class="iflynepal-section iflynepal-section--mist" data-iflynepal-fade>
 			<div class="iflynepal-container">
 				<div class="iflynepal-section-head iflynepal-section-head--center">
-					<span class="iflynepal-eyebrow"><?php esc_html_e( 'Everything we run', 'iflynepal' ); ?></span>
+					<span class="iflynepal-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'Everything we run' ) ); ?></span>
 					<h1><?php post_type_archive_title(); ?></h1>
-					<p class="iflynepal-lead"><?php esc_html_e( 'Every kind of trip we run, a few from each. Open any one to see the whole list.', 'iflynepal' ); ?></p>
+					<p class="iflynepal-lead"><?php echo esc_html( iflynepal_pkg_t( 'Every kind of trip we run, a few from each. Open any one to see the whole list.' ) ); ?></p>
 				</div>
 			</div>
 		</section>
@@ -97,7 +97,7 @@ get_header();
 		<section class="iflynepal-section" data-iflynepal-fade>
 			<div class="iflynepal-container">
 				<div class="iflynepal-section-head iflynepal-section-head--center">
-					<p class="iflynepal-lead"><?php esc_html_e( 'No packages have been published yet.', 'iflynepal' ); ?></p>
+					<p class="iflynepal-lead"><?php echo esc_html( iflynepal_pkg_t( 'No packages have been published yet.' ) ); ?></p>
 				</div>
 			</div>
 		</section>

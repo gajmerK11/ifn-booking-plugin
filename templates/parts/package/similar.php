@@ -49,7 +49,7 @@ if ( is_wp_error( $iflynepal_term_link ) ) {
 
 <section class="iflynepal-pkg-band iflynepal-pkg-band--mist iflynepal-pkg-container" id="ifnpkg-similar" aria-labelledby="ifnpkg-similar-h">
 	<div data-iflynepal-anim>
-		<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Keep exploring', 'iflynepal' ); ?></span>
+		<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'Keep exploring' ) ); ?></span>
 		<h2 id="ifnpkg-similar-h" class="iflynepal-pkg-band-h">
 			<?php
 			/*
@@ -59,7 +59,7 @@ if ( is_wp_error( $iflynepal_term_link ) ) {
 			 * choice the ink-marked headings elsewhere on this page make.
 			 */
 			echo wp_kses( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses escapes.
-				__( 'Similar <span class="iflynepal-ink-mark">packages</span><br>you may like.', 'iflynepal' ),
+				iflynepal_pkg_t( 'Similar <span class="iflynepal-ink-mark">packages</span><br>you may like.' ),
 				array(
 					'span' => array( 'class' => array() ),
 					'br'   => array(),
@@ -82,8 +82,7 @@ if ( is_wp_error( $iflynepal_term_link ) ) {
 			<a class="iflynepal-button iflynepal-button--dark" href="<?php echo esc_url( $iflynepal_term_link ); ?>">
 				<?php
 				printf(
-					/* translators: %s: package category name. */
-					esc_html__( 'View all %s packages', 'iflynepal' ),
+					esc_html( iflynepal_pkg_t( 'View all %s packages' ) ),
 					esc_html( $iflynepal_term->name )
 				);
 				?>

@@ -161,7 +161,7 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 						<summary class="iflynepal-facets__toggle">
 							<span class="iflynepal-facets__toggle-label">
 								<?php echo iflynepal_booking_filter_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, no input. ?>
-								<?php esc_html_e( 'Filters', 'iflynepal' ); ?>
+								<?php echo esc_html( iflynepal_pkg_t( 'Filters' ) ); ?>
 							</span>
 							<span class="iflynepal-facets__badge" data-iflynepal-active-count hidden></span>
 						</summary>
@@ -187,7 +187,7 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 								 * be the same sentence twice.
 								 */
 								?>
-								<span class="iflynepal-facets__title"><?php esc_html_e( 'Find your trip', 'iflynepal' ); ?></span>
+								<span class="iflynepal-facets__title"><?php echo esc_html( iflynepal_pkg_t( 'Find your trip' ) ); ?></span>
 								<?php
 								/*
 								 * Hidden until something is narrowed. A reset
@@ -198,7 +198,7 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 								 */
 								?>
 								<button class="iflynepal-facets__clear" type="button" data-iflynepal-clear hidden>
-									<?php esc_html_e( 'Clear all', 'iflynepal' ); ?>
+									<?php echo esc_html( iflynepal_pkg_t( 'Clear all' ) ); ?>
 								</button>
 							</div>
 
@@ -363,9 +363,9 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 				?>
 				<?php if ( ! empty( $iflynepal_facets ) ) : ?>
 					<p class="iflynepal-listing__empty" data-iflynepal-empty hidden>
-						<?php esc_html_e( 'No packages match that combination.', 'iflynepal' ); ?>
+						<?php echo esc_html( iflynepal_pkg_t( 'No packages match that combination.' ) ); ?>
 						<button class="iflynepal-facets__clear" type="button" data-iflynepal-clear>
-							<?php esc_html_e( 'Clear all filters', 'iflynepal' ); ?>
+							<?php echo esc_html( iflynepal_pkg_t( 'Clear all filters' ) ); ?>
 						</button>
 					</p>
 				<?php endif; ?>
@@ -419,11 +419,9 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 								?>
 								<span
 									data-iflynepal-reveal-label
-									<?php /* translators: %s: how many more packages are behind the cap. */ ?>
-									data-one="<?php echo esc_attr__( 'Show %s more package', 'iflynepal' ); ?>"
-									<?php /* translators: %s: how many more packages are behind the cap. */ ?>
-									data-many="<?php echo esc_attr__( 'Show %s more packages', 'iflynepal' ); ?>"
-								><?php esc_html_e( 'Show all matching packages', 'iflynepal' ); ?></span>
+									data-one="<?php echo esc_attr( iflynepal_pkg_t( 'Show %s more package' ) ); ?>"
+									data-many="<?php echo esc_attr( iflynepal_pkg_t( 'Show %s more packages' ) ); ?>"
+								><?php echo esc_html( iflynepal_pkg_t( 'Show all matching packages' ) ); ?></span>
 								<?php echo iflynepal_booking_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static markup, no input. ?>
 							</button>
 						<?php endif; ?>
@@ -438,8 +436,7 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 							<a class="iflynepal-listing__all" href="<?php echo esc_url( $iflynepal_child_url ); ?>" data-filter="<?php echo esc_attr( $iflynepal_child->slug ); ?>">
 								<?php
 								printf(
-									/* translators: %s: package category name. */
-									esc_html__( 'View all %s packages', 'iflynepal' ),
+									esc_html( iflynepal_pkg_t( 'View all %s packages' ) ),
 									esc_html( $iflynepal_child->name )
 								);
 								?>

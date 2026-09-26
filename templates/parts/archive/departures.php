@@ -42,7 +42,7 @@ if ( ! iflynepal_archive_has_any( $iflynepal_id, array( 'departures_eyebrow', 'd
 $iflynepal_departures = iflynepal_archive_cards( $iflynepal_id, 'departure_cards' );
 
 /* One string, read once: it is printed on every card in the rail. */
-$iflynepal_reserve = __( 'Reserve', 'iflynepal' );
+$iflynepal_reserve = iflynepal_pkg_t( 'Reserve' );
 ?>
 
 <section class="iflynepal-section iflynepal-section--mist iflynepal-departures" id="iflynepal-departures">
@@ -60,10 +60,10 @@ $iflynepal_reserve = __( 'Reserve', 'iflynepal' );
 			if ( ! empty( $iflynepal_departures ) ) :
 				?>
 				<div class="iflynepal-rail-nav" data-iflynepal-anim>
-					<button class="iflynepal-rail-btn iflynepal-rail-btn--prev" type="button" disabled aria-label="<?php esc_attr_e( 'Previous departures', 'iflynepal' ); ?>">
+					<button class="iflynepal-rail-btn iflynepal-rail-btn--prev" type="button" disabled aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Previous departures' ) ); ?>">
 						<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7"/></svg>
 					</button>
-					<button class="iflynepal-rail-btn iflynepal-rail-btn--next" type="button" disabled aria-label="<?php esc_attr_e( 'Next departures', 'iflynepal' ); ?>">
+					<button class="iflynepal-rail-btn iflynepal-rail-btn--next" type="button" disabled aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Next departures' ) ); ?>">
 						<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7"/></svg>
 					</button>
 				</div>
@@ -79,7 +79,7 @@ $iflynepal_reserve = __( 'Reserve', 'iflynepal' );
 			 * its own in every browser.
 			 */
 			?>
-			<div class="iflynepal-departure-rail" tabindex="0" role="group" aria-label="<?php esc_attr_e( 'Upcoming departures', 'iflynepal' ); ?>">
+			<div class="iflynepal-departure-rail" tabindex="0" role="group" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Upcoming departures' ) ); ?>">
 				<?php foreach ( $iflynepal_departures as $iflynepal_card ) : ?>
 					<article class="iflynepal-departure" data-iflynepal-anim>
 						<?php

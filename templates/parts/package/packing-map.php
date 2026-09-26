@@ -39,7 +39,7 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_
 	<div class="iflynepal-pkg-pack-map">
 		<?php if ( ! empty( $iflynepal_items ) ) : ?>
 			<div data-iflynepal-anim>
-				<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Packing list', 'iflynepal' ); ?></span>
+				<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'Packing list' ) ); ?></span>
 				<?php $iflynepal_heading = iflynepal_package_field( $iflynepal_id, 'packing_heading' ); ?>
 				<?php if ( '' !== $iflynepal_heading ) : ?>
 					<h2 id="ifnpkg-packing-h" class="iflynepal-pkg-band-h"><?php iflynepal_package_the_heading( $iflynepal_heading ); ?></h2>
@@ -69,7 +69,7 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_
 			$iflynepal_map_head = iflynepal_package_field( $iflynepal_id, 'map_heading' );
 			?>
 			<div id="ifnpkg-map" data-iflynepal-anim>
-				<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Map', 'iflynepal' ); ?></span>
+				<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'Map' ) ); ?></span>
 				<?php if ( '' !== $iflynepal_map_head ) : ?>
 					<h2 class="iflynepal-pkg-band-h"><?php iflynepal_package_the_heading( $iflynepal_map_head ); ?></h2>
 				<?php endif; ?>
@@ -89,7 +89,7 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_
 							false,
 							array(
 								'loading' => 'lazy',
-								'alt'     => '' !== $iflynepal_place ? $iflynepal_place : __( 'Map', 'iflynepal' ),
+								'alt'     => '' !== $iflynepal_place ? $iflynepal_place : iflynepal_pkg_t( 'Map' ),
 							)
 						);
 						?>
@@ -105,7 +105,7 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_
 							 * one up by.
 							 */
 							?>
-							<button type="button" class="iflynepal-pkg-map-photo" data-index="<?php echo esc_attr( (string) $iflynepal_lb_index ); ?>" aria-label="<?php esc_attr_e( 'Open map image', 'iflynepal' ); ?>">
+							<button type="button" class="iflynepal-pkg-map-photo" data-index="<?php echo esc_attr( (string) $iflynepal_lb_index ); ?>" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Open map image' ) ); ?>">
 								<?php echo $iflynepal_map_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by wp_get_attachment_image(), which escapes its own output. ?>
 							</button>
 						<?php else : ?>
@@ -121,7 +121,7 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_
 						 */
 						?>
 						<iframe
-							title="<?php echo esc_attr( '' !== $iflynepal_place ? $iflynepal_place : __( 'Map', 'iflynepal' ) ); ?>"
+							title="<?php echo esc_attr( '' !== $iflynepal_place ? $iflynepal_place : iflynepal_pkg_t( 'Map' ) ); ?>"
 							src="<?php echo esc_url( $iflynepal_embed ); ?>"
 							loading="lazy"
 							referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -140,7 +140,7 @@ if ( empty( $iflynepal_items ) && '' === $iflynepal_embed && ! $iflynepal_image_
 
 							<?php if ( '' !== $iflynepal_map_link ) : ?>
 								<a <?php echo iflynepal_booking_anchor_attr( $iflynepal_map_link ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?> target="_blank" rel="noopener">
-									<?php esc_html_e( 'Open in Maps', 'iflynepal' ); ?>
+									<?php echo esc_html( iflynepal_pkg_t( 'Open in Maps' ) ); ?>
 									<svg class="iflynepal-pkg-link-arrow" aria-hidden="true"><use href="#ifnpkg-i-arrow"/></svg>
 								</a>
 							<?php endif; ?>

@@ -134,6 +134,37 @@ function iflynepal_package_primary_type( $post_id ) {
 }
 
 /**
+ * The URL path segment Polylang puts in front of a language's links.
+ *
+ * "fr/" for French, "" for the default language when Polylang is set to hide
+ * it from the URL — the same two rules PLL_Links_Directory::add_language_to_link()
+ * applies to every link it builds. Read straight from Polylang's own options
+ * rather than asking it to build a URL and parsing the prefix back out of it,
+ * which would need a home_url() round trip for every term on every flush.
+ *
+ * @since 1.0.0
+ *
+ * @param string $lang Language slug, empty when Polylang is inactive or the
+ *                      term has none.
+ * @return string Prefix, with a trailing slash, or '' for none.
+ */
+function iflynepal_package_language_url_prefix( $lang ) {
+	if ( '' === $lang || ! function_exists( 'PLL' ) || ! PLL() ) {
+		return '';
+	}
+
+	$options = PLL()->options;
+
+	if ( $lang === $options['default_lang'] && $options['hide_default'] ) {
+		return '';
+	}
+
+	$base = $options['rewrite'] ? '' : 'language/';
+
+	return $base . $lang . '/';
+}
+
+/**
  * The plugin's rewrite rules, in match order.
  *
  * Order is the whole design. Every type archive path is emitted before any
@@ -161,6 +192,14 @@ function iflynepal_package_rewrite_rules() {
 		array(
 			'taxonomy'   => IFLYNEPAL_PACKAGE_TAXONOMY,
 			'hide_empty' => false,
+			/*
+			 * Every language's terms, not just whichever one was active when
+			 * the rules last flushed. Polylang silently filters get_terms() to
+			 * the current language otherwise, so a French term slug — e.g.
+			 * "randonnee" — would never get a matching rule and every French
+			 * package URL under it would 404.
+			 */
+			'lang'       => '',
 		)
 	);
 
@@ -172,11 +211,29 @@ function iflynepal_package_rewrite_rules() {
 				continue;
 			}
 
-			$path = preg_quote( $path, '#' );
+			/*
+			 * The language's own URL prefix ("fr/", or "" for the default
+			 * language when it is hidden) plus a `lang=` query var, matching
+			 * what Polylang stitches onto every rule it builds itself.
+			 *
+			 * Needed because these rules are added on the 'rewrite_rules_array'
+			 * filter, which is the one place Polylang's own auto-prefixing
+			 * (src/links-directory.php, PLL_Links_Directory::rewrite_rules())
+			 * explicitly skips — it only prefixes rules whose query string
+			 * already reads `post_type=…`, and this plugin's rules use the
+			 * taxonomy/post type's own query var instead. Without this, a
+			 * French request for /fr/randonnee/… never matches any rule at
+			 * all and falls straight through to a 404.
+			 */
+			$lang       = function_exists( 'pll_get_term_language' ) ? pll_get_term_language( $term->term_id ) : '';
+			$prefix     = iflynepal_package_language_url_prefix( $lang );
+			$lang_query = '' !== $lang ? 'lang=' . $lang . '&' : '';
 
-			$archives[ $path . '/page/([0-9]{1,})/?$' ] = 'index.php?' . IFLYNEPAL_PACKAGE_TAXONOMY . '=' . $term->slug . '&paged=$matches[1]';
-			$archives[ $path . '/?$' ]                  = 'index.php?' . IFLYNEPAL_PACKAGE_TAXONOMY . '=' . $term->slug;
-			$singles[ $path . '/([^/]+)/?$' ]           = 'index.php?' . IFLYNEPAL_PACKAGE_POST_TYPE . '=$matches[1]';
+			$path = preg_quote( $prefix . $path, '#' );
+
+			$archives[ $path . '/page/([0-9]{1,})/?$' ] = 'index.php?' . $lang_query . IFLYNEPAL_PACKAGE_TAXONOMY . '=' . $term->slug . '&paged=$matches[1]';
+			$archives[ $path . '/?$' ]                  = 'index.php?' . $lang_query . IFLYNEPAL_PACKAGE_TAXONOMY . '=' . $term->slug;
+			$singles[ $path . '/([^/]+)/?$' ]           = 'index.php?' . $lang_query . IFLYNEPAL_PACKAGE_POST_TYPE . '=$matches[1]';
 		}
 	}
 

@@ -33,13 +33,13 @@ if ( '' !== $iflynepal_price ) :
 	?>
 	<div class="iflynepal-pkg-book-bar" id="ifnpkg-book-bar" aria-hidden="true">
 		<div>
-			<small><?php esc_html_e( 'From', 'iflynepal' ); ?></small>
+			<small><?php echo esc_html( iflynepal_pkg_t( 'From' ) ); ?></small>
 			<strong>
 				<?php echo esc_html( trim( $iflynepal_currency . ' ' . $iflynepal_price ) ); ?>
-				<span>/ <?php esc_html_e( 'person', 'iflynepal' ); ?></span>
+				<span>/ <?php echo esc_html( iflynepal_pkg_t( 'person' ) ); ?></span>
 			</strong>
 		</div>
-		<a class="iflynepal-pkg-button iflynepal-pkg-button--primary" href="#ifnpkg-dates" tabindex="-1"><?php esc_html_e( 'Book now', 'iflynepal' ); ?></a>
+		<a class="iflynepal-pkg-button iflynepal-pkg-button--primary" href="#ifnpkg-dates" tabindex="-1"><?php echo esc_html( iflynepal_pkg_t( 'Book now' ) ); ?></a>
 	</div>
 	<?php
 endif;
@@ -49,21 +49,21 @@ if ( count( $iflynepal_photos ) < 1 ) {
 }
 ?>
 
-<div class="iflynepal-pkg-lightbox" id="ifnpkg-lightbox" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Photo gallery', 'iflynepal' ); ?>" hidden>
+<div class="iflynepal-pkg-lightbox" id="ifnpkg-lightbox" role="dialog" aria-modal="true" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Photo gallery' ) ); ?>" hidden>
 	<div class="iflynepal-pkg-lb-top">
 		<span class="iflynepal-pkg-lb-count" id="ifnpkg-lb-count"></span>
-		<button class="iflynepal-pkg-lb-btn" type="button" id="ifnpkg-lb-close" aria-label="<?php esc_attr_e( 'Close gallery', 'iflynepal' ); ?>">
+		<button class="iflynepal-pkg-lb-btn" type="button" id="ifnpkg-lb-close" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Close gallery' ) ); ?>">
 			<svg class="iflynepal-pkg-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
 		</button>
 	</div>
 
 	<div class="iflynepal-pkg-lb-stage">
-		<button class="iflynepal-pkg-lb-btn iflynepal-pkg-lb-prev" type="button" id="ifnpkg-lb-prev" aria-label="<?php esc_attr_e( 'Previous photo', 'iflynepal' ); ?>"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-left"/></svg></button>
+		<button class="iflynepal-pkg-lb-btn iflynepal-pkg-lb-prev" type="button" id="ifnpkg-lb-prev" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Previous photo' ) ); ?>"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-left"/></svg></button>
 		<figure class="iflynepal-pkg-lb-figure">
 			<img id="ifnpkg-lb-img" src="" alt="" />
 			<figcaption id="ifnpkg-lb-cap"></figcaption>
 		</figure>
-		<button class="iflynepal-pkg-lb-btn iflynepal-pkg-lb-next" type="button" id="ifnpkg-lb-next" aria-label="<?php esc_attr_e( 'Next photo', 'iflynepal' ); ?>"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-right"/></svg></button>
+		<button class="iflynepal-pkg-lb-btn iflynepal-pkg-lb-next" type="button" id="ifnpkg-lb-next" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Next photo' ) ); ?>"><svg class="iflynepal-pkg-ico" aria-hidden="true"><use href="#ifnpkg-i-right"/></svg></button>
 	</div>
 
 	<div class="iflynepal-pkg-lb-thumbs" id="ifnpkg-lb-thumbs"></div>

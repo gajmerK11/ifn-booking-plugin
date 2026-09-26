@@ -37,7 +37,7 @@ if ( empty( $iflynepal_items ) ) {
 	return;
 }
 
-$iflynepal_unit = empty( $iflynepal_days ) ? __( 'Week', 'iflynepal' ) : __( 'Day', 'iflynepal' );
+$iflynepal_unit = empty( $iflynepal_days ) ? iflynepal_pkg_t( 'Week' ) : iflynepal_pkg_t( 'Day' );
 
 $iflynepal_heading  = iflynepal_package_field( $iflynepal_id, 'itinerary_heading' );
 $iflynepal_altitude = iflynepal_package_altitude_profile( $iflynepal_id );
@@ -55,7 +55,7 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 
 <section class="iflynepal-pkg-t-section" id="ifnpkg-itinerary" aria-labelledby="ifnpkg-itinerary-h">
 	<div class="iflynepal-pkg-t-head" data-iflynepal-anim>
-		<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Itinerary', 'iflynepal' ); ?></span>
+		<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'Itinerary' ) ); ?></span>
 		<?php if ( '' !== $iflynepal_heading ) : ?>
 			<h2 id="ifnpkg-itinerary-h"><?php iflynepal_package_the_heading( $iflynepal_heading ); ?></h2>
 		<?php endif; ?>
@@ -67,16 +67,14 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 
 		foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_point ) {
 			$iflynepal_alt_label_bits[] = sprintf(
-				/* translators: 1: day number, 2: elevation in metres. */
-				__( 'day %1$d, %2$s metres', 'iflynepal' ),
+				iflynepal_pkg_t( 'day %1$d, %2$s metres' ),
 				$iflynepal_alt_point['day'],
 				number_format_i18n( $iflynepal_alt_point['metres'] )
 			);
 		}
 
 		$iflynepal_alt_label = sprintf(
-			/* translators: %s: a comma-separated list of "day N, X metres". */
-			__( 'Line chart of altitude by day: %s.', 'iflynepal' ),
+			iflynepal_pkg_t( 'Line chart of altitude by day: %s.' ),
 			implode( ', ', $iflynepal_alt_label_bits )
 		);
 
@@ -98,7 +96,7 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 		?>
 		<div class="iflynepal-pkg-alt-card" data-iflynepal-anim>
 			<div class="iflynepal-pkg-alt-head">
-				<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Altitude profile', 'iflynepal' ); ?></span>
+				<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'Altitude profile' ) ); ?></span>
 			</div>
 			<div class="iflynepal-pkg-alt-scroll">
 				<svg class="iflynepal-pkg-alt-svg" viewBox="0 0 660 230" role="img" aria-label="<?php echo esc_attr( $iflynepal_alt_label ); ?>">
@@ -122,7 +120,7 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 					<g class="iflynepal-pkg-alt-dots">
 						<?php foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_index => $iflynepal_alt_point ) : ?>
 							<?php $iflynepal_alt_is_peak = ( $iflynepal_alt_index === $iflynepal_altitude['peak_index'] ); ?>
-							<circle class="<?php echo esc_attr( $iflynepal_alt_is_peak ? 'iflynepal-pkg-is-peak' : '' ); ?>" cx="<?php echo esc_attr( (string) $iflynepal_alt_point['x'] ); ?>" cy="<?php echo esc_attr( (string) $iflynepal_alt_point['y'] ); ?>" r="<?php echo esc_attr( $iflynepal_alt_is_peak ? '6' : '3.5' ); ?>"><title><?php echo esc_html( sprintf( /* translators: 1: day number, 2: elevation in metres. */ __( 'Day %1$d: %2$sm', 'iflynepal' ), $iflynepal_alt_point['day'], number_format_i18n( $iflynepal_alt_point['metres'] ) ) ); ?></title></circle>
+							<circle class="<?php echo esc_attr( $iflynepal_alt_is_peak ? 'iflynepal-pkg-is-peak' : '' ); ?>" cx="<?php echo esc_attr( (string) $iflynepal_alt_point['x'] ); ?>" cy="<?php echo esc_attr( (string) $iflynepal_alt_point['y'] ); ?>" r="<?php echo esc_attr( $iflynepal_alt_is_peak ? '6' : '3.5' ); ?>"><title><?php echo esc_html( sprintf( iflynepal_pkg_t( 'Day %1$d: %2$sm' ), $iflynepal_alt_point['day'], number_format_i18n( $iflynepal_alt_point['metres'] ) ) ); ?></title></circle>
 						<?php endforeach; ?>
 					</g>
 
@@ -134,7 +132,7 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 					</g>
 
 					<g class="iflynepal-pkg-alt-days">
-						<text x="<?php echo esc_attr( (string) ( $iflynepal_altitude['left'] - 10 ) ); ?>" y="<?php echo esc_attr( (string) $iflynepal_altitude['axis_y'] ); ?>" text-anchor="end"><?php esc_html_e( 'Day', 'iflynepal' ); ?></text>
+						<text x="<?php echo esc_attr( (string) ( $iflynepal_altitude['left'] - 10 ) ); ?>" y="<?php echo esc_attr( (string) $iflynepal_altitude['axis_y'] ); ?>" text-anchor="end"><?php echo esc_html( iflynepal_pkg_t( 'Day' ) ); ?></text>
 						<?php foreach ( $iflynepal_altitude['points'] as $iflynepal_alt_index => $iflynepal_alt_point ) : ?>
 							<text class="<?php echo esc_attr( $iflynepal_alt_index === $iflynepal_altitude['peak_index'] ? 'iflynepal-pkg-is-peak' : '' ); ?>" x="<?php echo esc_attr( (string) $iflynepal_alt_point['x'] ); ?>" y="<?php echo esc_attr( (string) $iflynepal_altitude['axis_y'] ); ?>" text-anchor="middle"><?php echo esc_html( (string) $iflynepal_alt_point['day'] ); ?></text>
 						<?php endforeach; ?>
@@ -154,10 +152,10 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 		 */
 		?>
 		<?php if ( $iflynepal_has_short ) : ?>
-			<div class="iflynepal-pkg-seg" role="tablist" aria-label="<?php esc_attr_e( 'Itinerary view', 'iflynepal' ); ?>">
+			<div class="iflynepal-pkg-seg" role="tablist" aria-label="<?php echo esc_attr( iflynepal_pkg_t( 'Itinerary view' ) ); ?>">
 				<span class="iflynepal-pkg-seg-fill" id="ifnpkg-seg-fill" aria-hidden="true"></span>
-				<button type="button" role="tab" id="ifnpkg-tab-short" aria-controls="ifnpkg-panel-short" aria-selected="true"><?php esc_html_e( 'Short itinerary', 'iflynepal' ); ?></button>
-				<button type="button" role="tab" id="ifnpkg-tab-full" aria-controls="ifnpkg-panel-full" aria-selected="false" tabindex="-1"><?php esc_html_e( 'Detailed Itinerary', 'iflynepal' ); ?></button>
+				<button type="button" role="tab" id="ifnpkg-tab-short" aria-controls="ifnpkg-panel-short" aria-selected="true"><?php echo esc_html( iflynepal_pkg_t( 'Short itinerary' ) ); ?></button>
+				<button type="button" role="tab" id="ifnpkg-tab-full" aria-controls="ifnpkg-panel-full" aria-selected="false" tabindex="-1"><?php echo esc_html( iflynepal_pkg_t( 'Detailed Itinerary' ) ); ?></button>
 			</div>
 		<?php endif; ?>
 
@@ -170,7 +168,7 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 		 * there is no other panel to be on.
 		 */
 		?>
-		<button class="iflynepal-pkg-text-btn" type="button" id="ifnpkg-expand-all" aria-expanded="false"<?php echo $iflynepal_has_short ? ' hidden' : ''; ?>><?php esc_html_e( 'Expand all', 'iflynepal' ); ?></button>
+		<button class="iflynepal-pkg-text-btn" type="button" id="ifnpkg-expand-all" aria-expanded="false"<?php echo $iflynepal_has_short ? ' hidden' : ''; ?>><?php echo esc_html( iflynepal_pkg_t( 'Expand all' ) ); ?></button>
 	</div>
 
 	<?php if ( $iflynepal_has_short ) : ?>

@@ -70,7 +70,7 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 		 */
 		?>
 		<span class="iflynepal-connect__tab-label">
-			<span class="iflynepal-connect__tab-text"><?php esc_html_e( 'Connect With Us', 'iflynepal' ); ?></span>
+			<span class="iflynepal-connect__tab-text"><?php echo esc_html( iflynepal_pkg_t( 'Connect With Us' ) ); ?></span>
 		</span>
 	</a>
 
@@ -95,10 +95,10 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 	?>
 	<section class="iflynepal-connect__panel" id="iflynepal-connect-panel" aria-labelledby="iflynepal-connect-title" tabindex="-1">
 		<header class="iflynepal-connect__head">
-			<h2 class="iflynepal-connect__title" id="iflynepal-connect-title"><?php esc_html_e( 'Connect With Us', 'iflynepal' ); ?></h2>
+			<h2 class="iflynepal-connect__title" id="iflynepal-connect-title"><?php echo esc_html( iflynepal_pkg_t( 'Connect With Us' ) ); ?></h2>
 
 			<button class="iflynepal-connect__close" type="button" data-iflynepal-connect-close hidden>
-				<span class="screen-reader-text"><?php esc_html_e( 'Close', 'iflynepal' ); ?></span>
+				<span class="screen-reader-text"><?php echo esc_html( iflynepal_pkg_t( 'Close' ) ); ?></span>
 				<svg class="iflynepal-connect__x" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
 					<path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
 				</svg>
@@ -136,7 +136,7 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 			 */
 			?>
 			<p class="iflynepal-connect__hp" aria-hidden="true">
-				<label for="iflynepal-connect-website"><?php esc_html_e( 'Leave this field empty', 'iflynepal' ); ?></label>
+				<label for="iflynepal-connect-website"><?php echo esc_html( iflynepal_pkg_t( 'Leave this field empty' ) ); ?></label>
 				<input type="text" id="iflynepal-connect-website" name="website" tabindex="-1" autocomplete="off" value="">
 			</p>
 
@@ -194,7 +194,7 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 							<?php echo $iflynepal_required ? 'required' : ''; ?>
 							<?php echo '' !== $iflynepal_help ? 'aria-describedby="' . esc_attr( $iflynepal_id ) . '-help"' : ''; ?>
 						>
-							<option value=""><?php echo esc_html( isset( $iflynepal_field['empty'] ) ? $iflynepal_field['empty'] : __( 'Choose one', 'iflynepal' ) ); ?></option>
+							<option value=""><?php echo esc_html( isset( $iflynepal_field['empty'] ) ? $iflynepal_field['empty'] : iflynepal_pkg_t( 'Choose one' ) ); ?></option>
 							<?php foreach ( $iflynepal_choices as $iflynepal_choice ) : ?>
 								<option value="<?php echo esc_attr( (string) $iflynepal_choice['id'] ); ?>">
 									<?php
@@ -231,7 +231,7 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 
 			<p class="iflynepal-connect__actions">
 				<button class="iflynepal-connect__submit" type="submit">
-					<?php esc_html_e( 'Send', 'iflynepal' ); ?>
+					<?php echo esc_html( iflynepal_pkg_t( 'Send' ) ); ?>
 					<?php echo iflynepal_booking_arrow_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- returns finished, escaped markup. ?>
 				</button>
 			</p>
@@ -246,16 +246,16 @@ $iflynepal_chat_url = iflynepal_whatsapp_url();
 			?>
 			<?php if ( '' !== $iflynepal_chat_url ) : ?>
 				<p class="iflynepal-connect__alt">
-					<?php esc_html_e( 'Prefer to chat?', 'iflynepal' ); ?>
+					<?php echo esc_html( iflynepal_pkg_t( 'Prefer to chat?' ) ); ?>
 				</p>
 				<a class="iflynepal-connect__whatsapp" <?php echo iflynepal_booking_anchor_attr( $iflynepal_chat_url ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside the helper. ?> target="_blank" rel="noopener noreferrer">
 					<svg class="iflynepal-connect__whatsapp-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8a9.1 9.1 0 0 0-7.9 13.7L2.8 21.2l4.8-1.3A9.1 9.1 0 1 0 12 2.8zm0 16.6c-1.4 0-2.8-.4-4-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A7.5 7.5 0 1 1 12 19.4zm4.1-5.6c-.2-.1-1.3-.7-1.6-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.2-.1-1-.4-1.8-1.1-.7-.6-1.1-1.3-1.3-1.5-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5 2 .8 2.4.6 2.8.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1l-.5-.3z"/></svg>
-					<?php esc_html_e( 'Message us on WhatsApp', 'iflynepal' ); ?>
+					<?php echo esc_html( iflynepal_pkg_t( 'Message us on WhatsApp' ) ); ?>
 				</a>
 			<?php endif; ?>
 
 			<p class="iflynepal-connect__small">
-				<?php esc_html_e( 'We use your details to answer you and nothing else.', 'iflynepal' ); ?>
+				<?php echo esc_html( iflynepal_pkg_t( 'We use your details to answer you and nothing else.' ) ); ?>
 			</p>
 		</form>
 	</section>

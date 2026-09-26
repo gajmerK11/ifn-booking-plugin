@@ -33,7 +33,7 @@ $iflynepal_lead    = iflynepal_package_field( $iflynepal_id, 'faq_lead' );
 <section class="iflynepal-pkg-band" id="ifnpkg-faqs" aria-labelledby="ifnpkg-faqs-h">
 	<div class="iflynepal-pkg-faq-layout">
 		<div data-iflynepal-anim>
-			<span class="iflynepal-pkg-eyebrow"><?php esc_html_e( 'Before you book', 'iflynepal' ); ?></span>
+			<span class="iflynepal-pkg-eyebrow"><?php echo esc_html( iflynepal_pkg_t( 'Before you book' ) ); ?></span>
 			<?php if ( '' !== $iflynepal_heading ) : ?>
 				<h2 id="ifnpkg-faqs-h"><?php iflynepal_package_the_heading( $iflynepal_heading ); ?></h2>
 			<?php endif; ?>

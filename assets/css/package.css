@@ -802,6 +802,16 @@ so the nav
     }
     .iflynepal-pkg-price-card::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--ifnpkg-navy),var(--ifnpkg-navy-2) 60%,var(--ifnpkg-gold))}
     .iflynepal-pkg-price-card .iflynepal-pkg-eyebrow{display:block!important;width:100%!important;text-align:center!important;margin-bottom:28px}
+    /*
+     * flex-wrap stays nowrap — the design keeps this row on one line — but a
+     * translation's unit word can run longer than English's "/ person" (e.g.
+     * French "/ personne"), and with every child pinned to flex-shrink:0
+     * nothing here can give. assets/js/package/package.js's priceFit()
+     * shrinks the price figure's own font-size until the row fits instead,
+     * the same scrollWidth/clientWidth technique the map heading already
+     * uses (mapTitleFit()) — so a long unit label shrinks the number down to
+     * make room rather than overflowing the card's overflow:hidden.
+     */
     .iflynepal-pkg-price-from{display:flex;align-items:baseline;gap:6px;flex-wrap:nowrap}
     .iflynepal-pkg-price-from small{color:var(--ifnpkg-muted);font-size:13px;font-weight:600;flex-shrink:0;white-space:nowrap}
     .iflynepal-pkg-price-from strong{font-size:40px;font-weight:700;letter-spacing:-.035em;line-height:1;flex-shrink:0;white-space:nowrap}
