@@ -790,8 +790,8 @@ function iflynepal_archive_requested_filter( $facet, $options ) {
  */
 function iflynepal_archive_duration_unit_names() {
 	return array(
-		'days'  => __( 'Days', 'iflynepal' ),
-		'weeks' => __( 'Weeks', 'iflynepal' ),
+		'days'  => iflynepal_pkg_t( 'Days' ),
+		'weeks' => iflynepal_pkg_t( 'Weeks' ),
 	);
 }
 
@@ -1079,8 +1079,8 @@ function iflynepal_archive_facets( $term_id, $packages ) {
 
 		$facets[] = array(
 			'facet'   => 'categories',
-			'label'   => __( 'Activity', 'iflynepal' ),
-			'aria'    => __( 'Filter by activity', 'iflynepal' ),
+			'label'   => iflynepal_pkg_t( 'Activity' ),
+			'aria'    => iflynepal_pkg_t( 'Filter by activity' ),
 			'style'   => 'pills',
 			'total'   => $total,
 			'options' => $options,
@@ -1126,8 +1126,8 @@ function iflynepal_archive_facets( $term_id, $packages ) {
 		$facets[] = array(
 			'selected'   => iflynepal_archive_requested_filter( 'duration', $options ),
 			'facet'      => 'duration',
-			'label'      => __( 'Duration', 'iflynepal' ),
-			'aria'       => __( 'Filter by duration', 'iflynepal' ),
+			'label'      => iflynepal_pkg_t( 'Duration' ),
+			'aria'       => iflynepal_pkg_t( 'Filter by duration' ),
 			'style'      => 'list',
 			'total'      => $total,
 			'unit_names' => $split ? iflynepal_archive_duration_unit_names() : array(),
@@ -1149,8 +1149,8 @@ function iflynepal_archive_facets( $term_id, $packages ) {
 		$facets[] = array(
 			'selected' => iflynepal_archive_requested_filter( 'budget', $options ),
 			'facet'    => 'budget',
-			'label'    => __( 'Budget', 'iflynepal' ),
-			'aria'     => __( 'Filter by budget', 'iflynepal' ),
+			'label'    => iflynepal_pkg_t( 'Budget' ),
+			'aria'     => iflynepal_pkg_t( 'Filter by budget' ),
 			'style'    => 'list',
 			'total'    => $total,
 			'options'  => $options,

@@ -86,6 +86,32 @@ function iflynepal_register_package_pll_strings() {
 	pll_register_string( 'Show all matching packages', 'Show all matching packages', $filters );
 	pll_register_string( 'View all N packages', 'View all %s packages', $filters );
 
+	// Filters & listing: facet labels.
+	pll_register_string( 'Facet: Activity', 'Activity', $filters );
+	pll_register_string( 'Facet: Filter by activity', 'Filter by activity', $filters );
+	pll_register_string( 'Facet: Duration', 'Duration', $filters );
+	pll_register_string( 'Facet: Filter by duration', 'Filter by duration', $filters );
+	pll_register_string( 'Facet: Duration unit Days', 'Days', $filters );
+	pll_register_string( 'Facet: Duration unit Weeks', 'Weeks', $filters );
+	pll_register_string( 'Facet: Budget', 'Budget', $filters );
+	pll_register_string( 'Facet: Filter by budget', 'Filter by budget', $filters );
+
+	/*
+	 * Duration bucket wording (iflynepal_trip_finder_duration_label() and
+	 * _weeks()), the same builder the homepage hero and this archive sidebar
+	 * both call — a bucket's numbers are always computed, never typed, but the
+	 * words around them ("day(s)", "week(s)") are exactly the kind of static
+	 * UI text this file exists to translate.
+	 */
+	pll_register_string( 'Duration bucket: N+ days', '%d+ days', $filters );
+	pll_register_string( 'Duration bucket: 1 day', '%d day', $filters );
+	pll_register_string( 'Duration bucket: N days', '%d days', $filters );
+	pll_register_string( 'Duration bucket: N-M days', '%1$d–%2$d days', $filters );
+	pll_register_string( 'Duration bucket: N+ weeks', '%d+ weeks', $filters );
+	pll_register_string( 'Duration bucket: 1 week', '%d week', $filters );
+	pll_register_string( 'Duration bucket: N weeks', '%d weeks', $filters );
+	pll_register_string( 'Duration bucket: N-M weeks', '%1$d–%2$d weeks', $filters );
+
 	// Single: gallery.
 	pll_register_string( 'Photo gallery label', 'Photo gallery', $gallery );
 	pll_register_string( 'Play video', 'Play video', $gallery );

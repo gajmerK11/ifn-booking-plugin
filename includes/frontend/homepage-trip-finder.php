@@ -180,18 +180,18 @@ function iflynepal_trip_finder_duration_label( $min, $max ) {
 	}
 
 	if ( null === $max ) {
-		/* translators: %d: the lowest number of days in an open-ended bucket, e.g. "15+ days". */
-		return sprintf( __( '%d+ days', 'iflynepal' ), $min );
+		// %d: the lowest number of days in an open-ended bucket, e.g. "15+ days".
+		return sprintf( iflynepal_pkg_t( '%d+ days' ), $min );
 	}
 
 	if ( (int) $max === $min ) {
-		/* translators: %d: a number of days. */
-		return sprintf( _n( '%d day', '%d days', $min, 'iflynepal' ), $min );
+		// %d: a number of days.
+		return sprintf( iflynepal_pkg_tn( '%d day', '%d days', $min ), $min );
 	}
 
+	// 1: lowest number of days, 2: highest. The separator is an en dash.
 	return sprintf(
-		/* translators: 1: lowest number of days, 2: highest. The separator is an en dash. */
-		__( '%1$d–%2$d days', 'iflynepal' ),
+		iflynepal_pkg_t( '%1$d–%2$d days' ),
 		$min,
 		(int) $max
 	);
@@ -220,21 +220,21 @@ function iflynepal_trip_finder_duration_label( $min, $max ) {
  */
 function iflynepal_trip_finder_duration_label_weeks( $min, $max ) {
 	if ( null === $max ) {
-		/* translators: %d: the lowest whole number of weeks in an open-ended bucket, e.g. "2+ weeks". */
-		return sprintf( __( '%d+ weeks', 'iflynepal' ), (int) floor( $min / 7 ) );
+		// %d: the lowest whole number of weeks in an open-ended bucket, e.g. "2+ weeks".
+		return sprintf( iflynepal_pkg_t( '%d+ weeks' ), (int) floor( $min / 7 ) );
 	}
 
 	$low  = (int) round( $min / 7 );
 	$high = (int) round( (int) $max / 7 );
 
 	if ( $high <= $low ) {
-		/* translators: %d: a number of weeks. */
-		return sprintf( _n( '%d week', '%d weeks', $low, 'iflynepal' ), $low );
+		// %d: a number of weeks.
+		return sprintf( iflynepal_pkg_tn( '%d week', '%d weeks', $low ), $low );
 	}
 
+	// 1: lowest number of weeks, 2: highest. The separator is an en dash.
 	return sprintf(
-		/* translators: 1: lowest number of weeks, 2: highest. The separator is an en dash. */
-		__( '%1$d–%2$d weeks', 'iflynepal' ),
+		iflynepal_pkg_t( '%1$d–%2$d weeks' ),
 		$low,
 		$high
 	);

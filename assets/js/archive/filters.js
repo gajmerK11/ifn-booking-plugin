@@ -340,6 +340,45 @@
 		grid.hidden = 0 === shown;
 
 		refreshReveals();
+		fitFacetsTitle();
+	}
+
+	/*
+	 * The facets panel title ("Find your trip") shares its row with the Clear
+	 * all reset, which appears only once a filter is active — a translation
+	 * longer than the English can fit alongside empty space but wrap to two
+	 * lines the moment that reset button claims part of the row. Same
+	 * technique as mapTitleFit()/priceFit() in package.js: shrink the title
+	 * only, not the reset beside it, until the row is one line again.
+	 */
+	var FACETS_TITLE_MIN_FONT_SIZE = 12;
+
+	function fitFacetsTitle() {
+		var head = document.querySelector( '.iflynepal-facets__head' );
+		var title = head ? head.querySelector( '.iflynepal-facets__title' ) : null;
+
+		if ( ! head || ! title ) {
+			return;
+		}
+
+		title.style.removeProperty( 'font-size' );
+		// Wrapping to a second line never overflows the row horizontally, so
+		// scrollWidth below would never see it as too wide — nowrap turns
+		// "wraps" into "overflows", which is what the shrink loop can measure.
+		title.style.whiteSpace = 'nowrap';
+
+		var fontSize = parseFloat( getComputedStyle( title ).fontSize );
+
+		while ( head.scrollWidth > head.clientWidth && fontSize > FACETS_TITLE_MIN_FONT_SIZE ) {
+			fontSize -= 1;
+			title.style.setProperty( 'font-size', fontSize + 'px' );
+		}
+
+		// Still too long at the floor size: an ordinary two-line wrap reads
+		// better than either clipping or a title shrunk unreadably small.
+		if ( head.scrollWidth > head.clientWidth ) {
+			title.style.whiteSpace = 'normal';
+		}
 	}
 
 	/**
@@ -578,4 +617,10 @@
 	 * to start in a state that agrees with them rather than with their markup.
 	 */
 	apply();
+
+	var facetsTitleResizeTimer;
+	window.addEventListener( 'resize', function () {
+		clearTimeout( facetsTitleResizeTimer );
+		facetsTitleResizeTimer = setTimeout( fitFacetsTitle, 150 );
+	} );
 }() );

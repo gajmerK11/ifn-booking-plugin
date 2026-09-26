@@ -208,6 +208,127 @@ function iflynepal_package_meta_key( $key ) {
 }
 
 /**
+ * Keeps a package's language-neutral facts identical across every language
+ * version of it: its photos and video, and every field that is a number, a
+ * code, a URL or a fixed choice rather than a sentence.
+ *
+ * None of these is editorial content a translator would ever want to differ —
+ * a price, a duration in days, a check-in time, a map link, an expert's photo
+ * and name are the same fact regardless of which language a visitor reads the
+ * page in. The three fixed-vocabulary glance fields (meals, accommodation,
+ * experience level) are stored as literal English keys ("Breakfast",
+ * "Included", "Easy") on every language version alike — iflynepal_pkg_t()
+ * translates the KEY to the right language at render time
+ * (iflynepal_package_glance() in package-render.php), so copying the raw key
+ * here is exactly what that lookup expects, not a bug.
+ *
+ * Polylang already copies a post's "public" custom fields (any meta key not
+ * starting with an underscore) the first time a translation is created, but
+ * every meta key this plugin uses starts with an underscore like the rest of
+ * `IFLYNEPAL_PACKAGE_META_PREFIX` — so without this filter none of these
+ * would be copied on no language version, including the first.
+ *
+ * Returned unconditionally, for both the one-time copy Polylang runs when a
+ * new translation is first created (`$sync === false`) and its ongoing
+ * synchronization on every later save (`$sync === true`), so editing any of
+ * these on either language version updates every other one too, not just at
+ * creation.
+ *
+ * @since 1.0.0
+ *
+ * @param string[] $keys Meta keys already queued to copy or sync.
+ * @param bool     $sync Whether this is a copy (false) or a sync (true).
+ * @param int      $from Source post ID.
+ * @return string[] Filtered meta keys.
+ */
+function iflynepal_package_sync_language_neutral_metas( $keys, $sync, $from ) {
+	if ( IFLYNEPAL_PACKAGE_POST_TYPE !== get_post_type( $from ) ) {
+		return $keys;
+	}
+
+	$schema_keys = array(
+		'featured_video',
+		'gallery',
+		'glance_meals',
+		'glance_stay',
+		'glance_level',
+		'glance_checkin',
+		'price_amount',
+		'price_currency',
+		'duration_days',
+		'expert_image',
+		'expert_name',
+		'map_embed',
+		'map_link',
+	);
+
+	return array_unique(
+		array_merge(
+			$keys,
+			array( '_thumbnail_id' ),
+			array_map( 'iflynepal_package_meta_key', $schema_keys )
+		)
+	);
+}
+add_filter( 'pll_copy_post_metas', 'iflynepal_package_sync_language_neutral_metas', 10, 3 );
+
+/**
+ * Carries a package's Package Types over to its translation, creating the
+ * matching term in the new language (with the same parent/child pairing) the
+ * first time it is needed.
+ *
+ * Polylang's own translation-copy step (`PLL_Sync_Tax::copy()`) only ever
+ * assigns a term that already has a translation in the target language — a
+ * type with none yet, e.g. a brand-new "Nightout" never translated to
+ * French, is silently dropped instead, leaving a translated package with no
+ * Package Types checked at all.
+ *
+ * Assigning the *source* language's term ids to the new (already-translated)
+ * post here, instead of doing the term lookup or creation ourselves, hands
+ * the job to `PLL_CRUD_Posts::set_object_terms()` — Polylang's own listener
+ * on `set_object_terms`, always active, that notices a post is being tagged
+ * with terms in the wrong language and translates (or recursively creates,
+ * parent first) each one, exactly as it already does for a post tag typed in
+ * the wrong language. Running after Polylang's own copy step (hooked to the
+ * same filter at its default priority 10) means this simply supersedes it
+ * for this one taxonomy, ending with the complete, correctly-paired set.
+ *
+ * @since 1.0.0
+ *
+ * @param bool $is_block_editor Whether the post can be edited with the block editor.
+ * @return bool Unmodified.
+ */
+function iflynepal_package_translate_types( $is_block_editor ) {
+	global $post;
+	static $done = array();
+
+	if ( empty( $post ) || ! function_exists( 'PLL' ) || ! PLL() instanceof PLL_Admin_Base ) {
+		return $is_block_editor;
+	}
+
+	$context_data = PLL()->links->get_data_from_new_post_translation_request();
+
+	if ( empty( $context_data ) || ! empty( $done[ $context_data['from_post']->ID ] ) ) {
+		return $is_block_editor;
+	}
+
+	if ( IFLYNEPAL_PACKAGE_POST_TYPE !== $context_data['from_post']->post_type ) {
+		return $is_block_editor;
+	}
+
+	$done[ $context_data['from_post']->ID ] = true;
+
+	$terms = wp_get_object_terms( $context_data['from_post']->ID, IFLYNEPAL_PACKAGE_TAXONOMY, array( 'fields' => 'ids' ) );
+
+	if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
+		wp_set_object_terms( $post->ID, $terms, IFLYNEPAL_PACKAGE_TAXONOMY );
+	}
+
+	return $is_block_editor;
+}
+add_filter( 'use_block_editor_for_post', 'iflynepal_package_translate_types', 5001 );
+
+/**
  * One stored package detail.
  *
  * @since 1.0.0
@@ -218,6 +339,41 @@ function iflynepal_package_meta_key( $key ) {
  */
 function iflynepal_package_field( $post_id, $key ) {
 	return (string) get_post_meta( (int) $post_id, iflynepal_package_meta_key( $key ), true );
+}
+
+/**
+ * Resolves a schema field's `default` for an unsaved value.
+ *
+ * A default is either a plain string (the same pre-fill regardless of
+ * language, e.g. the office WhatsApp number) or an array keyed by Polylang
+ * language slug (e.g. `array( 'en' => ..., 'fr' => ... )`), for copy that
+ * itself needs translating rather than reused as-is. The package's own
+ * language decides which one a new package sees, so a French package is
+ * pre-filled in French from the moment it is created, not just once
+ * translated after the fact.
+ *
+ * @since 1.0.0
+ *
+ * @param string|array $default Schema `default` value.
+ * @param int          $post_id Package.
+ * @return string
+ */
+function iflynepal_package_field_default( $default, $post_id ) {
+	if ( ! is_array( $default ) ) {
+		return (string) $default;
+	}
+
+	$lang = function_exists( 'pll_get_post_language' ) ? pll_get_post_language( (int) $post_id ) : '';
+
+	if ( '' === $lang && function_exists( 'pll_default_language' ) ) {
+		$lang = pll_default_language();
+	}
+
+	if ( isset( $default[ $lang ] ) ) {
+		return (string) $default[ $lang ];
+	}
+
+	return (string) reset( $default );
 }
 
 /**

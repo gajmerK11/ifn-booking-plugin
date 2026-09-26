@@ -230,6 +230,53 @@
 		} );
 	}() );
 
+	/* ---------------------------------------------------------- price foot */
+
+	( function priceFootFit() {
+		var foot = root.querySelector( '.iflynepal-pkg-price-foot' );
+
+		if ( ! foot ) {
+			return;
+		}
+
+		/*
+		 * Same technique as mapTitleFit() and priceFit() above: the footnote
+		 * (price_foot) is an editor's own free text, sized for English's short
+		 * "No payment needed to enquire" next to its icon. A longer
+		 * translation — French "Aucun paiement requis pour se renseigner" —
+		 * wraps to two lines at that size instead of overflowing, since the
+		 * row has no overflow:hidden of its own, but the design reads it as
+		 * one line beside the icon.
+		 */
+		var MIN_FONT_SIZE = 9;
+
+		function fit() {
+			foot.style.removeProperty( 'font-size' );
+			foot.style.whiteSpace = 'nowrap';
+
+			var fontSize = parseFloat( getComputedStyle( foot ).fontSize );
+
+			while ( foot.scrollWidth > foot.clientWidth && fontSize > MIN_FONT_SIZE ) {
+				fontSize -= 0.5;
+				foot.style.setProperty( 'font-size', fontSize + 'px' );
+			}
+
+			// Still too long at the floor size: an ordinary wrap reads better
+			// than text shrunk unreadably small.
+			if ( foot.scrollWidth > foot.clientWidth ) {
+				foot.style.whiteSpace = 'normal';
+			}
+		}
+
+		fit();
+
+		var resizeTimer;
+		window.addEventListener( 'resize', function () {
+			clearTimeout( resizeTimer );
+			resizeTimer = setTimeout( fit, 150 );
+		} );
+	}() );
+
 	/* ------------------------------------------------------------ lightbox */
 
 	( function gallery() {

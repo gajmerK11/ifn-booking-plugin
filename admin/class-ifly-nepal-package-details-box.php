@@ -271,7 +271,7 @@ class IFly_Nepal_Package_Details_Box {
 		// the WhatsApp number pre-filled with the office's own, e.g. — which
 		// stays exactly as editable as if an editor had typed it themselves.
 		if ( '' === $value && isset( $field['default'] ) ) {
-			$value = $field['default'];
+			$value = iflynepal_package_field_default( $field['default'], $post_id );
 		}
 
 		if ( 'textarea' === $field['type'] || 'lines' === $field['type'] || 'rich_textarea' === $field['type'] ) {

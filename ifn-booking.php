@@ -93,6 +93,7 @@ require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/homepage-trip-finder.php
  * the WhatsApp link the templates ask for is built from them.
  */
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/settings/settings.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/package/package-auto-translate.php';
 
 /*
  * The bridge to the payment gateway. Loaded before the templates that ask for a

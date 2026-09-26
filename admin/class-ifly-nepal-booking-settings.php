@@ -115,8 +115,29 @@ class IFly_Nepal_Booking_Settings {
 			$value = array();
 		}
 
+		$stored = get_option( IFLYNEPAL_BOOKING_OPTION, array() );
+
 		foreach ( iflynepal_booking_settings_schema() as $key => $field ) {
 			$raw = isset( $value[ $key ] ) && is_string( $value[ $key ] ) ? $value[ $key ] : '';
+
+			/*
+			 * An API key field is never redrawn with its saved value (see
+			 * render() below), so a blank submission here means "nothing
+			 * typed", not "clear it" — the key this plugin already has stays
+			 * put, and only an explicit tick of its own "Remove" checkbox
+			 * clears it.
+			 */
+			if ( 'api_key' === $field['type'] ) {
+				if ( ! empty( $value[ $key . '_clear' ] ) ) {
+					$clean[ $key ] = '';
+					continue;
+				}
+
+				if ( '' === trim( $raw ) ) {
+					$clean[ $key ] = isset( $stored[ $key ] ) ? (string) $stored[ $key ] : '';
+					continue;
+				}
+			}
 
 			$clean[ $key ] = iflynepal_booking_sanitize_setting( $raw, $field['type'] );
 		}
@@ -145,6 +166,7 @@ class IFly_Nepal_Booking_Settings {
 				.iflynepal-settings .cc-field > label { display: block; margin-bottom: 6px; font-weight: 600; color: #1d2327; }
 				.iflynepal-settings input[type="text"],
 				.iflynepal-settings input[type="email"],
+				.iflynepal-settings input[type="password"],
 				.iflynepal-settings textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; }
 				.iflynepal-settings .cc-help { margin: 6px 0 0; color: #646970; }
 				.iflynepal-settings .cc-preview { margin-top: 6px; padding: 8px 12px; background: #f6f7f7; border-radius: 4px; word-break: break-all; }
@@ -169,10 +191,45 @@ class IFly_Nepal_Booking_Settings {
 					 */
 					$value = iflynepal_booking_setting( $key );
 					?>
+					<?php if ( 'api_key' === $field['type'] ) : ?>
+						<h2><?php esc_html_e( 'Auto Translate', 'iflynepal' ); ?></h2>
+					<?php endif; ?>
+
 					<div class="cc-field">
 						<label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
 
-						<?php if ( 'textarea' === $field['type'] ) : ?>
+						<?php if ( 'api_key' === $field['type'] ) : ?>
+							<?php
+							/*
+							 * Never redrawn with the saved value — a page that
+							 * echoes a secret back into its own HTML is a
+							 * secret one "View source" away. Left blank and
+							 * submitted, sanitize() above keeps whatever is
+							 * already stored; only typing a new one replaces
+							 * it.
+							 */
+							?>
+							<input type="password" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="" autocomplete="new-password" spellcheck="false" placeholder="<?php echo '' !== $value ? esc_attr__( 'Saved — leave blank to keep it', 'iflynepal' ) : ''; ?>">
+							<p class="cc-preview">
+								<?php if ( '' !== $value ) : ?>
+									<?php
+									printf(
+										/* translators: %s: the last 4 characters of the saved key. */
+										esc_html__( 'A key is saved, ending in %s.', 'iflynepal' ),
+										'<strong>&hellip;' . esc_html( substr( $value, -4 ) ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+									);
+									?>
+								<?php else : ?>
+									<strong><?php esc_html_e( 'No key saved yet.', 'iflynepal' ); ?></strong>
+								<?php endif; ?>
+							</p>
+							<?php if ( '' !== $value ) : ?>
+								<label class="cc-help">
+									<input type="checkbox" name="<?php echo esc_attr( IFLYNEPAL_BOOKING_OPTION . '[' . $key . '_clear]' ); ?>" value="1">
+									<?php esc_html_e( 'Remove the saved key', 'iflynepal' ); ?>
+								</label>
+							<?php endif; ?>
+						<?php elseif ( 'textarea' === $field['type'] ) : ?>
 							<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="3"><?php echo esc_textarea( $value ); ?></textarea>
 						<?php elseif ( 'page' === $field['type'] ) : ?>
 							<?php

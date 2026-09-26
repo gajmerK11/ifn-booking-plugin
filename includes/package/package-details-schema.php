@@ -284,6 +284,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Heading', 'iflynepal' ),
 		'type'    => 'rich',
 		'help'    => __( 'Wrap a word in <em> for the accent style, e.g. "Two days, <em>gently</em> paced."', 'iflynepal' ),
+		'default' => array(
+			'en' => 'What will you do',
+			'fr' => 'Que ferez-vous',
+		),
 	);
 
 	$fields['itinerary_days'] = array(
@@ -417,6 +421,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Heading', 'iflynepal' ),
 		'type'    => 'rich',
 		'help'    => __( 'Wrap a word or two in <span class="iflynepal-ink-mark"> for the hand-drawn underline.', 'iflynepal' ),
+		'default' => array(
+			'en' => 'Plan Your Visit',
+			'fr' => 'Planifiez votre visite',
+		),
 	);
 
 	$fields['dates_lead'] = array(
@@ -490,6 +498,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Price card eyebrow', 'iflynepal' ),
 		'type'    => 'text',
 		'help'    => __( 'The small line above the price, e.g. "All inclusive price".', 'iflynepal' ),
+		'default' => array(
+			'en' => 'All Inclusive Price',
+			'fr' => 'Prix tout compris',
+		),
 	);
 
 	/*
@@ -569,6 +581,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Price card footnote', 'iflynepal' ),
 		'type'    => 'text',
 		'help'    => __( 'The reassurance under the buttons, e.g. "No payment needed to enquire".', 'iflynepal' ),
+		'default' => array(
+			'en' => 'No payment needed to enquire',
+			'fr' => 'Aucun paiement requis pour se renseigner',
+		),
 	);
 
 	$fields['expert_image'] = array(
@@ -619,6 +635,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Heading', 'iflynepal' ),
 		'type'    => 'rich',
 		'help'    => __( 'Wrap a word in <em> for the accent style, e.g. "What to <em>bring</em>."', 'iflynepal' ),
+		'default' => array(
+			'en' => 'What to <em>bring</em>',
+			'fr' => 'Quoi <em>apporter</em>',
+		),
 	);
 
 	$fields['packing_items'] = array(
@@ -635,6 +655,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Heading', 'iflynepal' ),
 		'type'    => 'rich',
 		'help'    => __( 'Wrap a word in <em> for the accent style, e.g. "Where you\'ll <em>stay</em>."', 'iflynepal' ),
+		'default' => array(
+			'en' => 'Where you\'ll <em>stay</em>',
+			'fr' => 'Où vous <em>séjournerez</em>',
+		),
 	);
 
 	$fields['map_image'] = array(
@@ -683,6 +707,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Heading', 'iflynepal' ),
 		'type'    => 'rich',
 		'help'    => __( 'Wrap a word in <em> for the accent style.', 'iflynepal' ),
+		'default' => array(
+			'en' => 'Questions, answered simply.',
+			'fr' => 'Des questions, des réponses simples.',
+		),
 	);
 
 	$fields['faq_lead'] = array(
@@ -691,6 +719,10 @@ function iflynepal_package_details_fields() {
 		'label'   => __( 'Lead paragraph', 'iflynepal' ),
 		'type'    => 'rich_textarea',
 		'help'    => __( '<b>, <strong> and <br> are allowed.', 'iflynepal' ),
+		'default' => array(
+			'en' => 'Still unsure? Message <em>Prem</em> on WhatsApp and get an answer from someone who runs the retreat.',
+			'fr' => 'Encore des doutes ? Écrivez à <em>Prem</em> sur WhatsApp et obtenez une réponse de la personne qui dirige la retraite.',
+		),
 	);
 
 	$fields['faq_items'] = array(

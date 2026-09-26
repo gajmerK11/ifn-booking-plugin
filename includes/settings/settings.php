@@ -65,6 +65,12 @@ function iflynepal_booking_settings_schema() {
 				'iflynepal'
 			),
 		),
+		'deepl_api_key'          => array(
+			'label'   => __( 'DeepL API key', 'iflynepal' ),
+			'type'    => 'api_key',
+			'default' => '',
+			'help'    => __( 'Used to draft a package\'s text in French the moment a translation is created. Get a free key at deepl.com/pro-api — the free tier covers 500,000 characters a month. Left empty, new translations are created blank, exactly as before.', 'iflynepal' ),
+		),
 	);
 
 	/**
@@ -165,6 +171,19 @@ function iflynepal_booking_sanitize_setting( $value, $type ) {
 	}
 
 	return sanitize_text_field( $value );
+}
+
+/* ------------------------------------------------------------ auto translate */
+
+/**
+ * The stored DeepL API key, or '' when none is configured.
+ *
+ * @since 1.0.0
+ *
+ * @return string
+ */
+function iflynepal_deepl_api_key() {
+	return iflynepal_booking_setting( 'deepl_api_key' );
 }
 
 /* ---------------------------------------------------------------- whatsapp */
