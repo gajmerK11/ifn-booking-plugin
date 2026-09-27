@@ -109,6 +109,19 @@
 		root.classList.remove( 'is-open' );
 		body.classList.remove( 'iflynepal-enquiry-lock' );
 
+		/*
+		 * The notice belongs to the submission that just happened, not to the
+		 * form itself. Left in the markup, reopening afterwards would show a
+		 * visitor the outcome of a request they already saw — dismissing it is
+		 * what "closed" means here, same as the notice going away is what
+		 * fixing the reload was for.
+		 */
+		var notice = root.querySelector( '.iflynepal-enquiry__notice' );
+
+		if ( notice ) {
+			notice.remove();
+		}
+
 		window.setTimeout( function () {
 			if ( ! isOpen ) {
 				root.classList.remove( 'is-shown' );
@@ -171,5 +184,20 @@
 	 */
 	if ( root.hasAttribute( 'data-iflynepal-enquiry-open-now' ) ) {
 		open( null );
+
+		/*
+		 * The status is in the URL itself, so a plain reload — no new
+		 * submission, just the visitor pressing F5 — would ask the server for
+		 * the same URL and get the same notice back, reopening the form
+		 * forever. Clearing the query arg and the hash from the address bar
+		 * without a navigation means the next reload asks for the page with
+		 * nothing to report.
+		 */
+		if ( window.history && window.history.replaceState ) {
+			var url = new URL( window.location.href );
+			url.searchParams.delete( 'iflynepal_enquiry' );
+			url.hash = '';
+			window.history.replaceState( null, '', url.toString() );
+		}
 	}
 } )();

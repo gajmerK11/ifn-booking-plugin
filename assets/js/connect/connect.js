@@ -135,6 +135,19 @@
 		tab.setAttribute( 'aria-expanded', 'false' );
 
 		/*
+		 * The notice belongs to the submission that just happened, not to the
+		 * drawer itself. Left in the markup, reopening the tab afterwards would
+		 * show a visitor the outcome of a request they already saw — dismissing
+		 * it is what "closed" means here, same as the notice going away is what
+		 * fixing the reload was for.
+		 */
+		var notice = root.querySelector( '.iflynepal-connect__notice' );
+
+		if ( notice ) {
+			notice.remove();
+		}
+
+		/*
 		 * Display is taken away only once the slide out has played. The guard
 		 * matters: a visitor who reopens inside those 340ms would otherwise have
 		 * the drawer hidden out from under them by a timer belonging to the
@@ -222,5 +235,20 @@
 	 */
 	if ( root.hasAttribute( 'data-iflynepal-connect-open-now' ) ) {
 		open();
+
+		/*
+		 * The status is in the URL itself, so a plain reload — no new
+		 * submission, just the visitor pressing F5 — would ask the server for
+		 * the same URL and get the same notice back, reopening the drawer
+		 * forever. Clearing the query arg and the hash from the address bar
+		 * without a navigation means the next reload asks for the page with
+		 * nothing to report.
+		 */
+		if ( window.history && window.history.replaceState ) {
+			var url = new URL( window.location.href );
+			url.searchParams.delete( 'iflynepal_connect' );
+			url.hash = '';
+			window.history.replaceState( null, '', url.toString() );
+		}
 	}
 } )();
