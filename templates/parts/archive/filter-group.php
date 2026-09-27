@@ -146,8 +146,18 @@ if ( $iflynepal_overflowing && ! $iflynepal_all_on ) {
 	</div>
 
 	<?php if ( $iflynepal_overflowing && ! $iflynepal_selected_hidden ) : ?>
-		<button class="iflynepal-filter-view-all" type="button" aria-expanded="false">
-			<?php esc_html_e( 'View all', 'iflynepal' ); ?>
+		<?php
+		/*
+		 * Both labels are printed once, up front, rather than the script
+		 * swapping in an English string of its own: "View less" needs the
+		 * same translation this file already gives "View all", and a string
+		 * typed into a .js file never reaches a .pot file.
+		 */
+		$iflynepal_view_all  = iflynepal_pkg_t( 'View all' );
+		$iflynepal_view_less = iflynepal_pkg_t( 'View less' );
+		?>
+		<button class="iflynepal-filter-view-all" type="button" aria-expanded="false" data-label-more="<?php echo esc_attr( $iflynepal_view_all ); ?>" data-label-less="<?php echo esc_attr( $iflynepal_view_less ); ?>">
+			<?php echo esc_html( $iflynepal_view_all ); ?>
 		</button>
 	<?php endif; ?>
 </div>

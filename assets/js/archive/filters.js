@@ -583,31 +583,46 @@
 	} );
 
 	/*
-	 * "View all" on a facet with more options than the rail shows outright —
-	 * see the note above $iflynepal_visible_cap in
-	 * templates/parts/archive/filter-group.php. Reveals the rest of that one
-	 * group's buttons and removes itself; nothing here narrows the grid, so it
-	 * does not touch apply().
+	 * "View all" / "View less" on a facet with more options than the rail
+	 * shows outright — see the note above $iflynepal_visible_cap in
+	 * templates/parts/archive/filter-group.php. Toggles the same set of
+	 * buttons back and forth rather than revealing once and removing itself,
+	 * so a visitor who opens it by mistake has a way back without a reload.
+	 * Nothing here narrows the grid, so it does not touch apply().
+	 *
+	 * The overflowing buttons are collected once, at bind time, before this
+	 * or anything else has touched their `hidden` attribute — the set a
+	 * "View less" press needs to restore is exactly the set the server
+	 * printed as hidden, never anything a later click added to it.
 	 */
 	Array.prototype.forEach.call(
 		document.querySelectorAll( '.iflynepal-filter-view-all' ),
 		function ( toggle ) {
-			toggle.addEventListener( 'click', function () {
-				var group = toggle.closest( '.iflynepal-filter-group' );
+			var group = toggle.closest( '.iflynepal-filter-group' );
 
-				if ( ! group ) {
-					return;
+			if ( ! group ) {
+				return;
+			}
+
+			var overflow = Array.prototype.filter.call(
+				group.querySelectorAll( '.iflynepal-filter-btn' ),
+				function ( button ) {
+					return button.hasAttribute( 'hidden' );
 				}
+			);
 
-				Array.prototype.forEach.call(
-					group.querySelectorAll( '.iflynepal-filter-btn[hidden]' ),
-					function ( button ) {
-						button.hidden = false;
-					}
-				);
+			var labelMore = toggle.dataset.labelMore || toggle.textContent;
+			var labelLess = toggle.dataset.labelLess || labelMore;
 
-				toggle.setAttribute( 'aria-expanded', 'true' );
-				toggle.remove();
+			toggle.addEventListener( 'click', function () {
+				var expand = 'true' !== toggle.getAttribute( 'aria-expanded' );
+
+				overflow.forEach( function ( button ) {
+					button.hidden = ! expand;
+				} );
+
+				toggle.setAttribute( 'aria-expanded', expand ? 'true' : 'false' );
+				toggle.textContent = expand ? labelLess : labelMore;
 			} );
 		}
 	);
