@@ -111,12 +111,26 @@ function iflynepal_connect_interest_choices() {
 		return array();
 	}
 
-	$terms = get_terms(
-		array(
-			'taxonomy'   => IFLYNEPAL_PACKAGE_TAXONOMY,
-			'hide_empty' => false,
-		)
+	$args = array(
+		'taxonomy'   => IFLYNEPAL_PACKAGE_TAXONOMY,
+		'hide_empty' => false,
 	);
+
+	/*
+	 * Scoped to the language the form is being filled in on. Without this, a
+	 * visitor on the French page picks from a list mixing French terms with
+	 * whichever English ones have no French translation yet — an answer they
+	 * cannot actually read the archive page for once they submit it.
+	 */
+	if ( function_exists( 'pll_current_language' ) ) {
+		$lang = pll_current_language();
+
+		if ( $lang ) {
+			$args['lang'] = $lang;
+		}
+	}
+
+	$terms = get_terms( $args );
 
 	if ( is_wp_error( $terms ) || ! $terms ) {
 		return array();
