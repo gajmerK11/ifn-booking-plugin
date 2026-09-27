@@ -36,7 +36,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.0.0
  */
-const IFLYNEPAL_EXPLORE_CARDS_PER_TYPE = 3;
+const IFLYNEPAL_EXPLORE_CARDS_PER_TYPE = 8;
 
 /**
  * Every top-level package type there is, taxonomy order.
@@ -196,63 +196,61 @@ function iflynepal_explore_selected_budget() {
 }
 
 /**
- * The packages filed under a term, optionally narrowed to a trip-length
- * bucket.
+ * The immediate sub-categories a package type is split into, for spreading a
+ * section's cards across.
  *
- * A duration-aware sibling of iflynepal_archive_packages() rather than an
- * added parameter on it: the real archive template that function serves has
- * no length filter and should not gain one silently as a side effect of this
- * page's own needs.
- *
- * 🔴 The length filter is applied in PHP, not in the query, and it has to be.
- * A package's length is the free-text Duration on its Package Card — "3 Weeks",
- * "7 to 24 days" — which is the field an editor actually fills in (16 of 18
- * packages here carry it; 4 carry the numeric one). Nothing in SQL can read
- * "3 Weeks" as twenty-one days, so the comparison cannot be a meta_query.
- *
- * This replaced a meta_query against the numeric Trip duration (days). That
- * query was correct SQL over the wrong column: it matched the quarter of the
- * catalogue carrying that number and silently dropped the rest, so the same
- * question got one answer here and a different one on the archive's own
- * Duration facet. One source now, and it is the one with the content in it.
- *
- * ⚠ Because the filter runs after the fetch, a filtered call reads every
- * package in the branch rather than the handful it will print. That is one
- * unbounded query per selected type, at most five of them, and it shares the
- * catalogue-size ceiling already recorded against iflynepal_archive_packages()'s
- * own limit of 24 — when that is addressed, this wants addressing with it.
+ * A type with no children of its own — nothing under it in the taxonomy — is
+ * its own single bucket: iflynepal_explore_packages_for_term() then has
+ * exactly one group to round-robin across, which is the same as no
+ * round-robin at all.
  *
  * @since 1.0.0
  *
- * @param int        $term_id  Package type term.
- * @param int        $limit    Posts to return.
+ * @param int $term_id Package type term.
+ * @return int[] Child term IDs, or the term's own ID when it has none.
+ */
+function iflynepal_explore_term_buckets( $term_id ) {
+	$children = get_terms(
+		array(
+			'taxonomy'   => IFLYNEPAL_PACKAGE_TAXONOMY,
+			'parent'     => $term_id,
+			'hide_empty' => false,
+		)
+	);
+
+	if ( is_wp_error( $children ) || ! $children ) {
+		return array( (int) $term_id );
+	}
+
+	return wp_list_pluck( $children, 'term_id' );
+}
+
+/**
+ * Narrows a list of packages to a trip-length bucket and/or a price bracket.
+ *
+ * Split out of iflynepal_explore_packages_for_term() so that function can
+ * apply it once per sub-category bucket rather than once over the type's
+ * combined list — the filtering has to happen before the buckets are
+ * round-robined, or a bucket that is mostly filtered out would still crowd
+ * the round-robin with slots it cannot fill.
+ *
+ * 🔴 The length filter is applied in PHP, not in the query, and it has to be.
+ * A package's length is the free-text Duration on its Package Card — "3 Weeks",
+ * "7 to 24 days" — which is the field an editor actually fills in. Nothing in
+ * SQL can read "3 Weeks" as twenty-one days, so the comparison cannot be a
+ * meta_query.
+ *
+ * @since 1.0.0
+ *
+ * @param WP_Post[]  $packages Packages to narrow.
  * @param array|null $duration Bucket from iflynepal_explore_selected_duration(),
  *                              or null for no length filter.
  * @param array|null $budget   Bracket from iflynepal_explore_selected_budget(),
  *                              or null for no price filter.
- * @return WP_Post[] Packages.
+ * @return WP_Post[] The packages that pass both filters.
  */
-function iflynepal_explore_packages_for_term( $term_id, $limit, $duration = null, $budget = null ) {
-	$filtering = is_array( $duration ) || is_array( $budget );
-
-	$packages = get_posts(
-		array(
-			'post_type'        => IFLYNEPAL_PACKAGE_POST_TYPE,
-			'post_status'      => 'publish',
-			'numberposts'      => $filtering ? -1 : (int) $limit,
-			'suppress_filters' => false,
-			'tax_query'        => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				array(
-					'taxonomy'         => IFLYNEPAL_PACKAGE_TAXONOMY,
-					'field'            => 'term_id',
-					'terms'            => (int) $term_id,
-					'include_children' => true,
-				),
-			),
-		)
-	);
-
-	if ( ! $filtering ) {
+function iflynepal_explore_filter_packages( $packages, $duration, $budget ) {
+	if ( null === $duration && null === $budget ) {
 		return $packages;
 	}
 
@@ -296,7 +294,99 @@ function iflynepal_explore_packages_for_term( $term_id, $limit, $duration = null
 		$matching[] = $package;
 	}
 
-	return array_slice( $matching, 0, (int) $limit );
+	return $matching;
+}
+
+/**
+ * The packages filed under a term, spread across its sub-categories and
+ * optionally narrowed to a trip-length bucket and/or price bracket.
+ *
+ * A duration-aware sibling of iflynepal_archive_packages() rather than an
+ * added parameter on it: the real archive template that function serves has
+ * no length filter and should not gain one silently as a side effect of this
+ * page's own needs.
+ *
+ * The spread is round-robin, one card per sub-category per pass, in taxonomy
+ * order: a type with eight sub-categories and at least one package in each
+ * shows one from every one of them; a type with three fills two passes before
+ * a third starts; a type with only one sub-category (or none at all — see
+ * iflynepal_explore_term_buckets()) simply fills the section from it. A
+ * sub-category that runs out early is skipped rather than leaving a gap, so
+ * the section always shows as many as the type actually has, up to $limit.
+ *
+ * ⚠ Every sub-category is fetched in full — the round-robin needs to know
+ * each one's whole list before it can interleave them, so this cannot stop
+ * early the way a single bounded query could. That is one unbounded query per
+ * sub-category, which shares the catalogue-size ceiling already recorded
+ * against iflynepal_archive_packages()'s own limit of 24 — when that is
+ * addressed, this wants addressing with it.
+ *
+ * @since 1.0.0
+ *
+ * @param int        $term_id  Package type term.
+ * @param int        $limit    Posts to return.
+ * @param array|null $duration Bucket from iflynepal_explore_selected_duration(),
+ *                              or null for no length filter.
+ * @param array|null $budget   Bracket from iflynepal_explore_selected_budget(),
+ *                              or null for no price filter.
+ * @return WP_Post[] Packages.
+ */
+function iflynepal_explore_packages_for_term( $term_id, $limit, $duration = null, $budget = null ) {
+	$buckets = array();
+
+	foreach ( iflynepal_explore_term_buckets( $term_id ) as $bucket_term_id ) {
+		$posts = get_posts(
+			array(
+				'post_type'        => IFLYNEPAL_PACKAGE_POST_TYPE,
+				'post_status'      => 'publish',
+				'numberposts'      => -1,
+				'suppress_filters' => false,
+				'tax_query'        => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					array(
+						'taxonomy'         => IFLYNEPAL_PACKAGE_TAXONOMY,
+						'field'            => 'term_id',
+						'terms'            => $bucket_term_id,
+						'include_children' => true,
+					),
+				),
+			)
+		);
+
+		$posts = iflynepal_explore_filter_packages( $posts, $duration, $budget );
+
+		if ( $posts ) {
+			$buckets[] = $posts;
+		}
+	}
+
+	$result = array();
+	$round  = 0;
+
+	while ( count( $result ) < $limit ) {
+		$took_one = false;
+
+		foreach ( $buckets as $bucket ) {
+			if ( ! isset( $bucket[ $round ] ) ) {
+				continue;
+			}
+
+			$result[] = $bucket[ $round ];
+			$took_one = true;
+
+			if ( count( $result ) >= $limit ) {
+				break;
+			}
+		}
+
+		// Every bucket has run dry — no round produced a single pick.
+		if ( ! $took_one ) {
+			break;
+		}
+
+		++$round;
+	}
+
+	return $result;
 }
 
 /**
