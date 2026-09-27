@@ -1046,6 +1046,32 @@
 	opacity: 0.38;
 }
 
+/*
+ * "View all" for a facet with more options than the rail shows outright — see
+ * the note above $iflynepal_visible_cap in templates/parts/archive/filter-group.php.
+ * A plain text control rather than another .iflynepal-filter-btn: it does not
+ * narrow anything itself, so it should not look like one more choice in the
+ * row it sits under.
+ */
+.iflynepal-filter-view-all {
+	display: inline-flex;
+	align-items: center;
+	margin-top: 6px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--ifn-navy);
+	font-size: 13px;
+	font-weight: 850;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	cursor: pointer;
+}
+
+.iflynepal-filter-view-all:hover {
+	text-decoration-thickness: 2px;
+}
+
 /* ------------------------------------------------------------ pill variant */
 
 /*

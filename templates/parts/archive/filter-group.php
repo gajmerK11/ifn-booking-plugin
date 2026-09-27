@@ -56,6 +56,38 @@ $iflynepal_unit_drawn = '';
  */
 $iflynepal_selected = isset( $iflynepal_facet['selected'] ) ? $iflynepal_facet['selected'] : '';
 $iflynepal_all_on   = '' === $iflynepal_selected;
+
+/*
+ * "All" plus this many options are shown outright; the rest sit behind a
+ * "View all" toggle rather than growing the rail indefinitely as an editor
+ * adds price brackets or duration buckets. Pills (Activity) are exempt — they
+ * wrap onto more lines instead of growing the rail's height, so they have
+ * nothing to be collapsed against.
+ *
+ * 🔴 Counted in options, not in rendered rows: a Duration facet's unit
+ * sub-headings (Days, Weeks) are not filters themselves, so they never count
+ * toward the four and are never the reason a group collapses on its own.
+ */
+$iflynepal_visible_cap = 3;
+$iflynepal_overflowing = ! $iflynepal_pills && count( $iflynepal_facet['options'] ) > $iflynepal_visible_cap;
+
+/*
+ * A selection already narrowing the grid — carried over in the query string,
+ * same as $iflynepal_selected itself — must never land behind the fold: a
+ * visitor would see "All" plausibly still active and no way to tell their own
+ * filter is the one actually in effect. The whole group opens instead of only
+ * revealing the one button, so nothing next to it looks suspiciously missing.
+ */
+$iflynepal_selected_hidden = false;
+
+if ( $iflynepal_overflowing && ! $iflynepal_all_on ) {
+	foreach ( $iflynepal_facet['options'] as $iflynepal_index => $iflynepal_option ) {
+		if ( $iflynepal_option['key'] === $iflynepal_selected && $iflynepal_index >= $iflynepal_visible_cap ) {
+			$iflynepal_selected_hidden = true;
+			break;
+		}
+	}
+}
 ?>
 
 <div class="iflynepal-filter-group" data-facet="<?php echo esc_attr( $iflynepal_facet['facet'] ); ?>">
@@ -76,7 +108,7 @@ $iflynepal_all_on   = '' === $iflynepal_selected;
 			<?php endif; ?>
 		</button>
 		<?php
-		foreach ( $iflynepal_facet['options'] as $iflynepal_option ) :
+		foreach ( $iflynepal_facet['options'] as $iflynepal_index => $iflynepal_option ) :
 			/*
 			 * The run is cut on the unit *changing*, in the order the buckets
 			 * come in, rather than by collecting every option of a unit
@@ -94,9 +126,17 @@ $iflynepal_all_on   = '' === $iflynepal_selected;
 				<span class="iflynepal-filter-row__unit"><?php echo esc_html( $iflynepal_unit_names[ $iflynepal_unit ] ); ?></span>
 				<?php
 			endif;
+
+			/*
+			 * The option itself is on, whether or not it is currently visible —
+			 * a selection made before the group last collapsed must not look
+			 * unselected just because "View all" has not been pressed again
+			 * this load.
+			 */
+			$iflynepal_on     = $iflynepal_option['key'] === $iflynepal_selected;
+			$iflynepal_hidden = $iflynepal_overflowing && ! $iflynepal_selected_hidden && $iflynepal_index >= $iflynepal_visible_cap;
 			?>
-			<?php $iflynepal_on = $iflynepal_option['key'] === $iflynepal_selected; ?>
-			<button class="iflynepal-filter-btn<?php echo $iflynepal_on ? ' is-active' : ''; ?>" type="button" data-filter="<?php echo esc_attr( $iflynepal_option['key'] ); ?>" aria-pressed="<?php echo $iflynepal_on ? 'true' : 'false'; ?>">
+			<button class="iflynepal-filter-btn<?php echo $iflynepal_on ? ' is-active' : ''; ?>" type="button" data-filter="<?php echo esc_attr( $iflynepal_option['key'] ); ?>" aria-pressed="<?php echo $iflynepal_on ? 'true' : 'false'; ?>" <?php echo $iflynepal_hidden ? 'hidden' : ''; ?>>
 				<span class="iflynepal-filter-btn__label"><?php echo esc_html( $iflynepal_option['label'] ); ?></span>
 				<?php if ( ! $iflynepal_pills ) : ?>
 					<span class="iflynepal-filter-btn__count"><?php echo esc_html( number_format_i18n( $iflynepal_option['count'] ) ); ?></span>
@@ -104,4 +144,10 @@ $iflynepal_all_on   = '' === $iflynepal_selected;
 			</button>
 		<?php endforeach; ?>
 	</div>
+
+	<?php if ( $iflynepal_overflowing && ! $iflynepal_selected_hidden ) : ?>
+		<button class="iflynepal-filter-view-all" type="button" aria-expanded="false">
+			<?php esc_html_e( 'View all', 'iflynepal' ); ?>
+		</button>
+	<?php endif; ?>
 </div>

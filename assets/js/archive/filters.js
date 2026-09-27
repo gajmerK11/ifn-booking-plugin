@@ -583,6 +583,36 @@
 	} );
 
 	/*
+	 * "View all" on a facet with more options than the rail shows outright —
+	 * see the note above $iflynepal_visible_cap in
+	 * templates/parts/archive/filter-group.php. Reveals the rest of that one
+	 * group's buttons and removes itself; nothing here narrows the grid, so it
+	 * does not touch apply().
+	 */
+	Array.prototype.forEach.call(
+		document.querySelectorAll( '.iflynepal-filter-view-all' ),
+		function ( toggle ) {
+			toggle.addEventListener( 'click', function () {
+				var group = toggle.closest( '.iflynepal-filter-group' );
+
+				if ( ! group ) {
+					return;
+				}
+
+				Array.prototype.forEach.call(
+					group.querySelectorAll( '.iflynepal-filter-btn[hidden]' ),
+					function ( button ) {
+						button.hidden = false;
+					}
+				);
+
+				toggle.setAttribute( 'aria-expanded', 'true' );
+				toggle.remove();
+			} );
+		}
+	);
+
+	/*
 	 * The rail is shut on a narrow viewport and open on a wide one, tracked
 	 * live rather than set once on load: a tablet turned on its side crosses
 	 * this line without reloading, and a rail left shut on a screen with room
