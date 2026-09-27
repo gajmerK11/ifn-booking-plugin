@@ -462,6 +462,16 @@ function iflynepal_booking_enqueue_enquiry_assets() {
 			'in_footer' => true,
 		)
 	);
+
+	wp_localize_script(
+		'iflynepal-enquiry',
+		'iflynepalEnquiryForm',
+		array(
+			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+			'sendingLabel'   => __( 'Sending…', 'iflynepal' ),
+			'networkMessage' => __( 'Something went wrong. Please try again.', 'iflynepal' ),
+		)
+	);
 }
 add_action( 'wp_enqueue_scripts', 'iflynepal_booking_enqueue_enquiry_assets', 20 );
 
@@ -537,6 +547,16 @@ function iflynepal_booking_enqueue_connect_assets() {
 		array(
 			'strategy'  => 'defer',
 			'in_footer' => true,
+		)
+	);
+
+	wp_localize_script(
+		'iflynepal-connect',
+		'iflynepalConnectForm',
+		array(
+			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+			'sendingLabel'   => __( 'Sending…', 'iflynepal' ),
+			'networkMessage' => __( 'Something went wrong. Please try again.', 'iflynepal' ),
 		)
 	);
 }

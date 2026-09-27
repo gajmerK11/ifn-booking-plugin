@@ -59,23 +59,21 @@ function iflynepal_enquiry_redirect( $status ) {
 }
 
 /**
- * Validates, stores and forwards one public enquiry.
+ * Validates, stores and forwards one public enquiry, without redirecting.
+ *
+ * Shared by the no-JS submission (which redirects with the result) and the
+ * AJAX one (which reports it straight back to the same page) so the two paths
+ * can never validate or notify differently.
  *
  * @since 1.0.0
  *
- * @return void
+ * @return string One of 'invalid', 'expired', 'error' or 'success'.
  */
-function iflynepal_handle_enquiry_form() {
-	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '';
-
-	if ( 'POST' !== $method ) {
-		iflynepal_enquiry_redirect( 'invalid' );
-	}
-
+function iflynepal_process_enquiry_submission() {
 	$nonce = isset( $_POST['iflynepal_enquiry_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['iflynepal_enquiry_nonce'] ) ) : '';
 
 	if ( ! wp_verify_nonce( $nonce, IFLYNEPAL_ENQUIRY_ACTION ) ) {
-		iflynepal_enquiry_redirect( 'expired' );
+		return 'expired';
 	}
 
 	/*
@@ -84,7 +82,7 @@ function iflynepal_handle_enquiry_form() {
 	 * check caught them, and the next attempt comes back without the tell.
 	 */
 	if ( ! empty( $_POST['website'] ) ) {
-		iflynepal_enquiry_redirect( 'success' );
+		return 'success';
 	}
 
 	$values = array();
@@ -99,7 +97,7 @@ function iflynepal_handle_enquiry_form() {
 		}
 
 		if ( 'email' === $type ? ! is_email( $values[ $key ] ) : '' === trim( $values[ $key ] ) ) {
-			iflynepal_enquiry_redirect( 'invalid' );
+			return 'invalid';
 		}
 	}
 
@@ -120,13 +118,55 @@ function iflynepal_handle_enquiry_form() {
 	$stored = iflynepal_enquiry_store( $values, $package_id );
 
 	if ( is_wp_error( $stored ) ) {
-		iflynepal_enquiry_redirect( 'error' );
+		return 'error';
 	}
 
-	iflynepal_enquiry_redirect( 'success' );
+	return 'success';
+}
+
+/**
+ * The no-JS path: process the submission and redirect with the result.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function iflynepal_handle_enquiry_form() {
+	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '';
+
+	if ( 'POST' !== $method ) {
+		iflynepal_enquiry_redirect( 'invalid' );
+	}
+
+	iflynepal_enquiry_redirect( iflynepal_process_enquiry_submission() );
 }
 add_action( 'admin_post_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_enquiry_form' );
 add_action( 'admin_post_nopriv_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_enquiry_form' );
+
+/**
+ * The AJAX path: process the submission and report the result as JSON.
+ *
+ * Posts to the same body a real submit sends admin-post.php — the action
+ * field, the nonce, every form field — so enquiry.js can send the form
+ * exactly as the browser would have, just to a different endpoint, and the
+ * validation above never has to know which one asked.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+ */
+function iflynepal_handle_enquiry_form_ajax() {
+	$status = iflynepal_process_enquiry_submission();
+	$notice = iflynepal_enquiry_notice_for_status( $status );
+
+	if ( 'error' === $notice['type'] ) {
+		wp_send_json_error( $notice );
+	}
+
+	wp_send_json_success( $notice );
+}
+add_action( 'wp_ajax_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_enquiry_form_ajax' );
+add_action( 'wp_ajax_nopriv_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_enquiry_form_ajax' );
 
 /**
  * Emails the office about one stored enquiry.
@@ -186,16 +226,14 @@ function iflynepal_enquiry_notify( $post_id, $values, $package_id ) {
 add_action( 'iflynepal_enquiry_stored', 'iflynepal_enquiry_notify', 10, 3 );
 
 /**
- * The notice to show after a submission, if the page was redirected back to.
+ * The notice text and type for one result status.
  *
  * @since 1.0.0
  *
- * @return array{type:string,message:string}|null The notice, or null.
+ * @param string $status 'success', 'invalid', 'expired' or 'error'.
+ * @return array{type:string,message:string}
  */
-function iflynepal_enquiry_notice() {
-	// A status the handler put in the URL itself; there is no state change here to protect.
-	$status = isset( $_GET['iflynepal_enquiry'] ) ? sanitize_key( wp_unslash( $_GET['iflynepal_enquiry'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
+function iflynepal_enquiry_notice_for_status( $status ) {
 	$notices = array(
 		'success' => array(
 			'type'    => 'success',
@@ -209,13 +247,30 @@ function iflynepal_enquiry_notice() {
 			'type'    => 'error',
 			'message' => __( 'This form had been open too long to be sent safely. Please try again.', 'iflynepal' ),
 		),
-		'error'   => array(
-			'type'    => 'error',
-			'message' => __( 'Your enquiry could not be saved. Please email or call us instead.', 'iflynepal' ),
-		),
 	);
 
-	return isset( $notices[ $status ] ) ? $notices[ $status ] : null;
+	return isset( $notices[ $status ] ) ? $notices[ $status ] : array(
+		'type'    => 'error',
+		'message' => __( 'Your enquiry could not be saved. Please email or call us instead.', 'iflynepal' ),
+	);
+}
+
+/**
+ * The notice to show after a submission, if the page was redirected back to.
+ *
+ * @since 1.0.0
+ *
+ * @return array{type:string,message:string}|null The notice, or null.
+ */
+function iflynepal_enquiry_notice() {
+	// A status the handler put in the URL itself; there is no state change here to protect.
+	$status = isset( $_GET['iflynepal_enquiry'] ) ? sanitize_key( wp_unslash( $_GET['iflynepal_enquiry'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( '' === $status ) {
+		return null;
+	}
+
+	return iflynepal_enquiry_notice_for_status( $status );
 }
 
 /**

@@ -133,6 +133,113 @@
 		}
 	}
 
+	/*
+	 * Progressive enhancement: the form posts to admin-post.php and works
+	 * without this at all — the page redirects back with a status and the
+	 * server-rendered notice above takes it from there. When the localized
+	 * config and fetch are both available, a valid submit goes to
+	 * admin-ajax.php instead, using the same fields admin-post.php would have
+	 * received (the action name matches a wp_ajax_/wp_ajax_nopriv_ hook, so
+	 * nothing in the form markup has to change), and the result is shown
+	 * without closing the form or navigating anywhere.
+	 */
+	var form = panel.querySelector( '.iflynepal-enquiry__form' );
+	var submit = form ? form.querySelector( '.iflynepal-enquiry__submit' ) : null;
+	var canAjax = 'undefined' !== typeof iflynepalEnquiryForm && window.fetch && window.FormData;
+	var fadeTimer = null;
+
+	/**
+	 * Fades a notice out and drops it, the same few seconds after showing it
+	 * whether it came from a fresh AJAX submission or was already in the
+	 * markup on load. Closing the form removes it immediately regardless —
+	 * see close() — so this only ever fires while a visitor is still reading.
+	 *
+	 * @param {Element} notice The notice to fade.
+	 * @return {void}
+	 */
+	function scheduleNoticeFade( notice ) {
+		window.clearTimeout( fadeTimer );
+
+		fadeTimer = window.setTimeout( function () {
+			notice.style.transition = 'opacity .3s ease';
+			notice.style.opacity = '0';
+
+			window.setTimeout( function () {
+				notice.remove();
+			}, 300 );
+		}, 6000 );
+	}
+
+	/**
+	 * Shows one result in the notice's usual spot, between the header and the
+	 * form, creating it if a submission has not already left one there.
+	 *
+	 * @param {string} type    'success' or 'error'.
+	 * @param {string} message The text to show.
+	 * @return {void}
+	 */
+	function showNotice( type, message ) {
+		var notice = root.querySelector( '.iflynepal-enquiry__notice' );
+
+		if ( ! notice ) {
+			notice = document.createElement( 'p' );
+			notice.id = 'iflynepal-enquiry-notice';
+			notice.setAttribute( 'tabindex', '-1' );
+			panel.insertBefore( notice, form );
+		}
+
+		notice.style.transition = '';
+		notice.style.opacity = '';
+		notice.className = 'iflynepal-enquiry__notice iflynepal-enquiry__notice--' + type;
+		notice.setAttribute( 'role', 'error' === type ? 'alert' : 'status' );
+		notice.textContent = message;
+		notice.focus();
+		scheduleNoticeFade( notice );
+	}
+
+	if ( form && submit ) {
+		form.addEventListener( 'submit', function ( event ) {
+			if ( ! canAjax ) {
+				return;
+			}
+
+			event.preventDefault();
+
+			var originalHtml = submit.innerHTML;
+
+			submit.disabled = true;
+			submit.textContent = iflynepalEnquiryForm.sendingLabel;
+
+			fetch( iflynepalEnquiryForm.ajaxUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				body: new URLSearchParams( new FormData( form ) )
+			} )
+				.then( function ( response ) { return response.json(); } )
+				.then( function ( result ) {
+					var data = result && result.data ? result.data : null;
+
+					if ( ! data ) {
+						showNotice( 'error', iflynepalEnquiryForm.networkMessage );
+						return;
+					}
+
+					showNotice( data.type, data.message );
+
+					if ( result.success ) {
+						form.reset();
+					}
+				} )
+				.catch( function () {
+					showNotice( 'error', iflynepalEnquiryForm.networkMessage );
+				} )
+				.then( function () {
+					submit.disabled = false;
+					submit.innerHTML = originalHtml;
+				} );
+		} );
+	}
+
 	document.addEventListener( 'click', function ( event ) {
 		var trigger = event.target.closest( '[data-iflynepal-enquiry-open], a[href="#iflynepal-enquiry"]' );
 
@@ -184,6 +291,12 @@
 	 */
 	if ( root.hasAttribute( 'data-iflynepal-enquiry-open-now' ) ) {
 		open( null );
+
+		var openNowNotice = root.querySelector( '.iflynepal-enquiry__notice' );
+
+		if ( openNowNotice ) {
+			scheduleNoticeFade( openNowNotice );
+		}
 
 		/*
 		 * The status is in the URL itself, so a plain reload — no new
