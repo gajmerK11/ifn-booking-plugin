@@ -999,6 +999,18 @@
 		color 0.3s ease;
 }
 
+/*
+ * The declared `display: flex` above wins over the browser's own default
+ * `[hidden] { display: none }` — author CSS beats a user-agent rule at equal
+ * specificity regardless of which one is more specific-looking — so a button
+ * carrying the `hidden` attribute (the overflow past $iflynepal_visible_cap in
+ * templates/parts/archive/filter-group.php) would otherwise render anyway.
+ * This restates the browser's own rule loudly enough to win it back.
+ */
+.iflynepal-filter-btn[hidden] {
+	display: none;
+}
+
 .iflynepal-filter-btn__count {
 	flex: none;
 	color: var(--ifn-muted);
