@@ -131,7 +131,7 @@ $iflynepal_fields     = iflynepal_enquiry_fields();
 						></textarea>
 					<?php else : ?>
 						<input
-							type="<?php echo esc_attr( 'email' === $iflynepal_type ? 'email' : 'text' ); ?>"
+							type="<?php echo esc_attr( in_array( $iflynepal_type, array( 'email', 'tel' ), true ) ? $iflynepal_type : 'text' ); ?>"
 							id="<?php echo esc_attr( $iflynepal_id ); ?>"
 							name="<?php echo esc_attr( $iflynepal_key ); ?>"
 							<?php echo '' !== $iflynepal_auto ? 'autocomplete="' . esc_attr( $iflynepal_auto ) . '"' : ''; ?>

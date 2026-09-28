@@ -52,6 +52,13 @@ function iflynepal_enquiry_fields() {
 			'required'     => true,
 			'autocomplete' => 'email',
 		),
+		'whatsapp' => array(
+			'label'        => __( 'Your WhatsApp number', 'iflynepal' ),
+			'type'         => 'tel',
+			'required'     => true,
+			'autocomplete' => 'tel',
+			'help'         => __( 'Include your country code so we can reach you.', 'iflynepal' ),
+		),
 		'message' => array(
 			'label'    => __( 'Your message', 'iflynepal' ),
 			'type'     => 'textarea',
@@ -123,7 +130,28 @@ function iflynepal_enquiry_sanitize_value( $value, $type ) {
 		return sanitize_textarea_field( $value );
 	}
 
+	if ( 'tel' === $type ) {
+		return trim( (string) preg_replace( '/[^0-9+()\- ]/', '', (string) $value ) );
+	}
+
 	return sanitize_text_field( $value );
+}
+
+/**
+ * A WhatsApp click-to-chat link for one stored enquiry's number.
+ *
+ * '' when the stored number has no digits in it — same rule the connect
+ * request's own chat link follows.
+ *
+ * @since 1.0.0
+ *
+ * @param int $post_id Enquiry post ID.
+ * @return string
+ */
+function iflynepal_enquiry_chat_url( $post_id ) {
+	$digits = iflynepal_booking_sanitize_setting( iflynepal_enquiry_field( $post_id, 'whatsapp' ), 'digits' );
+
+	return '' === $digits ? '' : 'https://wa.me/' . $digits;
 }
 
 /**

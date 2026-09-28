@@ -81,6 +81,8 @@ class IFly_Nepal_Enquiry_Details_Box {
 		$package_id = iflynepal_enquiry_package_id( $post->ID );
 		$source     = iflynepal_enquiry_field( $post->ID, 'source' );
 		$email      = iflynepal_enquiry_field( $post->ID, 'email' );
+		$whatsapp   = iflynepal_enquiry_field( $post->ID, 'whatsapp' );
+		$chat       = iflynepal_enquiry_chat_url( $post->ID );
 		?>
 		<style>
 			/*
@@ -111,6 +113,19 @@ class IFly_Nepal_Enquiry_Details_Box {
 							<a href="<?php echo esc_url( 'mailto:' . $email ); ?>"><?php echo esc_html( $email ); ?></a>
 						<?php else : ?>
 							<span class="iflynepal-enquiry-muted">&mdash;</span>
+						<?php endif; ?>
+					</td>
+				</tr>
+
+				<tr>
+					<th scope="row"><?php esc_html_e( 'WhatsApp', 'iflynepal' ); ?></th>
+					<td>
+						<?php if ( '' === $whatsapp ) : ?>
+							<span class="iflynepal-enquiry-muted">&mdash;</span>
+						<?php elseif ( '' === $chat ) : ?>
+							<?php echo esc_html( $whatsapp ); ?>
+						<?php else : ?>
+							<a href="<?php echo esc_url( $chat ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $whatsapp ); ?></a>
 						<?php endif; ?>
 					</td>
 				</tr>

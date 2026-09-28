@@ -96,7 +96,7 @@ function iflynepal_process_enquiry_submission() {
 			continue;
 		}
 
-		if ( 'email' === $type ? ! is_email( $values[ $key ] ) : '' === trim( $values[ $key ] ) ) {
+		if ( ! iflynepal_enquiry_value_is_usable( $values[ $key ], $type ) ) {
 			return 'invalid';
 		}
 	}
@@ -140,6 +140,32 @@ function iflynepal_handle_enquiry_form() {
 
 	iflynepal_enquiry_redirect( iflynepal_process_enquiry_submission() );
 }
+/**
+ * Whether one clean value is enough to satisfy a required field.
+ *
+ * "Not empty" is the wrong test for a phone number: `+()` survives the tel
+ * sanitizer and is a non-empty string with no number in it. Seven digits is
+ * the shortest national number in use anywhere, same rule the connect form
+ * uses for its own WhatsApp field.
+ *
+ * @since 1.0.0
+ *
+ * @param string $value Clean value.
+ * @param string $type  Field type.
+ * @return bool
+ */
+function iflynepal_enquiry_value_is_usable( $value, $type ) {
+	if ( 'email' === $type ) {
+		return (bool) is_email( $value );
+	}
+
+	if ( 'tel' === $type ) {
+		return strlen( (string) preg_replace( '/[^0-9]/', '', $value ) ) >= 7;
+	}
+
+	return '' !== trim( (string) $value );
+}
+
 add_action( 'admin_post_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_enquiry_form' );
 add_action( 'admin_post_nopriv_' . IFLYNEPAL_ENQUIRY_ACTION, 'iflynepal_handle_enquiry_form' );
 
@@ -193,10 +219,11 @@ function iflynepal_enquiry_notify( $post_id, $values, $package_id ) {
 		return;
 	}
 
-	$name    = isset( $values['name'] ) ? $values['name'] : '';
-	$email   = isset( $values['email'] ) ? $values['email'] : '';
-	$message = isset( $values['message'] ) ? $values['message'] : '';
-	$package = $package_id ? get_the_title( $package_id ) : __( 'No package — sent from the catalogue', 'iflynepal' );
+	$name     = isset( $values['name'] ) ? $values['name'] : '';
+	$email    = isset( $values['email'] ) ? $values['email'] : '';
+	$whatsapp = isset( $values['whatsapp'] ) ? $values['whatsapp'] : '';
+	$message  = isset( $values['message'] ) ? $values['message'] : '';
+	$package  = $package_id ? get_the_title( $package_id ) : __( 'No package — sent from the catalogue', 'iflynepal' );
 
 	/* translators: %s: the sender's name. */
 	$subject = sprintf( __( 'New package enquiry from %s', 'iflynepal' ), $name );
@@ -206,6 +233,8 @@ function iflynepal_enquiry_notify( $post_id, $values, $package_id ) {
 		array(
 			/* translators: %s: the sender's name. */
 			sprintf( __( 'Name: %s', 'iflynepal' ), $name ),
+			/* translators: %s: the sender's WhatsApp number. */
+			sprintf( __( 'WhatsApp: %s', 'iflynepal' ), $whatsapp ),
 			/* translators: %s: the sender's email address. */
 			sprintf( __( 'Email: %s', 'iflynepal' ), $email ),
 			/* translators: %s: the package the enquiry is about. */
@@ -214,6 +243,8 @@ function iflynepal_enquiry_notify( $post_id, $values, $package_id ) {
 			__( 'Message:', 'iflynepal' ),
 			$message,
 			'',
+			/* translators: %s: a WhatsApp click-to-chat link for the sender. */
+			sprintf( __( 'Reply on WhatsApp: %s', 'iflynepal' ), iflynepal_enquiry_chat_url( $post_id ) ),
 			/* translators: %s: the admin URL of the stored enquiry. */
 			sprintf( __( 'Open in the admin: %s', 'iflynepal' ), get_edit_post_link( $post_id, 'raw' ) ),
 		)
