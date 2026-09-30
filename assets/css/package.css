@@ -409,7 +409,8 @@ so the nav
     .iflynepal-pkg-intro{font-size:18px;line-height:1.7;color:var(--ifnpkg-ink)}
     .iflynepal-pkg-glance{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
+      /* minmax(0,…) so a long value cannot widen its own column and push the rest out of line. */
+      grid-template-columns:repeat(4,minmax(0,1fr));
       border:1px solid var(--ifnpkg-line);
       border-radius:var(--ifnpkg-r-md);
       background:#fff;
@@ -431,14 +432,14 @@ so the nav
       display:grid;
       place-items:center;
       box-sizing:border-box;
-      width:38px;height:38px;
+      width:42px;height:42px;
       flex:none;
-      border:1px solid rgba(5,69,167,.18);
+      border:1px solid rgba(5,69,167,.3);
       border-radius:12px;
       background:var(--ifnpkg-mist);
       color:var(--ifnpkg-navy);
     }
-    .iflynepal-pkg-glance-ico .iflynepal-pkg-ico{width:19px;height:19px}
+    .iflynepal-pkg-glance-ico .iflynepal-pkg-ico{width:22px;height:22px}
     .iflynepal-pkg-glance-item small{display:block;color:var(--ifnpkg-muted);font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
     .iflynepal-pkg-glance-item strong{display:block;margin-top:3px;font-size:14px;font-weight:700;line-height:1.35}
     .iflynepal-pkg-prose p{color:#3B4148;font-size:15.5px;line-height:1.8}
@@ -1308,7 +1309,8 @@ so it docks to the bottom edge */
     @media (max-width:480px){
       .iflynepal-pkg-nav-cta{display:none}
       .iflynepal-pkg-glance-item{padding:16px 14px;gap:10px}
-      .iflynepal-pkg-glance-ico{width:32px;height:32px;border-radius:10px}
+      .iflynepal-pkg-glance-ico{width:35px;height:35px;border-radius:10px}
+      .iflynepal-pkg-glance-ico .iflynepal-pkg-ico{width:20px;height:20px}
       .iflynepal-pkg-footer-grid{grid-template-columns:1fr}
       .iflynepal-pkg-lb-stage{grid-template-columns:1fr;padding:0 12px}
       .iflynepal-pkg-lb-stage .iflynepal-pkg-lb-btn{position:absolute;top:50%;z-index:2;transform:translateY(-50%)}
@@ -1517,15 +1519,15 @@ so it docks to the bottom edge */
   display:grid;
   place-items:center;
   box-sizing:border-box;
-  width:38px;height:38px;
+  width:42px;height:42px;
   flex:none;
-  border:1px solid rgba(5,69,167,.18);
+  border:1px solid rgba(5,69,167,.3);
   border-radius:12px;
   background:var(--ifnpkg-mist);
   color:var(--ifnpkg-navy);
 }
 
-.iflynepal-pkg-sub-h__badge .iflynepal-pkg-ico{width:20px;height:20px}
+.iflynepal-pkg-sub-h__badge .iflynepal-pkg-ico{width:22px;height:22px}
 
 /* The list clears the rule the heading now carries. */
 .iflynepal-pkg-sub-h--badged + .iflynepal-pkg-check-list{margin-top:22px}
@@ -1672,7 +1674,7 @@ so it docks to the bottom edge */
  */
 .iflynepal-pkg-glance-tail{
   display:grid;
-  grid-template-columns:repeat(var(--iflynepal-glance-tail-n),1fr);
+  grid-template-columns:repeat(var(--iflynepal-glance-tail-n),minmax(0,1fr));
   border:1px solid var(--ifnpkg-line);
   border-radius:var(--ifnpkg-r-md);
   background:#fff;
@@ -1685,6 +1687,19 @@ so it docks to the bottom edge */
   border-top-right-radius:0;
 }
 .iflynepal-pkg-glance-tail .iflynepal-pkg-glance-item:last-child{border-right:0}
+
+/*
+ * Tablet: four columns are still four columns, but at this width each one is
+ * narrow enough that the larger tile left a long value like "Breakfast, Lunch,
+ * Dinner" three lines tall. The tile and padding come back in a little so the
+ * text has the room, without touching the desktop or phone sizes.
+ */
+@media (min-width:761px) and (max-width:1023px){
+  .iflynepal-pkg-glance-item{gap:10px;padding:18px 12px}
+  .iflynepal-pkg-glance-ico{width:38px;height:38px}
+  .iflynepal-pkg-glance-ico .iflynepal-pkg-ico{width:20px;height:20px}
+  .iflynepal-pkg-glance-item small{letter-spacing:.06em}
+}
 
 @media (max-width:760px){
   /*
