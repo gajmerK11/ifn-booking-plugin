@@ -11,8 +11,7 @@
  *     forward with — no GSAP, or a stated preference against motion. The gate
  *     is what makes them transparent; leaving it on with no tween coming would
  *     leave the page blank below the hero.
- *  3. Reveal the blocks as they are scrolled to, and tilt the handwritten note
- *     into place.
+ *  3. Reveal the blocks as they are scrolled to.
  *
  * GSAP and ScrollTrigger are the theme's, already on the page: the archive
  * carries the theme's hero component and the theme loads both for it.
@@ -121,23 +120,6 @@
 			}
 		} );
 	}
-
-	/* ------------------------------------------------ the handwritten note */
-
-	gsap.utils.toArray( '.iflynepal-annot' ).forEach( function ( note ) {
-		gsap.fromTo(
-			note,
-			{ opacity: 0, rotate: -6, y: 10 },
-			{
-				opacity: 1,
-				rotate: 0,
-				y: 0,
-				duration: 0.8,
-				ease: 'back.out(1.5)',
-				scrollTrigger: { trigger: note, start: 'top 92%', once: true }
-			}
-		);
-	} );
 
 	/*
 	 * Images finish loading after the triggers were placed, which moves every

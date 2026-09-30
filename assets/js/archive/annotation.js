@@ -1,258 +1,50 @@
 /**
- * The two pieces of motion in the package grid heading.
+ * The hand-drawn underline in the package grid heading.
  *
- *  1. The hand-drawn underline sweeps itself in the first time the heading is
- *     scrolled to.
- *  2. The handwritten note beside it types an ending, holds it, deletes it and
- *     moves to the next, forever.
+ * It sweeps itself in the first time the heading is scrolled to.
  *
  * Vanilla, with no GSAP. The theme loads GSAP and ScrollTrigger only on the
  * templates that animate, and the whole of the work here is one
- * IntersectionObserver and a setTimeout chain — a good deal less code than the
- * library it would take to avoid writing it.
+ * IntersectionObserver — a good deal less code than the library it would
+ * take to avoid writing it.
  *
- * Both effects are decoration. Neither is the only route to any information,
- * the note is aria-hidden, and both stop dead under prefers-reduced-motion.
+ * Decoration only: it is not the only route to any information, and it stops
+ * dead under prefers-reduced-motion.
  */
 ( function () {
 	'use strict';
 
 	var reduced = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
 
-	/* ------------------------------------------------------- the underline */
-
 	var marks = document.querySelectorAll( '.iflynepal-ink-mark' );
 
-	if ( marks.length ) {
-		if ( reduced || ! ( 'IntersectionObserver' in window ) ) {
-			// No observer, or motion is unwelcome: show the finished stroke.
-			Array.prototype.forEach.call( marks, function ( mark ) {
-				mark.classList.add( 'is-drawn' );
-			} );
-		} else {
-			var observer = new IntersectionObserver( function ( entries ) {
-				entries.forEach( function ( entry ) {
-					if ( ! entry.isIntersecting ) {
-						return;
-					}
-
-					entry.target.classList.add( 'is-drawn' );
-
-					// Draws once. A stroke that redrew on every pass would read as a glitch.
-					observer.unobserve( entry.target );
-				} );
-			}, { rootMargin: '0px 0px -14% 0px' } );
-
-			Array.prototype.forEach.call( marks, function ( mark ) {
-				observer.observe( mark );
-			} );
-		}
+	if ( ! marks.length ) {
+		return;
 	}
 
-	/*
-	 * ---------------------------------------------------------- overlap guard
-	 *
-	 * At ≥1200px the note leaves the flow — either to sit in the empty column
-	 * beside the pill row, or (a category with no pill row of its own) to
-	 * hang beside the heading above it — see .iflynepal-listing__controls
-	 * .iflynepal-annot and .iflynepal-listing__controls--note-only in
-	 * catalogue.css. Both placements assume a space that is only actually
-	 * empty some of the time: a category with enough Activity options wraps
-	 * the pill row onto a second line, and a category with a long enough
-	 * lead paragraph fills the column beside the heading, either of which
-	 * the note lands straight on top of.
-	 *
-	 * There is no width to fold either case on: both depend on the term's
-	 * own content — how many Activity options it has, how long its lead
-	 * copy runs — not the viewport. So this measures instead, directly:
-	 * take the note's box where the CSS wants to place it and test it
-	 * against the two things it can actually collide with. Either hit adds
-	 * a class that puts the note straight back into flow, stacked under the
-	 * pills exactly as it already sits below 1200px.
-	 */
-	function checkAnnotOverlap() {
-		var controls = document.querySelector( '.iflynepal-listing__controls' );
-		var note = document.querySelector( '.iflynepal-annot' );
-
-		if ( ! controls || ! note ) {
-			return;
-		}
-
-		// Measured fresh each time: a stale fallback would place the note in
-		// flow and report no collision against a spot it no longer sits at.
-		controls.classList.remove( 'iflynepal-listing__controls--note-clash' );
-
-		var noteRect = note.getBoundingClientRect();
-
-		if ( ! noteRect.width && ! noteRect.height ) {
-			return;
-		}
-
-		var blockers = document.querySelectorAll(
-			'.iflynepal-listing__top, .iflynepal-listing__filters .iflynepal-filter-row--pills'
-		);
-		var overlaps = false;
-
-		Array.prototype.forEach.call( blockers, function ( blocker ) {
-			var r = blocker.getBoundingClientRect();
-
-			if ( noteRect.left < r.right && noteRect.right > r.left && noteRect.top < r.bottom && noteRect.bottom > r.top ) {
-				overlaps = true;
-			}
+	if ( reduced || ! ( 'IntersectionObserver' in window ) ) {
+		// No observer, or motion is unwelcome: show the finished stroke.
+		Array.prototype.forEach.call( marks, function ( mark ) {
+			mark.classList.add( 'is-drawn' );
 		} );
 
-		controls.classList.toggle( 'iflynepal-listing__controls--note-clash', overlaps );
-	}
-
-	checkAnnotOverlap();
-	window.addEventListener( 'resize', checkAnnotOverlap );
-
-	if ( document.fonts && document.fonts.ready && document.fonts.ready.then ) {
-		document.fonts.ready.then( checkAnnotOverlap ).catch( function () {} );
-	}
-
-	/* ------------------------------------------------ the handwritten note */
-
-	var note = document.querySelector( '.iflynepal-annot' );
-
-	if ( ! note ) {
 		return;
 	}
 
-	var staticEl = note.querySelector( '.iflynepal-annot__static' );
-	var wordEl = note.querySelector( '.iflynepal-annot__word' );
-	var words = [];
-
-	try {
-		words = JSON.parse( note.dataset.words || '[]' );
-	} catch ( e ) {
-		words = [];
-	}
-
-	if ( ! staticEl || ! wordEl || ! words.length ) {
-		return;
-	}
-
-	/*
-	 * The tail box has to be wide enough for the LONGEST ending, or the arrow
-	 * beside it steps along as a word grows. Guessing that width in em means
-	 * guessing at Caveat's metrics, and a guess even slightly short shows as a
-	 * shift on every cycle. So measure: render each ending into a hidden probe
-	 * carrying the same typography and reserve the widest result.
-	 *
-	 * Re-run on resize, because the note steps down a font size at the 1000px
-	 * breakpoint, and again once the webfont has loaded — Caveat and the
-	 * fallback stack do not measure the same.
-	 */
-	function reserve() {
-		var cs = window.getComputedStyle( wordEl );
-		var probe = document.createElement( 'span' );
-		var widest = 0;
-
-		probe.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre';
-		probe.style.fontFamily = cs.fontFamily;
-		probe.style.fontSize = cs.fontSize;
-		probe.style.fontWeight = cs.fontWeight;
-		probe.style.fontStyle = cs.fontStyle;
-		probe.style.letterSpacing = cs.letterSpacing;
-		document.body.appendChild( probe );
-
-		words.forEach( function ( word ) {
-			probe.textContent = word;
-			widest = Math.max( widest, probe.getBoundingClientRect().width );
-		} );
-
-		document.body.removeChild( probe );
-
-		// A whole pixel up, so sub-pixel rounding cannot claw the gap back.
-		wordEl.style.minWidth = Math.ceil( widest ) + 1 + 'px';
-
-		/*
-		 * The overlap check above ran before this reserved the word's final
-		 * width, so its first pass measured a narrower box than the note
-		 * actually settles at. Re-run now that the width is real.
-		 */
-		checkAnnotOverlap();
-	}
-
-	reserve();
-	window.addEventListener( 'resize', reserve );
-
-	if ( document.fonts && document.fonts.ready && document.fonts.ready.then ) {
-		document.fonts.ready.then( reserve ).catch( function () {} );
-	}
-
-	// Still, or only one ending to show: leave the first one sitting there.
-	if ( reduced || words.length < 2 ) {
-		wordEl.textContent = words[ 0 ];
-
-		return;
-	}
-
-	var TYPE_MS = 65;
-	var DELETE_MS = 40;
-	var HOLD_MS = 1800;
-
-	function typeInto( el, text, done ) {
-		var i = 0;
-
-		( function step() {
-			el.textContent = text.slice( 0, i );
-
-			if ( i >= text.length ) {
-				done();
-
+	var observer = new IntersectionObserver( function ( entries ) {
+		entries.forEach( function ( entry ) {
+			if ( ! entry.isIntersecting ) {
 				return;
 			}
 
-			i++;
-			window.setTimeout( step, TYPE_MS );
-		}() );
-	}
+			entry.target.classList.add( 'is-drawn' );
 
-	function deleteFrom( el, text, done ) {
-		var i = text.length;
-
-		( function step() {
-			el.textContent = text.slice( 0, i );
-
-			if ( i <= 0 ) {
-				done();
-
-				return;
-			}
-
-			i--;
-			window.setTimeout( step, DELETE_MS );
-		}() );
-	}
-
-	function cycle( index ) {
-		var word = words[ index % words.length ];
-
-		typeInto( wordEl, word, function () {
-			window.setTimeout( function () {
-				deleteFrom( wordEl, word, function () {
-					cycle( index + 1 );
-				} );
-			}, HOLD_MS );
+			// Draws once. A stroke that redrew on every pass would read as a glitch.
+			observer.unobserve( entry.target );
 		} );
-	}
+	}, { rootMargin: '0px 0px -14% 0px' } );
 
-	/*
-	 * The fixed part types once and then stays, exactly as the design has it —
-	 * it is never touched again, not its text and not its box, which is what
-	 * keeps everything to the left of the ending still while a word grows.
-	 *
-	 * Read off the markup rather than written here, so the copy stays the
-	 * editor's and the trailing non-breaking space travels with it.
-	 */
-	var staticText = staticEl.textContent;
-
-	wordEl.textContent = '';
-	staticEl.textContent = '';
-
-	typeInto( staticEl, staticText, function () {
-		cycle( 0 );
+	Array.prototype.forEach.call( marks, function ( mark ) {
+		observer.observe( mark );
 	} );
 }() );

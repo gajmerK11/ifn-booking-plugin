@@ -526,127 +526,6 @@
 	overflow-wrap: break-word;
 }
 
-.iflynepal-annot {
-	display: flex;
-	width: max-content;
-	flex: none;
-	align-items: center;
-	/*
-	 * Arrow to the right of the words and mirrored, so its curve still sweeps
-	 * back toward the heading it is pointing away from.
-	 */
-	flex-direction: row-reverse;
-	color: var(--ifn-navy);
-	gap: 0;
-	pointer-events: none;
-}
-
-.iflynepal-annot b {
-	display: inline-block;
-	font-family: var(--ifn-hand);
-	font-size: 27px;
-	font-weight: 600;
-	letter-spacing: 0.01em;
-	line-height: 1.05;
-	text-align: left;
-	transform: rotate(-2.5deg);
-	white-space: nowrap;
-}
-
-/*
- * The fixed part is set once and never touched again — not its text, not its
- * box — so nothing to the left of the tail can move while a word grows. The
- * gap before the tail is a non-breaking space written by the script rather
- * than a margin, because this is an inline-block and a trailing ordinary space
- * would be trimmed off the end of its line box.
- */
-.iflynepal-annot__static {
-	display: inline-block;
-}
-
-/*
- * The tail box is reserved to the width of the longest ending, so a word
- * growing a character at a time cannot push the arrow along beside it. The em
- * value here is only the no-JS fallback — the script measures the real width.
- */
-.iflynepal-annot__word {
-	display: inline-block;
-	min-width: 5.2em;
-	text-align: left;
-}
-
-.iflynepal-annot__arrow {
-	width: 44px;
-	height: 118px;
-	overflow: hidden;
-	opacity: 0.9;
-	transform: scaleX(-1);
-	/*
-	 * The arrow's ink starts well inside its own box, so the apparent gap is
-	 * much wider than the box gap. Pull the box back far enough that the ink,
-	 * not the box, sets the spacing.
-	 */
-	margin-left: -16px;
-}
-
-/*
- * The dashes march down toward the cards and the whole arrow drifts after them,
- * so the note reads as a live pointer rather than a sticker.
- */
-.iflynepal-annot__dash {
-	animation: iflynepal-annot-dash 1.5s linear infinite;
-}
-
-.iflynepal-annot__head {
-	animation: iflynepal-annot-head 2.4s ease-in-out infinite;
-}
-
-/* The base rule mirrors this svg, so the mirror is restated in the keyframes or
-   the drift would drop it. */
-.iflynepal-annot__arrow {
-	animation: iflynepal-annot-drift 2.4s ease-in-out infinite;
-}
-
-@keyframes iflynepal-annot-dash {
-
-	to {
-		stroke-dashoffset: -22;
-	}
-}
-
-@keyframes iflynepal-annot-head {
-
-	0%,
-	100% {
-		opacity: 0.75;
-		transform: translateX(0);
-	}
-
-	50% {
-		opacity: 1;
-		transform: translateX(4px);
-	}
-}
-
-@keyframes iflynepal-annot-drift {
-
-	0%,
-	100% {
-		transform: scaleX(-1) translateY(0);
-	}
-
-	50% {
-		transform: scaleX(-1) translateY(6px);
-	}
-}
-
-/*
- * The head, on its own. The note used to share this row — first by being
- * dragged back up over the filter row with a negative margin tuned per
- * breakpoint, then as a plain flex sibling once the facets moved out of the
- * way. It is neither now: it prints down with the cards instead
- * (.iflynepal-listing__controls, below), because that is what it points at.
- */
 .iflynepal-listing__top {
 	margin-bottom: 26px;
 }
@@ -671,18 +550,6 @@
 
 	.iflynepal-listing__head .iflynepal-section-head {
 		max-width: none;
-	}
-
-	/* The ink inset scales down with the smaller box, so the desktop pull-in is
-	   too aggressive here and would clip into the text. */
-	.iflynepal-annot__arrow {
-		width: 34px;
-		height: 88px;
-		margin-left: -12px;
-	}
-
-	.iflynepal-annot b {
-		font-size: 23px;
 	}
 }
 
@@ -735,119 +602,12 @@
 }
 
 /*
- * The band between the head and the cards: the Activity pill row on the left,
- * the hand-drawn note on the right, both inside the grid's own column so the
- * row starts on the same left edge as the cards it filters and the note ends
- * on the same right edge as the last card it points at.
- *
- * align-items: flex-start, not flex-end. The note is more than twice the pill
- * row's height, so bottom-aligning them would drop the pills ~80px below the
- * lead paragraph and open a hole nothing fills. Top-aligned, the pills stay
- * exactly where they were and it is the note's own tail — the arrow — that
- * reaches down to the cards, which is the part that is supposed to.
+ * The band between the head and the cards: the Activity pill row, inside the
+ * grid's own column so it starts on the same left edge as the cards it
+ * filters.
  */
 .iflynepal-listing__controls {
-	position: relative;
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 24px;
 	margin-bottom: 26px;
-}
-
-/*
- * margin-left: auto rather than leaning on the band's space-between, because
- * on a category archive the note is the band's ONLY child — there is no pill
- * row there — and space-between puts a lone child at the start. It was sitting
- * at the left edge of the grid on every category page.
- */
-.iflynepal-annot {
-	margin: 0 0 0 auto;
-	/* Never squeezed by a long pill row; it is set at its own intrinsic width. */
-	flex: none;
-}
-
-/*
- * 🔴 Taken out of the flow so it stops setting the band's height.
- *
- * The note is 118px tall and the pill row is about 65px, so as a flex sibling
- * it made the band 118px and left ~55px of empty page under the pills before
- * the cards — the gap this was asked to close. Bottom-aligning the pills
- * instead would only move the same hole above them, under the lead paragraph.
- *
- * Positioned instead: the band is as tall as the pill row, and the note hangs
- * in the empty column to the right of it, bottom-aligned so it still finishes
- * the same 26px above the cards it points at. It grows UPWARD into the space
- * beside the heading, which is empty by construction — the head is capped at
- * 820px and the container is 1240px — rather than downward into the grid.
- *
- * ⚠ 1200px, not the 1025px the rest of this file folds on, and the number is
- * arithmetic rather than taste. The note can only be placed over the space to
- * the right of the heading while that space is wider than the note. The
- * container is min(100% - 40px, 1240px) and the head is capped at 820px, so
- * the clear column is (viewport - 40 - 820). The longest note on this site
- * measures 310px, and 30px of gutter keeps it off the text: 820 + 310 + 30 +
- * 40 = 1200.
- *
- * Measured at 1025px before this was raised: the note sat across the heading
- * and the lead paragraph on every category archive. Below the threshold it
- * stays in normal flow, stacked under the pills and right-aligned — where it
- * has always sat on a narrow screen. That costs the closed-up gap at those
- * widths, which is the right way round: a gap is untidy, type printed over
- * type is broken.
- *
- * If the annotation copy ever grows past 310px, this number has to grow with
- * it. Capping the note's width instead would wrap the handwriting, which is
- * worse than either.
- */
-@media (min-width: 1200px) {
-
-	.iflynepal-listing__controls .iflynepal-annot {
-		position: absolute;
-		right: 0;
-		bottom: 0;
-		margin: 0;
-	}
-
-	/*
-	 * The note is this band's only child on a category with no child terms
-	 * of its own, and it just went position:absolute above — the band is
-	 * left with nothing in flow but still carries margin-bottom: 26px,
-	 * which is spacing for a pill row that was never there. Zeroed here so
-	 * the cards sit level with the filter rail instead of starting 26px
-	 * below it.
-	 */
-	.iflynepal-listing__controls--note-only {
-		margin-bottom: 0;
-	}
-
-	/*
-	 * Set by assets/js/archive/annotation.js once it measures the note's
-	 * absolute box actually colliding with something — the Activity pill
-	 * row wrapped onto a second line, or (a category with no pill row of
-	 * its own) a lead paragraph long enough to fill the column beside the
-	 * heading that the note was counting on being clear. Same fix as below
-	 * 1200px either way: back into flow, stacked under whatever it was
-	 * about to overlap.
-	 */
-	.iflynepal-listing__controls--note-clash {
-		display: block;
-	}
-
-	.iflynepal-listing__controls--note-clash .iflynepal-annot {
-		position: static;
-		margin: 24px 0 0 auto;
-	}
-
-	/*
-	 * --note-only zeroed this band's margin-bottom above on the assumption
-	 * the note is position:absolute and contributes no flow height of its
-	 * own. --note-clash just put it back in flow, so the band needs its
-	 * spacing before the cards back too.
-	 */
-	.iflynepal-listing__controls--note-only.iflynepal-listing__controls--note-clash {
-		margin-bottom: 26px;
-	}
 }
 
 .iflynepal-listing__filters {
@@ -1274,21 +1034,6 @@
 	}
 
 	/*
-	 * The band stacks: pills first, note under them and right-aligned by its
-	 * own intrinsic width. Side by side it is pushed off the right-hand edge
-	 * instead — measured at 420px, where it put 51px of horizontal scroll on
-	 * the page — and this is where the note has sat on a narrow viewport since
-	 * before any of the rail work.
-	 */
-	.iflynepal-listing__controls {
-		display: block;
-	}
-
-	.iflynepal-annot {
-		margin: 24px 0 0 auto;
-	}
-
-	/*
 	 * Not sticky below this width. A panel a quarter of a phone screen tall
 	 * that follows the visitor down the page is in the way of the grid it
 	 * filters; collapsed behind its own button at the top of the list is the
@@ -1400,41 +1145,6 @@
 		margin-top: 0;
 		padding-top: 0;
 		border-top: 0;
-	}
-}
-
-/*
- * Tablet and small-laptop: the note out of flow, the same technique the
- * ≥1200px rule above it uses. In the stacked layout the rule just above sets
- * up (.iflynepal-listing__controls{display:block}), the note sat in normal
- * flow under the pills and added its own ~88px to the stack before the cards
- * — opening a gap under the pill row that the ≥1200px layout does not have.
- *
- * Anchored to the row's own top-right corner rather than its bottom: the
- * pills already start there, and growing down toward the cards the arrow
- * points at cannot run into the lead paragraph above the way growing up
- * could.
- *
- * Left below 601px: a phone this narrow already wraps the pills onto a
- * second line (.iflynepal-filter-row--pills{flex-wrap:wrap}), and the note's
- * fixed top-right corner would then sit over that second line rather than
- * beside a single row of it.
- *
- * Scoped off .iflynepal-listing__controls--note-only — a category with no
- * pill row of its own, where the note is the band's only content. Taking it
- * out of flow there would collapse the band to nothing above it.
- */
-@media (min-width: 601px) and (max-width: 1024px) {
-
-	.iflynepal-listing__controls:not(.iflynepal-listing__controls--note-only) {
-		margin-bottom: 40px;
-	}
-
-	.iflynepal-listing__controls:not(.iflynepal-listing__controls--note-only) .iflynepal-annot {
-		position: absolute;
-		top: 0;
-		right: 0;
-		margin: 0;
 	}
 }
 
@@ -2782,12 +2492,6 @@ a.iflynepal-departure__reserve:focus-visible {
 	.iflynepal-ink-mark::after {
 		transform: scaleX(1);
 		transition: none;
-	}
-
-	.iflynepal-annot__arrow,
-	.iflynepal-annot__dash,
-	.iflynepal-annot__head {
-		animation: none;
 	}
 
 	.iflynepal-hero--package-type .iflynepal-hero__title em,

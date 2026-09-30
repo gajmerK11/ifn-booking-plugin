@@ -99,12 +99,6 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 	<div class="iflynepal-container">
 		<?php
 		/*
-		 * The note is no longer up here beside the heading. It is printed with
-		 * the pill row instead, immediately above the cards — client-directed,
-		 * and it is what the note is actually for: it annotates the grid, and
-		 * beside a heading two hundred pixels above the first card it was
-		 * pointing at nothing in particular.
-		 *
 		 * A category with no listing_heading/lead of its own (the norm — the
 		 * content model gives copy fields to the type, not every category)
 		 * must not print the head wrapper at all: iflynepal_archive_the_head()
@@ -115,17 +109,6 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 		ob_start();
 		iflynepal_archive_the_head( $iflynepal_id, 'listing' );
 		$iflynepal_head_markup = ob_get_clean();
-
-		/*
-		 * Type-archive only. The note has no guaranteed clear space to sit in
-		 * on a category page — its lead paragraph or Activity row can run
-		 * long enough to fill the column it counts on, which is the overlap
-		 * iflynepal_package_type_archive_sections_for_term() now keeps a
-		 * category from ever collecting the copy for in the first place.
-		 */
-		$iflynepal_note_static = $iflynepal_is_type ? iflynepal_archive_field( $iflynepal_id, 'listing_annotation_static' ) : '';
-		$iflynepal_note_words  = $iflynepal_is_type ? iflynepal_archive_field_lines( $iflynepal_id, 'listing_annotation_words' ) : array();
-		$iflynepal_has_note    = '' !== $iflynepal_note_static || ! empty( $iflynepal_note_words );
 
 		if ( '' !== trim( $iflynepal_head_markup ) ) :
 			?>
@@ -229,74 +212,16 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 				 * column rather than spanning the rail as well, so the row
 				 * starts on the same left edge as the cards it filters.
 				 */
-				if ( ! empty( $iflynepal_pill_facets ) || $iflynepal_has_note ) :
-					/*
-					 * A category with a note and no pill row (no child
-					 * categories of its own) has nothing left in the band
-					 * once ≥1200px pulls the note out of flow to sit beside
-					 * the heading instead — see .iflynepal-annot below. This
-					 * class only matters at that width; it tells the
-					 * stylesheet the band's margin-bottom is now spacing
-					 * nothing, so the cards can sit level with the rail
-					 * instead of leaving its phantom height as a gap.
-					 */
-					$iflynepal_controls_class  = 'iflynepal-listing__controls';
-					$iflynepal_controls_class .= empty( $iflynepal_pill_facets ) ? ' iflynepal-listing__controls--note-only' : '';
+				if ( ! empty( $iflynepal_pill_facets ) ) :
 					?>
-					<div class="<?php echo esc_attr( $iflynepal_controls_class ); ?>">
-						<?php if ( ! empty( $iflynepal_pill_facets ) ) : ?>
-							<div class="iflynepal-listing__filters iflynepal-filter-panel" data-iflynepal-anim>
-								<?php
-								foreach ( $iflynepal_pill_facets as $iflynepal_facet ) {
-									iflynepal_booking_get_part( 'parts/archive/filter-group', array( 'facet' => $iflynepal_facet ) );
-								}
-								?>
-							</div>
-						<?php endif; ?>
-
-					<?php
-					/*
-					 * The hand-drawn note. Both halves are separate spans because
-					 * only the tail re-types: the fixed part is set once and never
-					 * touched, so nothing to the left of the tail can shift while
-					 * a word grows. The words travel to the script as a data
-					 * attribute rather than as text, so the markup carries no
-					 * half-typed state.
-					 */
-					if ( $iflynepal_has_note ) :
-						?>
-						<span class="iflynepal-annot" aria-hidden="true" data-words="<?php echo esc_attr( wp_json_encode( $iflynepal_note_words ) ); ?>">
+					<div class="iflynepal-listing__controls">
+						<div class="iflynepal-listing__filters iflynepal-filter-panel" data-iflynepal-anim>
 							<?php
-							/*
-							 * Drawn vertically in its own box and mirrored in CSS,
-							 * so the curve sweeps back toward the heading it points
-							 * away from.
-							 */
+							foreach ( $iflynepal_pill_facets as $iflynepal_facet ) {
+								iflynepal_booking_get_part( 'parts/archive/filter-group', array( 'facet' => $iflynepal_facet ) );
+							}
 							?>
-							<svg class="iflynepal-annot__arrow" viewBox="0 0 46 126" fill="none" aria-hidden="true" focusable="false">
-								<g transform="translate(46 0) rotate(90)">
-									<path class="iflynepal-annot__dash" d="M2 34c14 6 29 9 45 8 20-1 38-8 58-19" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7" stroke-linecap="round"/>
-									<path class="iflynepal-annot__head" d="M91 15.5 107.5 22.5 99.5 37" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-								</g>
-							</svg>
-							<b>
-								<?php
-								/*
-								 * The gap before the ending is a non-breaking space
-								 * rather than a margin or a plain space: this span
-								 * is an inline-block, so an ordinary trailing space
-								 * would be trimmed off the end of its line box and
-								 * the fixed part would butt straight into the
-								 * ending. The script picks this text up as it
-								 * stands, nbsp included, so the two cannot drift
-								 * apart.
-								 */
-								?>
-								<span class="iflynepal-annot__static"><?php echo esc_html( $iflynepal_note_static ); ?>&#160;</span>
-								<span class="iflynepal-annot__word"><?php echo esc_html( isset( $iflynepal_note_words[0] ) ? $iflynepal_note_words[0] : '' ); ?></span>
-							</b>
-						</span>
-						<?php endif; ?>
+						</div>
 					</div>
 					<?php
 				endif;
