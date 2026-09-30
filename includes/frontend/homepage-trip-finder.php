@@ -283,6 +283,33 @@ function iflynepal_trip_finder_durations() {
 		return $buckets;
 	}
 
+	/*
+	 * Ranges set at Packages > Settings win outright, and they are offered as
+	 * written — not thinned to what the catalogue currently holds — so the hero
+	 * picker, the archive facets and the Explore page all say the same thing.
+	 * Only when none are set does the catalogue-derived ladder below apply.
+	 */
+	$configured = iflynepal_booking_setting( 'trip_finder_durations' );
+
+	if ( is_array( $configured ) && $configured ) {
+		$buckets = array();
+
+		foreach ( $configured as $row ) {
+			$low  = (int) $row['min'];
+			$high = null === $row['max'] ? null : (int) $row['max'];
+
+			$buckets[] = array(
+				'key'   => null === $high ? $low . '-plus' : $low . '-' . $high,
+				'label' => iflynepal_trip_finder_duration_label( $low, $high ),
+				'unit'  => iflynepal_trip_finder_duration_unit( $low ),
+				'min'   => $low,
+				'max'   => $high,
+			);
+		}
+
+		return $buckets;
+	}
+
 	$ids = get_posts(
 		array(
 			'post_type'              => IFLYNEPAL_PACKAGE_POST_TYPE,
@@ -369,6 +396,91 @@ function iflynepal_trip_finder_durations() {
 }
 
 /**
+ * The currency code the catalogue prices in, for wording a budget range.
+ *
+ * The first non-empty Currency on a published package, so a range set as plain
+ * numbers reads "USD 2,000–5,000". "USD" when no package says otherwise.
+ *
+ * @since 1.0.0
+ *
+ * @return string Currency code.
+ */
+function iflynepal_trip_finder_currency() {
+	static $currency = null;
+
+	if ( null !== $currency ) {
+		return $currency;
+	}
+
+	$currency = 'USD';
+
+	$ids = get_posts(
+		array(
+			'post_type'              => IFLYNEPAL_PACKAGE_POST_TYPE,
+			'post_status'            => 'publish',
+			'numberposts'            => -1,
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
+		)
+	);
+
+	foreach ( $ids as $id ) {
+		$code = trim( (string) iflynepal_package_field( $id, 'price_currency' ) );
+
+		if ( '' !== $code ) {
+			$currency = $code;
+			break;
+		}
+	}
+
+	return $currency;
+}
+
+/**
+ * The budget ranges set at Packages > Settings, as filter buckets.
+ *
+ * Same shape iflynepal_archive_budget_terms() returns — 'key', 'label', 'min',
+ * 'max' (null on the open-ended row) — so every facet and the Explore page
+ * consume either source the same way. Empty when none are set, which is the
+ * signal to fall back to the brackets worked out from the catalogue.
+ *
+ * @since 1.0.0
+ *
+ * @return array[] Buckets, lowest first.
+ */
+function iflynepal_trip_finder_configured_budgets() {
+	static $buckets = null;
+
+	if ( null !== $buckets ) {
+		return $buckets;
+	}
+
+	$buckets = array();
+	$rows    = iflynepal_booking_setting( 'trip_finder_budgets' );
+
+	if ( ! is_array( $rows ) || ! $rows ) {
+		return $buckets;
+	}
+
+	$currency = iflynepal_trip_finder_currency();
+
+	foreach ( $rows as $row ) {
+		$low  = (int) $row['min'];
+		$high = null === $row['max'] ? null : (int) $row['max'];
+
+		$buckets[] = array(
+			'key'   => $low . '-' . ( null === $high ? 'plus' : $high ),
+			'label' => iflynepal_archive_budget_label( $low, $high, $currency ),
+			'min'   => $low,
+			'max'   => $high,
+		);
+	}
+
+	return $buckets;
+}
+
+/**
  * The price brackets the homepage picker offers, across the whole catalogue.
  *
  * A sibling of iflynepal_trip_finder_durations(), and deliberately built a
@@ -402,6 +514,14 @@ function iflynepal_trip_finder_budgets() {
 	static $budgets = null;
 
 	if ( null !== $budgets ) {
+		return $budgets;
+	}
+
+	$configured = iflynepal_trip_finder_configured_budgets();
+
+	if ( $configured ) {
+		$budgets = $configured;
+
 		return $budgets;
 	}
 

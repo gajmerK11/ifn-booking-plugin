@@ -604,7 +604,7 @@ function iflynepal_package_duration_range( $post_id ) {
  * @return array{min:int,max:int}|null Days, inclusive.
  */
 function iflynepal_parse_duration_text( $text ) {
-	$text = strtolower( trim( wp_strip_all_tags( (string) $text ) ) );
+	$text = mb_strtolower( trim( wp_strip_all_tags( (string) $text ) ), 'UTF-8' );
 
 	if ( '' === $text ) {
 		return null;
@@ -617,13 +617,29 @@ function iflynepal_parse_duration_text( $text ) {
 	 */
 	$multiplier = 1;
 
-	if ( preg_match( '/\bmonths?\b/', $text ) ) {
+	if ( preg_match( '/\b(?:months?|mois)\b/u', $text ) ) {
 		$multiplier = 30;
-	} elseif ( preg_match( '/\bweeks?\b/', $text ) ) {
+	} elseif ( preg_match( '/\b(?:weeks?|semaines?)\b/u', $text ) ) {
 		$multiplier = 7;
 	}
 
-	if ( preg_match( '/(\d+)\s*(?:to|through|and|[-\x{2010}-\x{2015}\/])\s*(\d+)/u', $text, $m ) ) {
+	/*
+	 * "20 Nights / 21 Days" names the same trip twice, and the visitor counts
+	 * days: 21, not 20. Read the number in front of the day word when a nights
+	 * figure is also present, so a trip sits in the right length bucket at a
+	 * boundary. "Nuits"/"jours" are the French spellings.
+	 */
+	if ( preg_match( '/\b(?:nights?|nuits?)\b/u', $text ) && preg_match( '/(\d+)\s*(?:days?|jours?)\b/u', $text, $m ) ) {
+		$days = (int) $m[1];
+
+		return $days > 0 ? array(
+			'min' => $days,
+			'max' => $days,
+		) : null;
+	}
+
+	// The separator may be "to", "à"/"au" (French), "and", "et", a dash or a slash.
+	if ( preg_match( '/(\d+)\s*(?:to|through|and|à|au|et|[-\x{2010}-\x{2015}\/])\s*(\d+)/u', $text, $m ) ) {
 		$low  = (int) $m[1];
 		$high = (int) $m[2];
 	} elseif ( preg_match( '/(\d+)/', $text, $m ) ) {
@@ -698,7 +714,8 @@ function iflynepal_archive_bucket_match( $value, $buckets ) {
  * The trip-length buckets worth offering on this archive.
  *
  * Reuses the same length options a visitor is offered on the homepage picker
- * (Packages > Settings > Trip finder length options) — duration_days is the
+ * (Packages > Settings > Trip finder length options, or the catalogue-derived
+ * ladder when none are set) — duration_days is the
  * field both read, so there is one idea of "duration" on the site instead of
  * two competing sets of ranges. Only buckets that actually match one of the
  * packages on this page are offered, the same restraint
@@ -890,6 +907,34 @@ function iflynepal_archive_nice_step( $rough_step ) {
  * @return array[] Buckets, each with 'key', 'label', 'min', 'max' (max null on the last).
  */
 function iflynepal_archive_budget_terms( $packages ) {
+	/*
+	 * Ranges set at Packages > Settings replace the spread-derived ladder. Still
+	 * thinned to the ones a package on this page falls in: a row nothing here
+	 * matches could only ever empty the grid.
+	 */
+	$configured = iflynepal_trip_finder_configured_budgets();
+
+	if ( $configured ) {
+		$in_use = array();
+
+		foreach ( $packages as $package ) {
+			$price = iflynepal_archive_package_price( $package->ID );
+
+			if ( null !== $price ) {
+				$in_use[ iflynepal_archive_bucket_match( $price, $configured ) ] = true;
+			}
+		}
+
+		return array_values(
+			array_filter(
+				$configured,
+				static function ( $bucket ) use ( $in_use ) {
+					return isset( $in_use[ $bucket['key'] ] );
+				}
+			)
+		);
+	}
+
 	$prices   = array();
 	$currency = '';
 

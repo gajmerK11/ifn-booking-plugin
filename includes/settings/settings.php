@@ -56,6 +56,18 @@ function iflynepal_booking_settings_schema() {
 			'default' => __( 'Hello iFly Nepal, I would like to know more about {package}.', 'iflynepal' ),
 			'help'    => __( 'What the visitor\'s chat opens with, already typed for them. {package} is replaced with the package name — or with the site name on a page that is not a package.', 'iflynepal' ),
 		),
+		'trip_finder_durations' => array(
+			'label'   => __( 'Trip finder length options', 'iflynepal' ),
+			'type'    => 'duration_ranges',
+			'default' => array(),
+			'help'    => __( 'The Duration choices offered in the homepage trip finder, on the Explore page and in every package archive filter. Each row is a range of days; its wording (days or weeks) is worked out from the numbers. A package is listed under every row its length reaches into. Leave empty to have the ranges worked out from your packages automatically.', 'iflynepal' ),
+		),
+		'trip_finder_budgets'   => array(
+			'label'   => __( 'Trip finder budget options', 'iflynepal' ),
+			'type'    => 'budget_ranges',
+			'default' => array(),
+			'help'    => __( 'The Budget choices offered in the homepage trip finder, on the Explore page and in every package archive filter. Each row is a price range, compared with the price on the package card. Leave "to" empty for the open-ended top row ("and over"). Leave the whole list empty to have the ranges worked out from your packages automatically.', 'iflynepal' ),
+		),
 		'trip_finder_page'      => array(
 			'label'   => __( 'Trip finder results page', 'iflynepal' ),
 			'type'    => 'page',
@@ -65,7 +77,7 @@ function iflynepal_booking_settings_schema() {
 				'iflynepal'
 			),
 		),
-		'deepl_api_key'          => array(
+		'deepl_api_key'         => array(
 			'label'   => __( 'DeepL API key', 'iflynepal' ),
 			'type'    => 'api_key',
 			'default' => '',
@@ -147,7 +159,7 @@ function iflynepal_booking_setting( $key ) {
 	 * that cannot be cleared. The form prefills with the default, so a stored
 	 * empty value is always a deliberate one.
 	 */
-	$value = (string) $raw;
+	$value = iflynepal_booking_setting_is_list( $schema[ $key ]['type'] ) ? $raw : (string) $raw;
 
 	/*
 	 * Sanitized on the way out as well as on the way in. register_setting()'s
@@ -176,6 +188,31 @@ function iflynepal_booking_page_field_is_multilingual() {
 }
 
 /**
+ * Whether a setting of this type holds a list of rows rather than a scalar.
+ *
+ * One predicate so the getter, the sanitizer and the settings screen agree on
+ * which types are lists.
+ *
+ * @since 1.0.0
+ *
+ * @param string $type Declared type.
+ * @return bool
+ */
+function iflynepal_booking_setting_is_list( $type ) {
+	return in_array( $type, array( 'duration_ranges', 'budget_ranges' ), true );
+}
+
+/**
+ * Most rows a range list (length or budget options) may carry.
+ *
+ * A cap rather than a limit anybody is likely to reach: these are filter rows a
+ * visitor reads at a glance. Enforced on save as well as in the browser.
+ *
+ * @since 1.0.0
+ */
+const IFLYNEPAL_TRIP_FINDER_MAX_RANGES = 8;
+
+/**
  * Cleans one submitted setting by its declared type.
  *
  * A number is reduced to its digits rather than rejected for carrying a `+` or
@@ -190,6 +227,14 @@ function iflynepal_booking_page_field_is_multilingual() {
  * @return string Clean value.
  */
 function iflynepal_booking_sanitize_setting( $value, $type ) {
+	if ( 'duration_ranges' === $type ) {
+		return iflynepal_booking_sanitize_ranges( $value, 1 );
+	}
+
+	if ( 'budget_ranges' === $type ) {
+		return iflynepal_booking_sanitize_ranges( $value, 0 );
+	}
+
 	if ( 'digits' === $type ) {
 		$digits = preg_replace( '/[^0-9]/', '', (string) $value );
 
@@ -236,6 +281,93 @@ function iflynepal_booking_sanitize_setting( $value, $type ) {
  */
 function iflynepal_deepl_api_key() {
 	return iflynepal_booking_setting( 'deepl_api_key' );
+}
+
+/**
+ * Cleans a list of `{ min, max }` range rows (trip length, or budget).
+ *
+ * Every row is rebuilt from two whole numbers rather than trusted as submitted:
+ * the option is reachable by an import, WP-CLI or a hand-edited database, and a
+ * bad row here reaches every filter on the site.
+ *
+ *  1. A row with no usable `min` is dropped. For lengths the floor is 1 day; for
+ *     budgets it is 0, so "0–2,000" is a valid row.
+ *  2. A `max` below its `min` is raised to it rather than swapped or dropped.
+ *  3. Rows are sorted by `min`, so the list reads low to high whatever order it
+ *     was entered in.
+ *  4. Only the open-ended row (empty `max`) with the highest `min` survives; a
+ *     lower one would swallow everything the higher one is for.
+ *
+ * Overlaps and shared edges ("0–2,000" then "2,000–5,000") are left alone: a
+ * value on the edge belongs to the first row that holds it.
+ *
+ * @since 1.0.0
+ *
+ * @param mixed $value     Raw rows.
+ * @param int   $min_floor Lowest `min` a row may start at.
+ * @return array<int,array{min:int,max:int|null}> Clean rows, re-indexed from zero.
+ */
+function iflynepal_booking_sanitize_ranges( $value, $min_floor ) {
+	if ( ! is_array( $value ) ) {
+		return array();
+	}
+
+	$rows = array();
+
+	foreach ( $value as $row ) {
+		if ( ! is_array( $row ) ) {
+			continue;
+		}
+
+		if ( ! isset( $row['min'] ) || '' === trim( (string) $row['min'] ) ) {
+			continue;
+		}
+
+		$min = absint( str_replace( ',', '', (string) $row['min'] ) );
+
+		if ( $min < $min_floor ) {
+			continue;
+		}
+
+		$max = null;
+
+		if ( isset( $row['max'] ) && '' !== trim( (string) $row['max'] ) ) {
+			$max = absint( str_replace( ',', '', (string) $row['max'] ) );
+
+			if ( $max < $min ) {
+				$max = $min;
+			}
+		}
+
+		$rows[] = array(
+			'min' => $min,
+			'max' => $max,
+		);
+	}
+
+	usort(
+		$rows,
+		static function ( $a, $b ) {
+			return $a['min'] <=> $b['min'];
+		}
+	);
+
+	$seen_open = false;
+
+	foreach ( array_reverse( array_keys( $rows ) ) as $i ) {
+		if ( null !== $rows[ $i ]['max'] ) {
+			continue;
+		}
+
+		if ( $seen_open ) {
+			unset( $rows[ $i ] );
+			continue;
+		}
+
+		$seen_open = true;
+	}
+
+	return array_slice( array_values( $rows ), 0, IFLYNEPAL_TRIP_FINDER_MAX_RANGES );
 }
 
 /* ---------------------------------------------------------------- whatsapp */

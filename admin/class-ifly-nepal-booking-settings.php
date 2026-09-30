@@ -39,6 +39,29 @@ class IFly_Nepal_Booking_Settings {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_page' ) );
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
+	}
+
+	/**
+	 * Loads the range controls' behaviour, on this screen only.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $hook Current admin page's hook suffix.
+	 * @return void
+	 */
+	public function enqueue( $hook ) {
+		if ( false === strpos( (string) $hook, self::PAGE ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'iflynepal-settings-ranges',
+			IFLYNEPAL_BOOKING_URL . 'assets/js/admin/settings-ranges.js',
+			array(),
+			iflynepal_booking_asset_version( 'assets/js/admin/settings-ranges.js' ),
+			true
+		);
 	}
 
 	/**
@@ -128,10 +151,19 @@ class IFly_Nepal_Booking_Settings {
 				$clean[ $key ] = array();
 
 				foreach ( pll_languages_list() as $lang ) {
-					$submitted            = isset( $value[ $key ][ $lang ] ) && is_string( $value[ $key ][ $lang ] ) ? $value[ $key ][ $lang ] : '';
+					$submitted              = isset( $value[ $key ][ $lang ] ) && is_string( $value[ $key ][ $lang ] ) ? $value[ $key ][ $lang ] : '';
 					$clean[ $key ][ $lang ] = iflynepal_booking_sanitize_setting( $submitted, $field['type'] );
 				}
 
+				continue;
+			}
+
+			/*
+			 * A range list posts an array of rows, so the string-only guard
+			 * below would read it as empty and wipe the list on every save.
+			 */
+			if ( iflynepal_booking_setting_is_list( $field['type'] ) ) {
+				$clean[ $key ] = iflynepal_booking_sanitize_setting( isset( $value[ $key ] ) && is_array( $value[ $key ] ) ? $value[ $key ] : array(), $field['type'] );
 				continue;
 			}
 
@@ -163,6 +195,113 @@ class IFly_Nepal_Booking_Settings {
 	}
 
 	/**
+	 * Draws a list of range rows: the trip finder's length or budget options.
+	 *
+	 * The row markup is a `<template>`, so a saved row and a new one are the same
+	 * markup and a template's inputs are never submitted.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name Base input name, e.g. option[trip_finder_budgets].
+	 * @param array  $rows Stored rows.
+	 * @param string $kind 'duration' or 'budget'.
+	 * @return void
+	 */
+	private function render_ranges( $name, $rows, $kind ) {
+		$is_budget = 'budget' === $kind;
+		?>
+		<div class="iflynepal-ranges"
+			data-iflynepal-ranges
+			data-iflynepal-ranges-max="<?php echo esc_attr( (string) IFLYNEPAL_TRIP_FINDER_MAX_RANGES ); ?>">
+
+			<div class="iflynepal-ranges__list" data-iflynepal-ranges-list>
+				<?php foreach ( array_values( $rows ) as $index => $row ) : ?>
+					<?php
+					$this->render_range_row(
+						$name,
+						(string) $index,
+						$is_budget,
+						isset( $row['min'] ) ? (string) (int) $row['min'] : '',
+						( isset( $row['max'] ) && null !== $row['max'] ) ? (string) (int) $row['max'] : ''
+					);
+					?>
+				<?php endforeach; ?>
+			</div>
+
+			<button type="button" class="button iflynepal-ranges__add" data-iflynepal-ranges-add>
+				<?php esc_html_e( '+ Add option', 'iflynepal' ); ?>
+			</button>
+
+			<template data-iflynepal-ranges-template>
+				<?php $this->render_range_row( $name, '__INDEX__', $is_budget, '', '' ); ?>
+			</template>
+		</div>
+
+		<?php if ( $rows ) : ?>
+			<p class="cc-help">
+				<?php
+				$labels = array();
+
+				foreach ( $is_budget ? iflynepal_trip_finder_budgets() : iflynepal_trip_finder_durations() as $bucket ) {
+					$labels[] = $bucket['label'];
+				}
+
+				echo esc_html(
+					sprintf(
+						/* translators: %s: the options as visitors see them, separated by dots. */
+						__( 'Visitors see: %s', 'iflynepal' ),
+						implode( ' · ', $labels )
+					)
+				);
+				?>
+			</p>
+		<?php else : ?>
+			<p class="cc-help"><?php esc_html_e( 'Nothing set. The options are being worked out from your packages automatically.', 'iflynepal' ); ?></p>
+		<?php endif; ?>
+		<?php
+	}
+
+	/**
+	 * One row of a range control.
+	 *
+	 * Drawn once per saved row and once inside the `<template>` a new row is
+	 * cloned from, so the two cannot drift apart.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name      Base input name.
+	 * @param string $index     Row index, or the __INDEX__ placeholder.
+	 * @param bool   $is_budget Whether the row is a price range (true) or days (false).
+	 * @param string $min       Lowest value.
+	 * @param string $max       Highest value, or '' for open-ended.
+	 * @return void
+	 */
+	private function render_range_row( $name, $index, $is_budget, $min, $max ) {
+		$base = $name . '[' . $index . ']';
+		$low  = $is_budget ? 0 : 1;
+		?>
+		<div class="iflynepal-ranges__row" data-iflynepal-ranges-row>
+			<span class="iflynepal-ranges__n" data-iflynepal-ranges-number><?php echo esc_html( $index ); ?></span>
+
+			<label class="iflynepal-ranges__leg">
+				<span><?php echo esc_html( $is_budget ? __( 'From (USD)', 'iflynepal' ) : __( 'From (days)', 'iflynepal' ) ); ?></span>
+				<input type="number" min="<?php echo esc_attr( (string) $low ); ?>" step="1" name="<?php echo esc_attr( $base . '[min]' ); ?>" value="<?php echo esc_attr( $min ); ?>">
+			</label>
+
+			<label class="iflynepal-ranges__leg">
+				<span><?php esc_html_e( 'to', 'iflynepal' ); ?></span>
+				<input type="number" min="<?php echo esc_attr( (string) $low ); ?>" step="1" name="<?php echo esc_attr( $base . '[max]' ); ?>" value="<?php echo esc_attr( $max ); ?>" placeholder="<?php esc_attr_e( 'and over', 'iflynepal' ); ?>">
+			</label>
+
+			<button type="button" class="button-link iflynepal-ranges__remove" data-iflynepal-ranges-remove>
+				<span class="screen-reader-text"><?php esc_html_e( 'Remove this option', 'iflynepal' ); ?></span>
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Draws the screen.
 	 *
 	 * @since 1.0.0
@@ -188,6 +327,13 @@ class IFly_Nepal_Booking_Settings {
 				.iflynepal-settings .cc-help { margin: 6px 0 0; color: #646970; }
 				.iflynepal-settings .cc-preview { margin-top: 6px; padding: 8px 12px; background: #f6f7f7; border-radius: 4px; word-break: break-all; }
 				.iflynepal-settings .cc-warn { color: #8a4b00; }
+				.iflynepal-settings .cc-field--wide { max-width: 760px; }
+				.iflynepal-ranges__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; background: #fff; margin-bottom: 8px; }
+				.iflynepal-ranges__n { min-width: 20px; color: #646970; font-weight: 600; }
+				.iflynepal-ranges__leg { display: flex; align-items: center; gap: 6px; margin: 0; }
+				.iflynepal-ranges__leg > span { color: #646970; }
+				.iflynepal-ranges__leg input { width: 110px; }
+				.iflynepal-ranges__remove { margin-left: auto; color: #b32d2e; text-decoration: none; font-size: 18px; line-height: 1; }
 			</style>
 
 			<form action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post" class="iflynepal-settings">
@@ -212,8 +358,12 @@ class IFly_Nepal_Booking_Settings {
 						<h2><?php esc_html_e( 'Auto Translate', 'iflynepal' ); ?></h2>
 					<?php endif; ?>
 
-					<div class="cc-field">
-						<label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
+					<div class="cc-field<?php echo iflynepal_booking_setting_is_list( $field['type'] ) ? ' cc-field--wide' : ''; ?>">
+						<?php if ( iflynepal_booking_setting_is_list( $field['type'] ) ) : ?>
+							<label><?php echo esc_html( $field['label'] ); ?></label>
+						<?php else : ?>
+							<label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
+						<?php endif; ?>
 
 						<?php if ( 'api_key' === $field['type'] ) : ?>
 							<?php
@@ -246,6 +396,8 @@ class IFly_Nepal_Booking_Settings {
 									<?php esc_html_e( 'Remove the saved key', 'iflynepal' ); ?>
 								</label>
 							<?php endif; ?>
+						<?php elseif ( 'duration_ranges' === $field['type'] || 'budget_ranges' === $field['type'] ) : ?>
+							<?php $this->render_ranges( $name, is_array( $value ) ? $value : array(), 'budget_ranges' === $field['type'] ? 'budget' : 'duration' ); ?>
 						<?php elseif ( 'textarea' === $field['type'] ) : ?>
 							<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="3"><?php echo esc_textarea( $value ); ?></textarea>
 						<?php elseif ( 'page' === $field['type'] && iflynepal_booking_page_field_is_multilingual() ) : ?>
@@ -276,10 +428,10 @@ class IFly_Nepal_Booking_Settings {
 								<?php
 								wp_dropdown_pages(
 									array(
-										'name'              => $name . '[' . $lang_id . ']', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
-										'id'                => $id . '-' . $lang_id, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Same as above.
-										'selected'          => $selected,
-										'show_option_none'  => __( '— Select a page —', 'iflynepal' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
+										'name'             => $name . '[' . $lang_id . ']', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
+										'id'               => $id . '-' . $lang_id, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Same as above.
+										'selected'         => $selected,
+										'show_option_none' => __( '— Select a page —', 'iflynepal' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapes this internally.
 										'option_none_value' => '0',
 									)
 								);
