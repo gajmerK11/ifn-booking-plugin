@@ -1287,7 +1287,7 @@ so it docks to the bottom edge */
       .iflynepal-pkg-itin-bar{flex-wrap:wrap}
       .iflynepal-pkg-cal,
 .iflynepal-pkg-book-sum{padding:20px}
-      .iflynepal-pkg-rail{grid-auto-columns:86%}
+      .iflynepal-pkg-rail{grid-auto-columns:100%}
       .iflynepal-pkg-rail-head{align-items:flex-start;flex-direction:column}
       .iflynepal-pkg-map-card iframe{height:300px}
       .iflynepal-pkg-footer-grid{grid-template-columns:1fr 1fr}
