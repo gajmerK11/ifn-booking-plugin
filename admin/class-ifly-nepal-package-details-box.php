@@ -503,23 +503,27 @@ class IFly_Nepal_Package_Details_Box {
 
 			return;
 		}
+		if ( 'prose' === $part['type'] ) {
+			/*
+			 * Only reached on a card with no timeline to host the toggle — a week.
+			 * Drawn the way a day's is: the button, then the box, whose own label
+			 * sits inside it once it is open. No label of its own above the
+			 * button, which a day has none of either.
+			 */
+			?>
+			<div class="iflynepal-prose" data-iflynepal-prose>
+				<?php $this->render_prose_toggle( $part, $value ); ?>
+				<?php $this->render_prose_body( $name, $part, $value ); ?>
+			</div>
+			<?php
+
+			return;
+		}
 		?>
 		<label class="iflynepal-archive__card-label"><?php echo esc_html( $part['label'] ); ?></label>
 		<?php
 		if ( 'timeline' === $part['type'] ) {
 			$this->render_timeline( $name, $part, $value, $companion );
-
-			return;
-		}
-
-		if ( 'prose' === $part['type'] ) {
-			// Only reached on a card with no timeline to host the toggle.
-			?>
-			<div class="iflynepal-prose" data-iflynepal-prose>
-				<?php $this->render_prose_toggle( $part, $value ); ?>
-				<?php $this->render_prose_body( $name, $part, $value, false ); ?>
-			</div>
-			<?php
 
 			return;
 		}

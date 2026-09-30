@@ -93,7 +93,7 @@ function iflynepal_package_translatable_fields() {
 function iflynepal_package_translatable_card_fields() {
 	return array(
 		'itinerary_days'  => array( 'title', 'meta', 'description', 'summary', 'timeline' ),
-		'itinerary_weeks' => array( 'title', 'meta', 'summary' ),
+		'itinerary_weeks' => array( 'title', 'meta', 'description', 'summary' ),
 		'faq_items'       => array( 'q', 'a' ),
 	);
 }

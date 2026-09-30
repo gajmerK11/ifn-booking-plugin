@@ -393,22 +393,36 @@ function iflynepal_package_details_fields() {
 		'item'    => __( 'Week', 'iflynepal' ),
 		'max'     => IFLYNEPAL_PACKAGE_ITINERARY_WEEKS_MAX,
 		'parts'   => array(
-			'number'  => array(
+			'number'      => array(
 				'label' => __( 'Week label', 'iflynepal' ),
 				'type'  => 'text',
 				'help'  => __( 'Leave empty to number this card by its position. Fill it in for a card that covers more than one week, e.g. 3-4.', 'iflynepal' ),
 				'badge' => true,
 			),
-			'title'   => array(
+			'title'       => array(
 				'label'  => __( 'Week title', 'iflynepal' ),
 				'type'   => 'text',
 				'header' => true,
 			),
-			'meta'    => array(
+			'meta'        => array(
 				'label' => __( 'Summary line', 'iflynepal' ),
 				'type'  => 'text',
 			),
-			'summary' => array(
+
+			/*
+			 * The week told in prose, the same box a day has. A week has no
+			 * timeline, so there is no Add Stop for it to sit beside: the editor
+			 * draws the button on its own line under the label instead. The box
+			 * itself — the toolbar, the editor, the help text — is the day's.
+			 */
+			'description' => array(
+				'label'  => __( 'Descriptive itinerary', 'iflynepal' ),
+				'type'   => 'prose',
+				'button' => __( 'Add Descriptive Itinerary', 'iflynepal' ),
+				'hide'   => __( 'Hide descriptive itinerary', 'iflynepal' ),
+				'help'   => __( 'Shown under the week title on the Detailed Itinerary tab, laid out exactly as it is written here — press Enter for a new paragraph, and use the toolbar for bold, underline and bulleted lists.', 'iflynepal' ),
+			),
+			'summary'     => array(
 				'label' => __( 'Short itinerary entry', 'iflynepal' ),
 				'type'  => 'textarea',
 			),
