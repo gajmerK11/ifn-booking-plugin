@@ -822,19 +822,31 @@
 	}
 
 	/*
-	 * Set by assets/js/archive/annotation.js once the Activity pill row
-	 * actually wraps onto a second line — a category with enough options
-	 * fills the column above that the note was counting on being clear, so
-	 * the two land on top of each other. Same fix as below 1200px: back
-	 * into flow, stacked under the pills.
+	 * Set by assets/js/archive/annotation.js once it measures the note's
+	 * absolute box actually colliding with something — the Activity pill
+	 * row wrapped onto a second line, or (a category with no pill row of
+	 * its own) a lead paragraph long enough to fill the column beside the
+	 * heading that the note was counting on being clear. Same fix as below
+	 * 1200px either way: back into flow, stacked under whatever it was
+	 * about to overlap.
 	 */
-	.iflynepal-listing__controls--wrapped {
+	.iflynepal-listing__controls--note-clash {
 		display: block;
 	}
 
-	.iflynepal-listing__controls--wrapped .iflynepal-annot {
+	.iflynepal-listing__controls--note-clash .iflynepal-annot {
 		position: static;
 		margin: 24px 0 0 auto;
+	}
+
+	/*
+	 * --note-only zeroed this band's margin-bottom above on the assumption
+	 * the note is position:absolute and contributes no flow height of its
+	 * own. --note-clash just put it back in flow, so the band needs its
+	 * spacing before the cards back too.
+	 */
+	.iflynepal-listing__controls--note-only.iflynepal-listing__controls--note-clash {
+		margin-bottom: 26px;
 	}
 }
 

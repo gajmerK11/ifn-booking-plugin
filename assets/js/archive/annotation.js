@@ -50,47 +50,65 @@
 	}
 
 	/*
-	 * ------------------------------------------------------------- wrap guard
+	 * ---------------------------------------------------------- overlap guard
 	 *
-	 * At ≥1200px the note leaves the flow to sit in the empty column beside
-	 * the pill row (see .iflynepal-listing__controls .iflynepal-annot in
-	 * catalogue.css) — a column that is only actually empty while the pills
-	 * fit on one line. A category with enough Activity options wraps that
-	 * row onto a second line, which fills the column the note was counting
-	 * on being clear, and the two land on top of each other.
+	 * At ≥1200px the note leaves the flow — either to sit in the empty column
+	 * beside the pill row, or (a category with no pill row of its own) to
+	 * hang beside the heading above it — see .iflynepal-listing__controls
+	 * .iflynepal-annot and .iflynepal-listing__controls--note-only in
+	 * catalogue.css. Both placements assume a space that is only actually
+	 * empty some of the time: a category with enough Activity options wraps
+	 * the pill row onto a second line, and a category with a long enough
+	 * lead paragraph fills the column beside the heading, either of which
+	 * the note lands straight on top of.
 	 *
-	 * There is no width to fold this on: it depends on how many options a
-	 * given category has, not the viewport, so it is measured instead —
-	 * compare the first and last pill's offsetTop. Wrapped adds a class
-	 * that puts the note straight back into flow, stacked under the pills
-	 * exactly as it already sits below 1200px.
+	 * There is no width to fold either case on: both depend on the term's
+	 * own content — how many Activity options it has, how long its lead
+	 * copy runs — not the viewport. So this measures instead, directly:
+	 * take the note's box where the CSS wants to place it and test it
+	 * against the two things it can actually collide with. Either hit adds
+	 * a class that puts the note straight back into flow, stacked under the
+	 * pills exactly as it already sits below 1200px.
 	 */
-	function checkFilterWrap() {
+	function checkAnnotOverlap() {
 		var controls = document.querySelector( '.iflynepal-listing__controls' );
-		var row = document.querySelector( '.iflynepal-listing__filters .iflynepal-filter-row--pills' );
+		var note = document.querySelector( '.iflynepal-annot' );
 
-		if ( ! controls || ! row ) {
+		if ( ! controls || ! note ) {
 			return;
 		}
 
-		var buttons = row.querySelectorAll( '.iflynepal-filter-btn:not([hidden])' );
+		// Measured fresh each time: a stale fallback would place the note in
+		// flow and report no collision against a spot it no longer sits at.
+		controls.classList.remove( 'iflynepal-listing__controls--note-clash' );
 
-		if ( buttons.length < 2 ) {
-			controls.classList.remove( 'iflynepal-listing__controls--wrapped' );
+		var noteRect = note.getBoundingClientRect();
 
+		if ( ! noteRect.width && ! noteRect.height ) {
 			return;
 		}
 
-		var wrapped = buttons[ 0 ].offsetTop !== buttons[ buttons.length - 1 ].offsetTop;
+		var blockers = document.querySelectorAll(
+			'.iflynepal-listing__top, .iflynepal-listing__filters .iflynepal-filter-row--pills'
+		);
+		var overlaps = false;
 
-		controls.classList.toggle( 'iflynepal-listing__controls--wrapped', wrapped );
+		Array.prototype.forEach.call( blockers, function ( blocker ) {
+			var r = blocker.getBoundingClientRect();
+
+			if ( noteRect.left < r.right && noteRect.right > r.left && noteRect.top < r.bottom && noteRect.bottom > r.top ) {
+				overlaps = true;
+			}
+		} );
+
+		controls.classList.toggle( 'iflynepal-listing__controls--note-clash', overlaps );
 	}
 
-	checkFilterWrap();
-	window.addEventListener( 'resize', checkFilterWrap );
+	checkAnnotOverlap();
+	window.addEventListener( 'resize', checkAnnotOverlap );
 
 	if ( document.fonts && document.fonts.ready && document.fonts.ready.then ) {
-		document.fonts.ready.then( checkFilterWrap ).catch( function () {} );
+		document.fonts.ready.then( checkAnnotOverlap ).catch( function () {} );
 	}
 
 	/* ------------------------------------------------ the handwritten note */
@@ -148,6 +166,13 @@
 
 		// A whole pixel up, so sub-pixel rounding cannot claw the gap back.
 		wordEl.style.minWidth = Math.ceil( widest ) + 1 + 'px';
+
+		/*
+		 * The overlap check above ran before this reserved the word's final
+		 * width, so its first pass measured a narrower box than the note
+		 * actually settles at. Re-run now that the width is real.
+		 */
+		checkAnnotOverlap();
 	}
 
 	reserve();
