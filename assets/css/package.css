@@ -430,8 +430,10 @@ so the nav
     .iflynepal-pkg-glance-ico{
       display:grid;
       place-items:center;
+      box-sizing:border-box;
       width:38px;height:38px;
       flex:none;
+      border:1px solid rgba(5,69,167,.18);
       border-radius:12px;
       background:var(--ifnpkg-mist);
       color:var(--ifnpkg-navy);
@@ -1187,8 +1189,16 @@ so it docks to the bottom edge */
        * everywhere else, including this same page once scrolled to where
        * the bar itself hides again.
        */
-      #iflynepal-back-to-top{transition:bottom .3s var(--ifnpkg-ease)}
-      body:has(.iflynepal-pkg-book-bar.iflynepal-pkg-is-on) #iflynepal-back-to-top{
+      #iflynepal-back-to-top,
+      .iflynepal-nav-wa{transition:bottom .3s var(--ifnpkg-ease)}
+      /*
+       * The theme's WhatsApp bubble (site-navigation.php, floats bottom-left
+       * on mobile) sits in this same bottom strip once it left the header
+       * bar for its own fixed position — same problem as the back-to-top
+       * button above, same fix.
+       */
+      body:has(.iflynepal-pkg-book-bar.iflynepal-pkg-is-on) #iflynepal-back-to-top,
+      body:has(.iflynepal-pkg-book-bar.iflynepal-pkg-is-on) .iflynepal-nav-wa{
         bottom:calc(70px + env(safe-area-inset-bottom) + 16px);
       }
       .iflynepal-pkg-book-bar small{display:block;color:var(--ifnpkg-muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
@@ -1506,8 +1516,10 @@ so it docks to the bottom edge */
 .iflynepal-pkg-sub-h__badge{
   display:grid;
   place-items:center;
+  box-sizing:border-box;
   width:38px;height:38px;
   flex:none;
+  border:1px solid rgba(5,69,167,.18);
   border-radius:12px;
   background:var(--ifnpkg-mist);
   color:var(--ifnpkg-navy);
