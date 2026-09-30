@@ -820,6 +820,22 @@
 	.iflynepal-listing__controls--note-only {
 		margin-bottom: 0;
 	}
+
+	/*
+	 * Set by assets/js/archive/annotation.js once the Activity pill row
+	 * actually wraps onto a second line — a category with enough options
+	 * fills the column above that the note was counting on being clear, so
+	 * the two land on top of each other. Same fix as below 1200px: back
+	 * into flow, stacked under the pills.
+	 */
+	.iflynepal-listing__controls--wrapped {
+		display: block;
+	}
+
+	.iflynepal-listing__controls--wrapped .iflynepal-annot {
+		position: static;
+		margin: 24px 0 0 auto;
+	}
 }
 
 .iflynepal-listing__filters {

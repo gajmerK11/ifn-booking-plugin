@@ -49,6 +49,50 @@
 		}
 	}
 
+	/*
+	 * ------------------------------------------------------------- wrap guard
+	 *
+	 * At ≥1200px the note leaves the flow to sit in the empty column beside
+	 * the pill row (see .iflynepal-listing__controls .iflynepal-annot in
+	 * catalogue.css) — a column that is only actually empty while the pills
+	 * fit on one line. A category with enough Activity options wraps that
+	 * row onto a second line, which fills the column the note was counting
+	 * on being clear, and the two land on top of each other.
+	 *
+	 * There is no width to fold this on: it depends on how many options a
+	 * given category has, not the viewport, so it is measured instead —
+	 * compare the first and last pill's offsetTop. Wrapped adds a class
+	 * that puts the note straight back into flow, stacked under the pills
+	 * exactly as it already sits below 1200px.
+	 */
+	function checkFilterWrap() {
+		var controls = document.querySelector( '.iflynepal-listing__controls' );
+		var row = document.querySelector( '.iflynepal-listing__filters .iflynepal-filter-row--pills' );
+
+		if ( ! controls || ! row ) {
+			return;
+		}
+
+		var buttons = row.querySelectorAll( '.iflynepal-filter-btn:not([hidden])' );
+
+		if ( buttons.length < 2 ) {
+			controls.classList.remove( 'iflynepal-listing__controls--wrapped' );
+
+			return;
+		}
+
+		var wrapped = buttons[ 0 ].offsetTop !== buttons[ buttons.length - 1 ].offsetTop;
+
+		controls.classList.toggle( 'iflynepal-listing__controls--wrapped', wrapped );
+	}
+
+	checkFilterWrap();
+	window.addEventListener( 'resize', checkFilterWrap );
+
+	if ( document.fonts && document.fonts.ready && document.fonts.ready.then ) {
+		document.fonts.ready.then( checkFilterWrap ).catch( function () {} );
+	}
+
 	/* ------------------------------------------------ the handwritten note */
 
 	var note = document.querySelector( '.iflynepal-annot' );
