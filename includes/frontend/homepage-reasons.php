@@ -28,12 +28,11 @@ defined( 'ABSPATH' ) || exit;
  *
  * A visitor is not browsing here — the section exists precisely because the
  * whole catalogue is somewhere else — so the grid is capped rather than
- * paged. Nine keeps the design's three-column grid to three even rows,
- * the same cap the archive's own card-repeaters use elsewhere in this plugin.
+ * paged. Six keeps the design's three-column grid to two even rows.
  *
  * @since 1.0.0
  */
-const IFLYNEPAL_REASONS_CARD_MAX = 9;
+const IFLYNEPAL_REASONS_CARD_MAX = 6;
 
 /**
  * The packages ticked for the "A few good reasons" grid.
