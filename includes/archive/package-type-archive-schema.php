@@ -677,6 +677,22 @@ function iflynepal_package_type_archive_sections_for_term( $term ) {
 		foreach ( IFLYNEPAL_ARCHIVE_TOP_LEVEL_SECTIONS as $key ) {
 			unset( $sections[ $key ] );
 		}
+
+		/*
+		 * The handwritten note stays a type-archive thing. It is printed
+		 * beside the pill row above the grid (see templates/parts/archive/
+		 * listing.php), and a category's own grid band has no guaranteed
+		 * clear space beside it the way a type's does — its lead paragraph
+		 * or Activity row can run long enough to collide with it, which is
+		 * exactly the overlap the front end had to grow a JS/CSS guard for.
+		 * Removed at the source instead of only patched on screen: a
+		 * category was never the "why choose this kind of trip" heading
+		 * the note was written for in the first place.
+		 */
+		if ( isset( $sections['listing'] ) ) {
+			unset( $sections['listing']['fields']['listing_annotation_static'] );
+			unset( $sections['listing']['fields']['listing_annotation_words'] );
+		}
 	}
 
 	/**

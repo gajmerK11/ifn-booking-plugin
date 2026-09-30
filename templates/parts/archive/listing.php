@@ -116,8 +116,15 @@ $iflynepal_listing_class .= empty( $iflynepal_facets ) ? ' iflynepal-listing--no
 		iflynepal_archive_the_head( $iflynepal_id, 'listing' );
 		$iflynepal_head_markup = ob_get_clean();
 
-		$iflynepal_note_static = iflynepal_archive_field( $iflynepal_id, 'listing_annotation_static' );
-		$iflynepal_note_words  = iflynepal_archive_field_lines( $iflynepal_id, 'listing_annotation_words' );
+		/*
+		 * Type-archive only. The note has no guaranteed clear space to sit in
+		 * on a category page — its lead paragraph or Activity row can run
+		 * long enough to fill the column it counts on, which is the overlap
+		 * iflynepal_package_type_archive_sections_for_term() now keeps a
+		 * category from ever collecting the copy for in the first place.
+		 */
+		$iflynepal_note_static = $iflynepal_is_type ? iflynepal_archive_field( $iflynepal_id, 'listing_annotation_static' ) : '';
+		$iflynepal_note_words  = $iflynepal_is_type ? iflynepal_archive_field_lines( $iflynepal_id, 'listing_annotation_words' ) : array();
 		$iflynepal_has_note    = '' !== $iflynepal_note_static || ! empty( $iflynepal_note_words );
 
 		if ( '' !== trim( $iflynepal_head_markup ) ) :
