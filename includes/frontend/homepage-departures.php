@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Fetched rather than counted from a stored total: a package can be unticked
  * or lose its month at any time, and the list has to be right on the next
- * request, not the next save.
+ * request, not the next save. Packages whose month has passed are left out.
  *
  * @since 1.0.0
  *
@@ -58,11 +58,20 @@ function iflynepal_upcoming_departure_packages( $limit = 12 ) {
 	 * of iflynepal_package_shows_on_homepage() instead, which is the same rule
 	 * the admin box's own preview would use.
 	 */
+	/*
+	 * A month is stored as YYYY-MM, so it runs out when that month does: the
+	 * chip and its packages stay through the last day of the month, then drop
+	 * off on the 1st with no editor action. Compared as YYYY-MM strings, which
+	 * sort chronologically, against the site's own clock.
+	 */
+	$this_month = wp_date( 'Y-m' );
+
 	$posts = array_values(
 		array_filter(
 			$posts,
-			function ( $post ) {
-				return iflynepal_package_shows_on_homepage( $post->ID );
+			function ( $post ) use ( $this_month ) {
+				return iflynepal_package_shows_on_homepage( $post->ID )
+					&& strcmp( iflynepal_package_available_month( $post->ID ), $this_month ) >= 0;
 			}
 		)
 	);
