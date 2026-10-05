@@ -325,7 +325,7 @@ class IFly_Nepal_Package_Details_Box {
 		$item = isset( $field['item'] ) ? $field['item'] : __( 'Card', 'iflynepal' );
 		?>
 		<?php $endpoints = ! empty( $field['endpoints'] ); ?>
-		<div class="iflynepal-archive__cards" data-iflynepal-cards data-max="<?php echo esc_attr( (string) $max ); ?>" data-name="<?php echo esc_attr( $name ); ?>" data-label="<?php echo esc_attr( $item . ' %d' ); ?>"<?php echo $endpoints ? ' data-endpoints data-day-label="' . esc_attr__( 'Day', 'iflynepal' ) . '" data-first-label="' . esc_attr__( 'First', 'iflynepal' ) . '" data-final-label="' . esc_attr__( 'Final', 'iflynepal' ) . '"' : ''; ?>>
+		<div class="iflynepal-archive__cards" data-iflynepal-cards data-max="<?php echo esc_attr( (string) $max ); ?>" data-name="<?php echo esc_attr( $name ); ?>" data-label="<?php echo esc_attr( $item . ' %d' ); ?>"<?php echo $endpoints ? ' data-endpoints data-day-label="' . esc_attr__( 'Day', 'iflynepal' ) . '" data-first-label="' . esc_attr__( 'First', 'iflynepal' ) . '" data-final-label="' . esc_attr__( 'Final', 'iflynepal' ) . '" data-remove-first="' . esc_attr__( 'Remove first day', 'iflynepal' ) . '" data-remove-final="' . esc_attr__( 'Remove final day', 'iflynepal' ) . '"' : ''; ?>>
 			<div data-iflynepal-cards-list>
 				<?php foreach ( $rows as $index => $row ) : ?>
 					<?php $this->render_card_row( $name, (int) $index, $row, $field ); ?>
@@ -487,7 +487,7 @@ class IFly_Nepal_Package_Details_Box {
 					?>
 				<?php endforeach; ?>
 
-				<button type="button" class="button iflynepal-archive__card-remove" data-iflynepal-card-remove>
+				<button type="button" class="button iflynepal-archive__card-remove" data-iflynepal-card-remove data-label-default="<?php echo esc_attr( sprintf( /* translators: %s: what one row is called, e.g. Day or Question. */ __( 'Remove %s', 'iflynepal' ), $item ) ); ?>">
 					<?php
 					/* translators: %s: what one row is called, e.g. Day or Question. */
 					printf( esc_html__( 'Remove %s', 'iflynepal' ), esc_html( $item ) );

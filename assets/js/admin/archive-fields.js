@@ -177,6 +177,15 @@
 				var unit = row.querySelector('[data-iflynepal-card-unit]');
 				var badge = row.querySelector('[data-iflynepal-card-badge]');
 
+				var removeBtn = row.querySelector('[data-iflynepal-card-remove]');
+
+				// A pinned card is removed by name: "Remove first day".
+				if (removeBtn && removeBtn.dataset.labelDefault) {
+					removeBtn.textContent = end
+						? ('first' === end ? wrap.dataset.removeFirst : wrap.dataset.removeFinal)
+						: removeBtn.dataset.labelDefault;
+				}
+
 				if (unit) {
 					unit.textContent = end
 						? wrap.dataset.dayLabel + ' ' + ('first' === end ? wrap.dataset.firstLabel : wrap.dataset.finalLabel)
