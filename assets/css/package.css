@@ -541,15 +541,15 @@ so the nav
     .iflynepal-pkg-sum-day p{color:var(--ifnpkg-muted);font-size:14.5px}
 
     .iflynepal-pkg-day{border:1px solid var(--ifnpkg-line);border-radius:var(--ifnpkg-r-md);background:#fff;overflow:hidden;transition:box-shadow .35s var(--ifnpkg-ease),border-color .3s ease}
-    .iflynepal-pkg-day+.iflynepal-pkg-day{margin-top:14px}
+    .iflynepal-pkg-day+.iflynepal-pkg-day{margin-top:20px}
     .iflynepal-pkg-day.iflynepal-pkg-is-open{border-color:rgba(5,69,167,.3);box-shadow:0 16px 40px rgba(4,26,64,.08)}
     .iflynepal-pkg-day-toggle{
       display:grid;
       grid-template-columns:auto 1fr auto;
-      gap:18px;
+      gap:24px;
       align-items:flex-start;
       width:100%;
-      padding:20px 22px;
+      padding:28px 30px;
       border:0;
       background:none;
       text-align:left;
@@ -557,8 +557,8 @@ so the nav
     .iflynepal-pkg-day-num{
       display:grid;
       place-items:center;
-      width:52px;height:52px;
-      border-radius:15px;
+      width:60px;height:60px;
+      border-radius:16px;
       background:var(--ifnpkg-mist);
       color:var(--ifnpkg-navy);
       font-size:11px;
@@ -570,12 +570,13 @@ so the nav
       transition:background .3s ease,color .3s ease;
     }
     .iflynepal-pkg-day-num b{display:block;font-size:20px;letter-spacing:0}
+    .iflynepal-pkg-day-num.iflynepal-pkg-is-wide{width:auto;min-width:60px;padding:0 16px}
     .iflynepal-pkg-day-num.iflynepal-pkg-is-wide b{font-size:15px}
     .iflynepal-pkg-day.iflynepal-pkg-is-open .iflynepal-pkg-day-num{background:var(--ifnpkg-navy);color:#fff}
     .iflynepal-pkg-day-h{margin:0;font-size:inherit;letter-spacing:0;line-height:inherit}
     .iflynepal-pkg-day-toggle>span:nth-child(2){min-width:0}
     .iflynepal-pkg-dt-title{display:block;font-size:19px;font-weight:600;letter-spacing:-.02em;line-height:1.25}
-    .iflynepal-pkg-dt-sub{display:block;margin-top:4px;color:var(--ifnpkg-muted);font-size:13px;font-weight:400}
+    .iflynepal-pkg-dt-sub{display:block;margin-top:8px;color:var(--ifnpkg-muted);font-size:13px;font-weight:400}
     .iflynepal-pkg-dt--solo{align-self:center}
     .iflynepal-pkg-dt--solo .iflynepal-pkg-dt-title{font-size:21.5px}
     .iflynepal-pkg-chev{
@@ -592,7 +593,7 @@ so the nav
     .iflynepal-pkg-day-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s var(--ifnpkg-ease)}
     .iflynepal-pkg-day.iflynepal-pkg-is-open .iflynepal-pkg-day-panel{grid-template-rows:1fr}
     .iflynepal-pkg-day-panel>div{overflow:hidden}
-    .iflynepal-pkg-timeline{position:relative;margin:0 22px;padding:6px 0 4px 0;list-style:none;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-timeline{position:relative;margin:0 30px;padding:10px 0 6px 0;list-style:none;border-top:1px solid var(--ifnpkg-line)}
     .iflynepal-pkg-timeline li{position:relative;display:grid;grid-template-columns:132px 1fr;gap:22px;padding:16px 0}
     .iflynepal-pkg-timeline li::before{
       content:"";
@@ -613,8 +614,8 @@ so the nav
     }
     .iflynepal-pkg-timeline time{color:var(--ifnpkg-navy);font-size:12.5px;font-weight:800;letter-spacing:.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
     .iflynepal-pkg-timeline p{padding-left:8px;color:#3B4148;font-size:14.5px;line-height:1.7}
-    .iflynepal-pkg-day-prose{margin:0 22px;padding:18px 0 6px;border-top:1px solid var(--ifnpkg-line)}
-    .iflynepal-pkg-timeline+.iflynepal-pkg-day-prose{padding-top:16px}
+    .iflynepal-pkg-day-prose{margin:0 30px;padding:24px 0 12px;border-top:1px solid var(--ifnpkg-line)}
+    .iflynepal-pkg-timeline+.iflynepal-pkg-day-prose{padding-top:22px}
     .iflynepal-pkg-day-prose p{margin:0 0 14px;color:#3B4148;font-size:14.5px;line-height:1.8}
     .iflynepal-pkg-day-prose p:last-child{margin-bottom:0}
     .iflynepal-pkg-day-prose strong,.iflynepal-pkg-day-prose b{font-weight:700;color:var(--ifnpkg-ink)}
@@ -1191,7 +1192,7 @@ so it docks to the bottom edge */
        * the bar itself hides again.
        */
       #iflynepal-back-to-top,
-      .iflynepal-nav-wa{transition:bottom .3s var(--ifnpkg-ease)}
+      .iflynepal-nav-wa{transition:bottom .3s var(--ifnpkg-ease),opacity .25s ease}
       /*
        * The theme's WhatsApp bubble (site-navigation.php, floats bottom-left
        * on mobile) sits in this same bottom strip once it left the header
@@ -2056,3 +2057,9 @@ so it docks to the bottom edge */
  * here so the two boxes don't read as one crammed block.
  */
 .iflynepal-pkg-price-from + .iflynepal-pkg-price-actions{margin-top:22px}
+
+    @media (max-width:640px){
+      .iflynepal-pkg-day-toggle{gap:16px;padding:20px 18px}
+      .iflynepal-pkg-day-num{width:52px;height:52px}
+      .iflynepal-pkg-timeline,.iflynepal-pkg-day-prose{margin-left:18px;margin-right:18px}
+    }

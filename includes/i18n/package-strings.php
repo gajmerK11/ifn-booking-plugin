@@ -229,6 +229,8 @@ function iflynepal_register_package_pll_strings() {
 	// Itinerary.
 	pll_register_string( 'Week unit', 'Week', $itin );
 	pll_register_string( 'Day unit', 'Day', $itin );
+	pll_register_string( 'First day badge', 'First', $itin );
+	pll_register_string( 'Final day badge', 'Final', $itin );
 	pll_register_string( 'Itinerary eyebrow', 'Itinerary', $itin );
 	pll_register_string( 'Altitude point label', 'day %1$d, %2$s metres', $itin );
 	pll_register_string( 'Altitude chart description', 'Line chart of altitude by day: %s.', $itin );

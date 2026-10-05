@@ -868,6 +868,17 @@ function iflynepal_archive_sanitize_cards( $value, $field = array() ) {
 				continue;
 			}
 
+			/*
+			 * An endpoint marker is only ever 'first' or 'final'. It does not make
+			 * a row "filled" on its own: a pinned card with nothing typed in it is
+			 * as blank as any other and is dropped the same way.
+			 */
+			if ( 'endpoint' === $part['type'] ) {
+				$clean[ $part_key ] = in_array( $raw_part, array( 'first', 'final' ), true ) ? $raw_part : '';
+
+				continue;
+			}
+
 			$part_value = '' === $raw_part ? '' : iflynepal_archive_sanitize_value( $raw_part, $part['type'] );
 
 			if ( 'image' === $part['type'] ) {
@@ -888,12 +899,43 @@ function iflynepal_archive_sanitize_cards( $value, $field = array() ) {
 		}
 
 		$rows[] = $clean;
+	}
+
+	/*
+	 * A repeater with pinned ends keeps one First card at the top and one Final
+	 * card at the bottom, whatever order the form posted: any further card
+	 * claiming an end is turned back into an ordinary row, and the ends are
+	 * moved into place. The cap then counts the ordinary rows only.
+	 */
+	if ( ! empty( $field['endpoints'] ) ) {
+		$first   = null;
+		$final   = null;
+		$regular = array();
+
+		foreach ( $rows as $row ) {
+			if ( 'first' === $row['kind'] && null === $first ) {
+				$first = $row;
+			} elseif ( 'final' === $row['kind'] && null === $final ) {
+				$final = $row;
+			} else {
+				$row['kind'] = '';
+				$regular[]   = $row;
+			}
+		}
 
 		// The cap is enforced on save as well as in the browser: the form is not
 		// the only thing that can post to this screen.
-		if ( $max > 0 && count( $rows ) >= $max ) {
-			break;
+		if ( $max > 0 && count( $regular ) > $max ) {
+			$regular = array_slice( $regular, 0, $max );
 		}
+
+		return array_values( array_filter( array_merge( array( $first ), $regular, array( $final ) ) ) );
+	}
+
+	// The cap is enforced on save as well as in the browser: the form is not the
+	// only thing that can post to this screen.
+	if ( $max > 0 && count( $rows ) > $max ) {
+		$rows = array_slice( $rows, 0, $max );
 	}
 
 	return $rows;

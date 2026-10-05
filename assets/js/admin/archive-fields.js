@@ -131,6 +131,18 @@
 		}
 
 		/**
+		 * Which end a pinned row is — 'first', 'final' or '' for an ordinary one.
+		 *
+		 * @param {HTMLElement} row One card.
+		 * @return {string}
+		 */
+		function kindOf(row) {
+			var kind = row.querySelector('[data-iflynepal-card-kind]');
+
+			return kind ? kind.value : '';
+		}
+
+		/**
 		 * Puts the row numbering and the input names back in order.
 		 *
 		 * Both are derived from the row's position every time, never tracked, so
@@ -139,12 +151,21 @@
 		 * name is the row index — the ones after it are field names.
 		 */
 		function renumber() {
+			var position = 0;
+
 			rows().forEach(function (row, i) {
 				var pattern = wrap.dataset.label || strings.cardLabel || 'Card %d';
 				var label = row.querySelector('[data-iflynepal-card-number]');
+				var end = kindOf(row);
+
+				// A pinned First/Final card is not counted: the weeks between
+				// them number from 1 as if it were not there.
+				if (!end) {
+					position += 1;
+				}
 
 				if (label) {
-					label.textContent = pattern.replace('%d', i + 1);
+					label.textContent = pattern.replace('%d', position);
 				}
 
 				/*
@@ -157,12 +178,21 @@
 				var badge = row.querySelector('[data-iflynepal-card-badge]');
 
 				if (unit) {
-					unit.textContent = pattern.replace('%d', '').trim();
+					unit.textContent = end
+						? wrap.dataset.dayLabel + ' ' + ('first' === end ? wrap.dataset.firstLabel : wrap.dataset.finalLabel)
+						: pattern.replace('%d', '').trim();
 				}
 
 				if (badge) {
-					badge.placeholder = String(i + 1);
-					badge.size = Math.max(2, badge.value.length || String(i + 1).length);
+					// A pinned card is named by its end, not by a typed label.
+					badge.hidden = !!end;
+
+					if (end) {
+						badge.value = '';
+					}
+
+					badge.placeholder = String(position);
+					badge.size = Math.max(2, badge.value.length || String(position).length);
 				}
 
 				retitle(row);
@@ -245,7 +275,18 @@
 
 		// The button goes away at the cap rather than failing on click.
 		function refresh() {
-			add.hidden = max > 0 && rows().length >= max;
+			var ordinary = rows().filter(function (row) {
+				return !kindOf(row);
+			}).length;
+
+			add.hidden = max > 0 && ordinary >= max;
+
+			// One First and one Final at most: each button goes once it is used.
+			wrap.querySelectorAll('[data-iflynepal-cards-add-end]').forEach(function (button) {
+				button.hidden = rows().some(function (row) {
+					return kindOf(row) === button.dataset.iflynepalCardsAddEnd;
+				});
+			});
 		}
 
 		/*
@@ -256,14 +297,41 @@
 		 */
 		wrap.iflynepalRenumber = renumber;
 
-		add.addEventListener('click', function () {
-			if (max > 0 && rows().length >= max) {
+		/**
+		 * Adds a card. An ordinary one goes in after the last week and before a
+		 * pinned Final card; a First card goes to the very top, a Final card to
+		 * the very bottom.
+		 *
+		 * @param {string} end 'first', 'final', or '' for an ordinary card.
+		 */
+		function addCard(end) {
+			var ordinary = rows().filter(function (existing) {
+				return !kindOf(existing);
+			}).length;
+
+			if (!end && max > 0 && ordinary >= max) {
 				return;
 			}
 
 			var row = template.content.firstElementChild.cloneNode(true);
+			var kind = row.querySelector('[data-iflynepal-card-kind]');
 
-			list.appendChild(row);
+			if (end && kind) {
+				kind.value = end;
+			}
+
+			if ('first' === end) {
+				list.insertBefore(row, list.firstChild);
+			} else if (end) {
+				list.appendChild(row);
+			} else {
+				var pinned = rows().filter(function (existing) {
+					return 'final' === kindOf(existing);
+				})[0];
+
+				list.insertBefore(row, pinned || null);
+			}
+
 			renumber();
 			refresh();
 			initField(row.querySelector('[data-iflynepal-media]'));
@@ -278,6 +346,16 @@
 			if (field) {
 				field.focus();
 			}
+		}
+
+		add.addEventListener('click', function () {
+			addCard('');
+		});
+
+		wrap.querySelectorAll('[data-iflynepal-cards-add-end]').forEach(function (button) {
+			button.addEventListener('click', function () {
+				addCard(button.dataset.iflynepalCardsAddEnd);
+			});
 		});
 
 		list.addEventListener('click', function (event) {
@@ -678,6 +756,28 @@
 
 		toggle.addEventListener('click', function () {
 			var open = body.hidden;
+
+			/*
+			 * Pressing it while the box is open removes the description rather than
+			 * hiding it: the text is cleared, so nothing is posted and the day or
+			 * week saves without one. Everything else on the card is untouched.
+			 * Asked first when there is something to lose.
+			 */
+			if (!open) {
+				var editor = field.id && window.tinymce ? window.tinymce.get(field.id) : null;
+				var written = (editor ? editor.getContent({ format: 'text' }) : field.value).trim();
+
+				if (written && !window.confirm(strings.removeProse || 'Remove the descriptive itinerary? The text will be deleted when you save.')) {
+					return;
+				}
+
+				if (editor) {
+					editor.setContent('');
+					editor.save();
+				}
+
+				field.value = '';
+			}
 
 			body.hidden = !open;
 			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');

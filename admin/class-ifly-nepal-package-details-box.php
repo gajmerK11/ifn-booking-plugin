@@ -130,6 +130,7 @@ class IFly_Nepal_Package_Details_Box {
 				'chooseUse'   => __( 'Use this image', 'iflynepal' ),
 				/* translators: %d: the row's position in the list. */
 				'cardLabel'   => __( 'Card %d', 'iflynepal' ),
+				'removeProse' => __( 'Remove the descriptive itinerary? The text will be deleted when you save.', 'iflynepal' ),
 			)
 		);
 	}
@@ -323,7 +324,8 @@ class IFly_Nepal_Package_Details_Box {
 		$max  = isset( $field['max'] ) ? (int) $field['max'] : 0;
 		$item = isset( $field['item'] ) ? $field['item'] : __( 'Card', 'iflynepal' );
 		?>
-		<div class="iflynepal-archive__cards" data-iflynepal-cards data-max="<?php echo esc_attr( (string) $max ); ?>" data-name="<?php echo esc_attr( $name ); ?>" data-label="<?php echo esc_attr( $item . ' %d' ); ?>">
+		<?php $endpoints = ! empty( $field['endpoints'] ); ?>
+		<div class="iflynepal-archive__cards" data-iflynepal-cards data-max="<?php echo esc_attr( (string) $max ); ?>" data-name="<?php echo esc_attr( $name ); ?>" data-label="<?php echo esc_attr( $item . ' %d' ); ?>"<?php echo $endpoints ? ' data-endpoints data-day-label="' . esc_attr__( 'Day', 'iflynepal' ) . '" data-first-label="' . esc_attr__( 'First', 'iflynepal' ) . '" data-final-label="' . esc_attr__( 'Final', 'iflynepal' ) . '"' : ''; ?>>
 			<div data-iflynepal-cards-list>
 				<?php foreach ( $rows as $index => $row ) : ?>
 					<?php $this->render_card_row( $name, (int) $index, $row, $field ); ?>
@@ -336,6 +338,15 @@ class IFly_Nepal_Package_Details_Box {
 				printf( esc_html__( '+ Add %s', 'iflynepal' ), esc_html( $item ) );
 				?>
 			</button>
+
+			<?php if ( $endpoints ) : ?>
+				<button type="button" class="button button-secondary iflynepal-archive__card-add" data-iflynepal-cards-add-end="first">
+					<?php esc_html_e( '+ Add First Day', 'iflynepal' ); ?>
+				</button>
+				<button type="button" class="button button-secondary iflynepal-archive__card-add" data-iflynepal-cards-add-end="final">
+					<?php esc_html_e( '+ Add Final Day', 'iflynepal' ); ?>
+				</button>
+			<?php endif; ?>
 
 			<?php
 			/*
@@ -436,6 +447,9 @@ class IFly_Nepal_Package_Details_Box {
 			 */
 			?>
 			<div class="iflynepal-archive__card-head">
+				<?php if ( isset( $field['parts']['kind'] ) ) : ?>
+					<input type="hidden" data-iflynepal-card-kind name="<?php echo esc_attr( $base . '[kind]' ); ?>" value="<?php echo esc_attr( isset( $row['kind'] ) ? (string) $row['kind'] : '' ); ?>" />
+				<?php endif; ?>
 				<?php if ( '' !== $badge_key ) : ?>
 					<span class="iflynepal-archive__card-number iflynepal-archive__card-number--field">
 						<span class="iflynepal-archive__card-unit" data-iflynepal-card-unit></span>
@@ -460,7 +474,7 @@ class IFly_Nepal_Package_Details_Box {
 					<?php if ( ! empty( $companion ) && $part_key === $prose_key ) : ?>
 						<?php continue; ?>
 					<?php endif; ?>
-					<?php if ( $part_key === $badge_key ) : ?>
+					<?php if ( $part_key === $badge_key || 'endpoint' === $part['type'] ) : ?>
 						<?php continue; ?>
 					<?php endif; ?>
 					<?php

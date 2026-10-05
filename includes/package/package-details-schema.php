@@ -355,7 +355,7 @@ function iflynepal_package_details_fields() {
 				'label'  => __( 'Descriptive itinerary', 'iflynepal' ),
 				'type'   => 'prose',
 				'button' => __( 'Add Descriptive Itinerary', 'iflynepal' ),
-				'hide'   => __( 'Hide descriptive itinerary', 'iflynepal' ),
+				'hide'   => __( 'Remove descriptive itinerary', 'iflynepal' ),
 				'help'   => __( 'Shown under the timeline on the Detailed Itinerary tab, laid out exactly as it is written here — press Enter for a new paragraph, and use the toolbar for bold, underline and bulleted lists.', 'iflynepal' ),
 			),
 			'summary'     => array(
@@ -392,7 +392,23 @@ function iflynepal_package_details_fields() {
 		'help'    => __( 'One card per week, numbered in the order listed. Use this instead of Days above for a package paced in weeks rather than days — fill in one or the other, not both.', 'iflynepal' ),
 		'item'    => __( 'Week', 'iflynepal' ),
 		'max'     => IFLYNEPAL_PACKAGE_ITINERARY_WEEKS_MAX,
+
+		/*
+		 * Adds the First Day / Final Day buttons: one card pinned above the weeks
+		 * and one below, drawn "Day First" and "Day Final" on the page. They sit
+		 * outside the cap, which counts weeks only.
+		 */
+		'endpoints' => true,
 		'parts'   => array(
+
+			/*
+			 * Which end of the run a card is, when it is not a week: 'first',
+			 * 'final' or empty. Set by the editor's two buttons, never typed.
+			 */
+			'kind'        => array(
+				'label' => __( 'Kind', 'iflynepal' ),
+				'type'  => 'endpoint',
+			),
 			'number'      => array(
 				'label' => __( 'Week label', 'iflynepal' ),
 				'type'  => 'text',
@@ -419,7 +435,7 @@ function iflynepal_package_details_fields() {
 				'label'  => __( 'Descriptive itinerary', 'iflynepal' ),
 				'type'   => 'prose',
 				'button' => __( 'Add Descriptive Itinerary', 'iflynepal' ),
-				'hide'   => __( 'Hide descriptive itinerary', 'iflynepal' ),
+				'hide'   => __( 'Remove descriptive itinerary', 'iflynepal' ),
 				'help'   => __( 'Shown under the week title on the Detailed Itinerary tab, laid out exactly as it is written here — press Enter for a new paragraph, and use the toolbar for bold, underline and bulleted lists.', 'iflynepal' ),
 			),
 			'summary'     => array(

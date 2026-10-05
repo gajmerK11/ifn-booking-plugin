@@ -39,6 +39,39 @@ if ( empty( $iflynepal_items ) ) {
 
 $iflynepal_unit = empty( $iflynepal_days ) ? iflynepal_pkg_t( 'Week' ) : iflynepal_pkg_t( 'Day' );
 
+/*
+ * A week-paced package may pin a First Day card above its weeks and a Final
+ * Day card below them (see the `kind` part of itinerary_weeks). Those two read
+ * "Day First" and "Day Final" and are left out of the week count, so the weeks
+ * between them still number 1, 2, 3.
+ *
+ * Worked out once, for both views, as [ unit, badge ] per card.
+ */
+$iflynepal_labels = array();
+$iflynepal_count  = 0;
+
+foreach ( $iflynepal_items as $iflynepal_index => $iflynepal_item ) {
+	$iflynepal_kind = isset( $iflynepal_item['kind'] ) ? $iflynepal_item['kind'] : '';
+
+	if ( 'first' === $iflynepal_kind || 'final' === $iflynepal_kind ) {
+		$iflynepal_labels[ $iflynepal_index ] = array(
+			iflynepal_pkg_t( 'Day' ),
+			iflynepal_pkg_t( 'first' === $iflynepal_kind ? 'First' : 'Final' ),
+		);
+
+		continue;
+	}
+
+	++$iflynepal_count;
+
+	$iflynepal_badge_text = trim( (string) $iflynepal_item['number'] );
+
+	$iflynepal_labels[ $iflynepal_index ] = array(
+		$iflynepal_unit,
+		'' === $iflynepal_badge_text ? (string) ( empty( $iflynepal_days ) ? $iflynepal_count : $iflynepal_index + 1 ) : $iflynepal_badge_text,
+	);
+}
+
 $iflynepal_heading  = iflynepal_package_field( $iflynepal_id, 'itinerary_heading' );
 $iflynepal_altitude = iflynepal_package_altitude_profile( $iflynepal_id );
 
@@ -185,15 +218,11 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 					 * package-details-schema.php. Anything longer than a plain
 					 * number ("3-4") is set smaller so it still fits the badge.
 					 */
-					$iflynepal_badge = trim( (string) $iflynepal_item['number'] );
-
-					if ( '' === $iflynepal_badge ) {
-						$iflynepal_badge = (string) ( $iflynepal_index + 1 );
-					}
+					list( $iflynepal_card_unit, $iflynepal_badge ) = $iflynepal_labels[ $iflynepal_index ];
 					?>
 					<div class="iflynepal-pkg-sum-day">
 						<span class="iflynepal-pkg-day-badge<?php echo strlen( $iflynepal_badge ) > 2 ? ' iflynepal-pkg-is-wide' : ''; ?>">
-							<small><?php echo esc_html( $iflynepal_unit ); ?></small>
+							<small><?php echo esc_html( $iflynepal_card_unit ); ?></small>
 							<b><?php echo esc_html( $iflynepal_badge ); ?></b>
 						</span>
 						<div>
@@ -210,9 +239,8 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 		<?php foreach ( $iflynepal_items as $iflynepal_index => $iflynepal_item ) : ?>
 			<?php
 			$iflynepal_number   = $iflynepal_index + 1;
-			$iflynepal_badge    = trim( (string) $iflynepal_item['number'] );
-			$iflynepal_badge    = '' === $iflynepal_badge ? (string) $iflynepal_number : $iflynepal_badge;
-			$iflynepal_open     = 0 === $iflynepal_index;
+			list( $iflynepal_card_unit, $iflynepal_badge ) = $iflynepal_labels[ $iflynepal_index ];
+			$iflynepal_open    = 0 === $iflynepal_index;
 			$iflynepal_panel_id = 'ifnpkg-day-' . $iflynepal_number;
 			$iflynepal_stops    = isset( $iflynepal_item['timeline'] ) ? iflynepal_package_timeline( $iflynepal_item['timeline'] ) : array();
 			$iflynepal_prose    = isset( $iflynepal_item['description'] ) ? trim( (string) $iflynepal_item['description'] ) : '';
@@ -220,7 +248,7 @@ foreach ( $iflynepal_items as $iflynepal_item ) {
 			<article class="iflynepal-pkg-day<?php echo $iflynepal_open ? ' iflynepal-pkg-is-open' : ''; ?>">
 				<h3 class="iflynepal-pkg-day-h">
 					<button class="iflynepal-pkg-day-toggle" type="button" aria-expanded="<?php echo $iflynepal_open ? 'true' : 'false'; ?>" aria-controls="<?php echo esc_attr( $iflynepal_panel_id ); ?>">
-						<span class="iflynepal-pkg-day-num<?php echo strlen( $iflynepal_badge ) > 2 ? ' iflynepal-pkg-is-wide' : ''; ?>"><?php echo esc_html( $iflynepal_unit ); ?><b><?php echo esc_html( $iflynepal_badge ); ?></b></span>
+						<span class="iflynepal-pkg-day-num<?php echo strlen( $iflynepal_badge ) > 2 ? ' iflynepal-pkg-is-wide' : ''; ?>"><?php echo esc_html( $iflynepal_card_unit ); ?><b><?php echo esc_html( $iflynepal_badge ); ?></b></span>
 						<?php
 						/*
 						 * A day with no summary line under its title is one line, not
