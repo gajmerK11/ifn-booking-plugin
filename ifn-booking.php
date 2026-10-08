@@ -35,6 +35,7 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   includes/package/package-meta.php                         (done)
  *   includes/frontend/archive-render.php                      (done)
  *   includes/frontend/package-render.php                      (done)
+ *   includes/frontend/package-schema.php                      (done)
  *   includes/frontend/template-loader.php                     (done)
  *   includes/frontend/enqueue.php                             (done)
  *   includes/frontend/testimonial-targets.php                 (done)
@@ -80,6 +81,7 @@ require_once IFLYNEPAL_BOOKING_DIR . 'includes/package/package-meta.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/rewrites/package-rewrites.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/archive-render.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/package-render.php';
+require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/package-schema.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/template-loader.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/enqueue.php';
 require_once IFLYNEPAL_BOOKING_DIR . 'includes/frontend/testimonial-targets.php';
