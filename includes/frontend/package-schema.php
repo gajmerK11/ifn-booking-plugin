@@ -190,7 +190,7 @@ function iflynepal_package_schema_graph( $graph ) {
 
 	$post_id   = (int) get_queried_object_id();
 	$permalink = get_permalink( $post_id );
-	$page_id   = iflynepal_package_schema_piece_id( $graph, 'WebPage' );
+	$page_id   = iflynepal_package_schema_piece_id( $graph, 'ItemPage' );
 	$org_id    = iflynepal_package_schema_piece_id( $graph, 'Organization' );
 
 	$name = trim( wp_strip_all_tags( iflynepal_package_field( $post_id, 'heading' ) ) );
@@ -316,6 +316,26 @@ function iflynepal_package_schema_graph( $graph ) {
 	return $graph;
 }
 add_filter( 'wpseo_schema_graph', 'iflynepal_package_schema_graph' );
+
+/**
+ * Types every package page as an ItemPage.
+ *
+ * A package page is about one thing, the trip, so ItemPage describes it better
+ * than the plain WebPage Yoast prints.
+ *
+ * @since 1.0.0
+ *
+ * @param array $data WebPage graph piece.
+ * @return array
+ */
+function iflynepal_package_schema_item_page( $data ) {
+	if ( is_singular( IFLYNEPAL_PACKAGE_POST_TYPE ) ) {
+		$data['@type'] = 'ItemPage';
+	}
+
+	return $data;
+}
+add_filter( 'wpseo_schema_webpage', 'iflynepal_package_schema_item_page' );
 
 /**
  * Makes Yoast's breadcrumb follow the package type path.
