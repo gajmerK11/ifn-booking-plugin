@@ -31,10 +31,11 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.0.0
  *
- * @param int $limit Most packages to return.
+ * @param int $limit Most packages to return. 0 (the default) means no cap, so a
+ *                  package dated any year ahead appears; only past months drop off.
  * @return WP_Post[] Packages, soonest month first.
  */
-function iflynepal_upcoming_departure_packages( $limit = 12 ) {
+function iflynepal_upcoming_departure_packages( $limit = 0 ) {
 	$posts = get_posts(
 		array(
 			'post_type'        => IFLYNEPAL_PACKAGE_POST_TYPE,
