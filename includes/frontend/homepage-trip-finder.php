@@ -22,15 +22,104 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The top-level package types offered in the picker.
+ * Term meta key behind the "Show in hero search" tick on a package type.
  *
- * Every top-level term, unconditionally — unlike the archive's own filter row
- * (iflynepal_archive_filter_terms()), which only offers a button once a
- * package on the page actually answers to it. That rule exists to stop a
- * filter button from emptying the grid it sits above; this picker links out
- * to each type's own archive rather than filtering anything in place, so a
- * type with nothing published yet is still a real category worth offering —
- * the same reasoning the site's main navigation already follows.
+ * @since 1.0.0
+ */
+const IFLYNEPAL_TRIP_FINDER_TERM_META = 'iflynepal_show_in_hero_search';
+
+/**
+ * Whether a package type has been ticked "Show in hero search".
+ *
+ * A translation counts too. The flag is stored on the term the editor ticked,
+ * and a French or other-language twin is a different term with its own meta —
+ * without this, ticking Retreats in English would leave the French hero picker
+ * with nothing ticked and no way to know why.
+ *
+ * @since 1.0.0
+ *
+ * @param int $term_id Package type term ID.
+ * @return bool
+ */
+function iflynepal_trip_finder_term_is_flagged( $term_id ) {
+	$term_id = (int) $term_id;
+
+	if ( '1' === (string) get_term_meta( $term_id, IFLYNEPAL_TRIP_FINDER_TERM_META, true ) ) {
+		return true;
+	}
+
+	if ( ! function_exists( 'pll_get_term_translations' ) ) {
+		return false;
+	}
+
+	foreach ( (array) pll_get_term_translations( $term_id ) as $translation_id ) {
+		if ( (int) $translation_id !== $term_id && '1' === (string) get_term_meta( (int) $translation_id, IFLYNEPAL_TRIP_FINDER_TERM_META, true ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * The package types an editor ticked "Show in hero search", at any depth.
+ *
+ * Parent or child: the client wants the retreat kinds (Ayurvedic, Monastic …)
+ * offered, and those are children of Retreats, so the tick cannot be limited to
+ * top-level terms.
+ *
+ * @since 1.0.0
+ *
+ * @return WP_Term[] Ticked terms, taxonomy order. Empty when none is ticked.
+ */
+function iflynepal_trip_finder_flagged_terms() {
+	static $cache = array();
+
+	$lang = function_exists( 'pll_current_language' ) ? (string) pll_current_language() : '';
+
+	if ( isset( $cache[ $lang ] ) ) {
+		return $cache[ $lang ];
+	}
+
+	$cache[ $lang ] = array();
+
+	if ( ! taxonomy_exists( IFLYNEPAL_PACKAGE_TAXONOMY ) ) {
+		return $cache[ $lang ];
+	}
+
+	$terms = get_terms(
+		array(
+			'taxonomy'   => IFLYNEPAL_PACKAGE_TAXONOMY,
+			'hide_empty' => false,
+		)
+	);
+
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return $cache[ $lang ];
+	}
+
+	foreach ( $terms as $term ) {
+		if ( iflynepal_trip_finder_term_is_flagged( $term->term_id ) ) {
+			$cache[ $lang ][] = $term;
+		}
+	}
+
+	return $cache[ $lang ];
+}
+
+/**
+ * The package types offered in the picker.
+ *
+ * The types an editor ticked "Show in hero search" on the Package Types screen.
+ * Until one is ticked it is every top-level term, exactly as before, so the
+ * picker never goes empty just because nobody has chosen yet.
+ *
+ * Every offered term is listed whether or not it has a package yet — unlike the
+ * archive's own filter row (iflynepal_archive_filter_terms()), which only offers
+ * a button once a package on the page actually answers to it. That rule exists
+ * to stop a filter button from emptying the grid it sits above; this picker links
+ * out to each type's own archive rather than filtering anything in place, so a
+ * type with nothing published yet is still a real category worth offering.
  *
  * @since 1.0.0
  *
@@ -41,21 +130,25 @@ function iflynepal_trip_finder_types() {
 		return array();
 	}
 
-	$top_level = get_terms(
-		array(
-			'taxonomy'   => IFLYNEPAL_PACKAGE_TAXONOMY,
-			'parent'     => 0,
-			'hide_empty' => false,
-		)
-	);
+	$terms = iflynepal_trip_finder_flagged_terms();
 
-	if ( is_wp_error( $top_level ) || ! $top_level ) {
+	if ( ! $terms ) {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => IFLYNEPAL_PACKAGE_TAXONOMY,
+				'parent'     => 0,
+				'hide_empty' => false,
+			)
+		);
+	}
+
+	if ( is_wp_error( $terms ) || ! $terms ) {
 		return array();
 	}
 
 	$types = array();
 
-	foreach ( $top_level as $term ) {
+	foreach ( $terms as $term ) {
 		$types[] = array(
 			'slug'  => $term->slug,
 			'label' => $term->name,

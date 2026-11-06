@@ -93,7 +93,7 @@ function iflynepal_explore_top_level_types() {
 function iflynepal_explore_selected_types() {
 	$top_level = iflynepal_explore_top_level_types();
 
-	if ( ! $top_level ) {
+	if ( ! $top_level && ! iflynepal_trip_finder_flagged_terms() ) {
 		return array();
 	}
 
@@ -117,15 +117,27 @@ function iflynepal_explore_selected_types() {
 		return array();
 	}
 
+	/*
+	 * Top-level types, plus any type ticked "Show in hero search" — which may be a
+	 * child (Ayurvedic under Retreats), since that is what the hero picker offers.
+	 * Both are an allow-list: an arbitrary child slug typed into the URL is still
+	 * junk. Keyed by term ID so a term in both lists is read once.
+	 */
+	$allowed = array();
+
+	foreach ( array_merge( $top_level, iflynepal_trip_finder_flagged_terms() ) as $term ) {
+		$allowed[ $term->term_id ] = $term;
+	}
+
 	$selected = array();
 
-	foreach ( $top_level as $term ) {
+	foreach ( $allowed as $term ) {
 		if ( isset( $requested[ $term->slug ] ) ) {
 			$selected[] = $term;
 		}
 	}
 
-	// Every requested slug was junk or belonged to a child term — nothing to show.
+	// Every requested slug was junk — nothing to show.
 	return $selected;
 }
 

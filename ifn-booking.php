@@ -58,6 +58,7 @@ define( 'IFLYNEPAL_BOOKING_URL', plugin_dir_url( __FILE__ ) );
  *   admin/class-ifly-nepal-package-type-meta-box.php          (built, not loaded)      (is_admin only)
  *   admin/class-ifly-nepal-package-box-state.php              (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-type-archive-fields.php    (done)                   (is_admin only)
+ *   admin/class-ifly-nepal-package-type-hero-flag.php         (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-details-meta-box.php       (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-homepage-box.php           (done)                   (is_admin only)
  *   admin/class-ifly-nepal-package-details-box.php            (done)                   (is_admin only)
@@ -145,6 +146,7 @@ if ( is_admin() ) {
 	 */
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-box-state.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-type-archive-fields.php';
+	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-type-hero-flag.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-details-meta-box.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-homepage-box.php';
 	require_once IFLYNEPAL_BOOKING_DIR . 'admin/class-ifly-nepal-package-details-box.php';
